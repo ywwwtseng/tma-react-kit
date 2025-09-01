@@ -18,6 +18,7 @@
     "@types/react": ">=18.0.0"
   },
   "dependencies": {
-    "@telegram-apps/sdk-react": "^3.3.7"
+    "@telegram-apps/sdk-react": "^3.3.7",
+    "@telegram-apps/transformers": "^2.2.6"
   }
 }
