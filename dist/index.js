@@ -65,7 +65,77 @@ function useTelegramSDK(env) {
     };
   }, []);
 }
+
+// src/store/TMAContext.tsx
+import React from "react";
+import { init, postEvent } from "@telegram-apps/sdk-react";
+
+// src/hooks/useClientOnce.ts
+import { useEffect, useRef } from "react";
+function useClientOnce(setup) {
+  const canCall = useRef(true);
+  useEffect(() => {
+    if (!canCall.current) {
+      return;
+    }
+    canCall.current = false;
+    const destroy = setup();
+    return () => {
+      if (destroy) {
+        destroy();
+      }
+    };
+  }, []);
+}
+
+// src/store/TMAContext.tsx
+import { jsx } from "react/jsx-runtime";
+var TMAContext = React.createContext(void 0);
+function TMAProvider({
+  env,
+  background = "#000000",
+  children
+}) {
+  const { launchParams, initDataRaw } = useTelegramSDK(env);
+  const user = launchParams?.tgWebAppData?.user;
+  const platform = launchParams?.tgWebAppPlatform;
+  const [avatar, setAvatar] = React.useState(null);
+  const value = React.useMemo(() => ({
+    initDataRaw,
+    user,
+    platform,
+    avatar
+  }), [initDataRaw, user, platform, avatar]);
+  useClientOnce(() => {
+    if (env !== TELEGRAM_ENV.MOCK && launchParams) {
+      init();
+      postEvent("web_app_set_header_color", { color: background });
+      postEvent("web_app_set_bottom_bar_color", { color: background });
+      postEvent("web_app_set_background_color", { color: background });
+    }
+  });
+  React.useEffect(() => {
+    if (user?.photo_url) {
+      const image = new Image();
+      image.onload = () => {
+        setAvatar(image);
+      };
+      image.src = user.photo_url;
+    }
+  }, [user]);
+  return /* @__PURE__ */ jsx(TMAContext.Provider, { value, children });
+}
+function useTMA() {
+  const context = React.use(TMAContext);
+  if (!context) {
+    throw new Error("useTMA must be used within a TMAProvider");
+  }
+  return context;
+}
 export {
   TELEGRAM_ENV,
+  TMAContext,
+  TMAProvider,
+  useTMA,
   useTelegramSDK
 };

@@ -1,4 +1,7 @@
 import { LaunchParamsLike } from '@telegram-apps/transformers';
+import * as react_jsx_runtime from 'react/jsx-runtime';
+import React from 'react';
+import { User, Platform } from '@telegram-apps/sdk-react';
 
 declare const TELEGRAM_ENV: {
     MOCK: {
@@ -105,4 +108,18 @@ declare function useTelegramSDK(env?: typeof TELEGRAM_ENV[keyof typeof TELEGRAM_
     initDataRaw: string;
 };
 
-export { TELEGRAM_ENV, useTelegramSDK };
+interface TMAContextState {
+    initDataRaw: string | null | undefined;
+    user: User | undefined;
+    platform: Platform | undefined;
+    avatar: HTMLImageElement | null;
+}
+declare const TMAContext: React.Context<TMAContextState>;
+interface TMAProviderProps extends React.PropsWithChildren {
+    env?: typeof TELEGRAM_ENV[keyof typeof TELEGRAM_ENV];
+    background?: `#${string}`;
+}
+declare function TMAProvider({ env, background, children, }: TMAProviderProps): react_jsx_runtime.JSX.Element;
+declare function useTMA(): TMAContextState;
+
+export { TELEGRAM_ENV, TMAContext, type TMAContextState, TMAProvider, type TMAProviderProps, useTMA, useTelegramSDK };
