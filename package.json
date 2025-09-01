@@ -1,0 +1,23 @@
+{
+  "name": "tma-react-kit",
+  "description": "library for seamless communication with telegram mini apps functionality",
+  "version": "0.0.1",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsup src/index.tsx --format esm --dts --clean"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.0",
+    "typescript": "^5"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "@types/react": ">=18.0.0"
+  },
+  "dependencies": {
+    "@telegram-apps/sdk-react": "^3.3.7"
+  }
+}
