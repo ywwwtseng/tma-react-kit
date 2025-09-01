@@ -108,18 +108,52 @@ declare function useTelegramSDK(env?: typeof TELEGRAM_ENV[keyof typeof TELEGRAM_
     initDataRaw: string;
 };
 
-interface TMAContextState {
+interface TMASDKContextState {
     initDataRaw: string | null | undefined;
     user: User | undefined;
     platform: Platform | undefined;
     avatar: HTMLImageElement | null;
 }
-declare const TMAContext: React.Context<TMAContextState>;
-interface TMAProviderProps extends React.PropsWithChildren {
+declare const TMASDKContext: React.Context<TMASDKContextState>;
+interface TMASDKProviderProps extends React.PropsWithChildren {
     env?: typeof TELEGRAM_ENV[keyof typeof TELEGRAM_ENV];
     background?: `#${string}`;
 }
-declare function TMAProvider({ env, background, children, }: TMAProviderProps): react_jsx_runtime.JSX.Element;
-declare function useTMA(): TMAContextState;
+declare function TMASDKProvider({ env, background, children, }: TMASDKProviderProps): react_jsx_runtime.JSX.Element;
+declare function useTMASDK(): TMASDKContextState;
 
-export { TELEGRAM_ENV, TMAContext, type TMAContextState, TMAProvider, type TMAProviderProps, useTMA, useTelegramSDK };
+interface TMAProviderProps extends React.PropsWithChildren, Omit<TMASDKProviderProps, 'children'> {
+}
+declare function TMAProvider({ env, background, children }: TMAProviderProps): react_jsx_runtime.JSX.Element;
+
+declare const HEADER_HEIGHT = 56;
+declare const TAB_BAR_HEIGHT = 60;
+declare function Root({ children }: React.PropsWithChildren): react_jsx_runtime.JSX.Element;
+declare function Header({ className, logo, children }: React.PropsWithChildren<{
+    className?: string;
+    logo: React.ReactElement;
+}>): react_jsx_runtime.JSX.Element;
+declare function Main({ className, children }: React.PropsWithChildren<{
+    className?: string;
+}>): react_jsx_runtime.JSX.Element;
+declare function TabBar({ className, children }: React.PropsWithChildren<{
+    className?: string;
+}>): react_jsx_runtime.JSX.Element;
+declare namespace TabBar {
+    var Item: typeof TabBarItem;
+}
+declare function TabBarItem({ className, icon: Icon, text, active, onClick, }: {
+    className?: string;
+    icon: React.ElementType;
+    text: React.ReactNode;
+    active?: boolean;
+    onClick?: () => void;
+}): react_jsx_runtime.JSX.Element;
+declare const Layout: {
+    Root: typeof Root;
+    Header: typeof Header;
+    Main: typeof Main;
+    TabBar: typeof TabBar;
+};
+
+export { HEADER_HEIGHT, Layout, TAB_BAR_HEIGHT, TELEGRAM_ENV, TMAProvider, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, useTMASDK, useTelegramSDK };

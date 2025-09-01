@@ -66,7 +66,7 @@ function useTelegramSDK(env) {
   }, []);
 }
 
-// src/store/TMAContext.tsx
+// src/store/TMASDKContext.tsx
 import React from "react";
 import { init, postEvent } from "@telegram-apps/sdk-react";
 
@@ -88,10 +88,10 @@ function useClientOnce(setup) {
   }, []);
 }
 
-// src/store/TMAContext.tsx
+// src/store/TMASDKContext.tsx
 import { jsx } from "react/jsx-runtime";
-var TMAContext = React.createContext(void 0);
-function TMAProvider({
+var TMASDKContext = React.createContext(void 0);
+function TMASDKProvider({
   env,
   background = "#000000",
   children
@@ -123,19 +123,173 @@ function TMAProvider({
       image.src = user.photo_url;
     }
   }, [user]);
-  return /* @__PURE__ */ jsx(TMAContext.Provider, { value, children });
+  return /* @__PURE__ */ jsx(TMASDKContext.Provider, { value, children });
 }
-function useTMA() {
-  const context = React.use(TMAContext);
+function useTMASDK() {
+  const context = React.use(TMASDKContext);
   if (!context) {
-    throw new Error("useTMA must be used within a TMAProvider");
+    throw new Error("useTMA must be used within a TMASDKProvider");
   }
   return context;
 }
+
+// src/store/TMAContext.tsx
+import { jsx as jsx2 } from "react/jsx-runtime";
+function TMAProvider({ env, background, children }) {
+  return /* @__PURE__ */ jsx2(TMASDKProvider, { env, background, children });
+}
+
+// src/components/Layout.tsx
+import React2 from "react";
+import { postEvent as postEvent2 } from "@telegram-apps/sdk-react";
+import { jsx as jsx3, jsxs } from "react/jsx-runtime";
+var HEADER_HEIGHT = 56;
+var TAB_BAR_HEIGHT = 60;
+function Root({ children }) {
+  const { platform } = useTMASDK();
+  const safeAreaBottom = platform === "ios" ? 20 : 12;
+  return /* @__PURE__ */ jsx3("div", { style: {
+    display: "flex",
+    flexDirection: "column",
+    width: "100vw",
+    height: "100vh",
+    paddingTop: HEADER_HEIGHT,
+    paddingBottom: TAB_BAR_HEIGHT + safeAreaBottom,
+    overflow: "hidden"
+  }, children });
+}
+function Header({ className, logo, children }) {
+  return /* @__PURE__ */ jsxs(
+    "div",
+    {
+      className,
+      style: {
+        width: "100vw",
+        height: HEADER_HEIGHT,
+        left: 0,
+        top: 0,
+        padding: "8px 16px",
+        position: "fixed",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: "8px"
+      },
+      children: [
+        logo,
+        /* @__PURE__ */ jsx3(
+          "div",
+          {
+            style: {
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px"
+            },
+            children
+          }
+        )
+      ]
+    }
+  );
+}
+function Main({ className, children }) {
+  return /* @__PURE__ */ jsx3(
+    "div",
+    {
+      className,
+      style: {
+        height: "100%",
+        overflowY: "auto"
+      },
+      children
+    }
+  );
+}
+function TabBar({ className, children }) {
+  const { platform } = useTMASDK();
+  const safeAreaBottom = platform === "ios" ? 20 : 12;
+  return /* @__PURE__ */ jsx3(
+    "div",
+    {
+      className,
+      style: {
+        width: "100vw",
+        height: TAB_BAR_HEIGHT + safeAreaBottom,
+        left: 0,
+        bottom: 0,
+        padding: "4px 32px 0px",
+        position: "fixed",
+        display: "flex",
+        alignItems: "start",
+        justifyContent: "space-between"
+      },
+      children
+    }
+  );
+}
+function TabBarItem({
+  className,
+  icon: Icon,
+  text,
+  active = false,
+  onClick
+}) {
+  const [isActivating, setIsActivating] = React2.useState(false);
+  return /* @__PURE__ */ jsxs(
+    "button",
+    {
+      className,
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        outline: "none",
+        gap: "2px",
+        color: active || isActivating ? "white" : "#7c7c7c",
+        transition: "color 200ms"
+      },
+      onClick: () => {
+        if (active || isActivating) return;
+        postEvent2("web_app_trigger_haptic_feedback", {
+          type: "impact",
+          impact_style: "light"
+        });
+        setIsActivating(true);
+        setTimeout(() => {
+          setIsActivating(false);
+        }, 200);
+        onClick?.();
+      },
+      children: [
+        /* @__PURE__ */ jsx3("div", { style: {
+          width: "30px",
+          height: "30px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        }, children: /* @__PURE__ */ jsx3(Icon, { width: 28, height: 28 }) }),
+        text
+      ]
+    }
+  );
+}
+TabBar.Item = TabBarItem;
+var Layout = {
+  Root,
+  Header,
+  Main,
+  TabBar
+};
 export {
+  HEADER_HEIGHT,
+  Layout,
+  TAB_BAR_HEIGHT,
   TELEGRAM_ENV,
-  TMAContext,
   TMAProvider,
-  useTMA,
+  TMASDKContext,
+  TMASDKProvider,
+  useTMASDK,
   useTelegramSDK
 };
