@@ -6,6 +6,7 @@
       "dependencies": {
         "@telegram-apps/sdk-react": "^3.3.7",
         "@telegram-apps/transformers": "^2.2.6",
+        "request": "github:ywwwtseng/request#bc19773",
       },
       "devDependencies": {
         "tsup": "^8.5.0",
@@ -253,6 +254,8 @@
     "react": ["react@19.1.1", "", {}, "sha512-w8nqGImo45dmMIfljjMwOGtbmC/mk4CMYhWIicdSflH91J9TyCyczcPFXJzrZ/ZXcgGRFeP6BU0BEJTw6tZdfQ=="],
 
     "readdirp": ["readdirp@4.1.2", "", {}, "sha512-GDhwkLfywWL2s6vEjyhri+eXmfH6j1L7JE27WhqLeYzoh/A3DBaYGEj2H/HFZCn/kMfim73FXxEJTw06WtxQwg=="],
+
+    "request": ["request@github:ywwwtseng/request#bc19773", {}, "ywwwtseng-request-bc19773"],
 
     "resolve-from": ["resolve-from@5.0.0", "", {}, "sha512-qYg9KP24dD5qka9J47d0aVky0N+b4fTU89LN9iDnjB5waksiC49rvMB0PrUJQGoTmH50XPiqOvAjDfaijGxYZw=="],
 

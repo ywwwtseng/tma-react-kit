@@ -1,14 +1,21 @@
 import React from 'react';
 import { TMASDKProvider, TMASDKProviderProps } from './TMASDKContext';
+import { TMAClientProvider, TMAClientProviderProps} from './TMAClientContext';
 
-interface TMAProviderProps extends React.PropsWithChildren, Omit<TMASDKProviderProps, 'children'> {
-  
+interface TMAProviderProps extends
+  React.PropsWithChildren,
+  Omit<TMASDKProviderProps, 'children'>,
+  Omit<TMAClientProviderProps, 'children'>
+{
+
 };
 
-export function TMAProvider({ env, background, children }: TMAProviderProps) {
+export function TMAProvider({ env, background, url, children }: TMAProviderProps) {
   return (
     <TMASDKProvider env={env} background={background}>
-      {children}
+      <TMAClientProvider url={url}>
+        {children}
+      </TMAClientProvider>
     </TMASDKProvider>
   );
 }

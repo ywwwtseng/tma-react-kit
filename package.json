@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@telegram-apps/sdk-react": "^3.3.7",
-    "@telegram-apps/transformers": "^2.2.6"
+    "@telegram-apps/transformers": "^2.2.6",
+    "request": "github:ywwwtseng/request#bc19773"
   }
 }

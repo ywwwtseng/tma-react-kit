@@ -2,6 +2,7 @@ import { LaunchParamsLike } from '@telegram-apps/transformers';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import React from 'react';
 import { User, Platform } from '@telegram-apps/sdk-react';
+import { Request } from 'request';
 
 declare const TELEGRAM_ENV: {
     MOCK: {
@@ -122,9 +123,19 @@ interface TMASDKProviderProps extends React.PropsWithChildren {
 declare function TMASDKProvider({ env, background, children, }: TMASDKProviderProps): react_jsx_runtime.JSX.Element;
 declare function useTMASDK(): TMASDKContextState;
 
-interface TMAProviderProps extends React.PropsWithChildren, Omit<TMASDKProviderProps, 'children'> {
+interface TMAClientContextState {
+    request: Request;
 }
-declare function TMAProvider({ env, background, children }: TMAProviderProps): react_jsx_runtime.JSX.Element;
+declare const TMAClientContext: React.Context<TMAClientContextState>;
+interface TMAClientProviderProps extends React.PropsWithChildren {
+    url: string;
+}
+declare function TMAClientProvider({ url, children }: TMAClientProviderProps): react_jsx_runtime.JSX.Element;
+declare function useTMAClient(): TMAClientContextState;
+
+interface TMAProviderProps extends React.PropsWithChildren, Omit<TMASDKProviderProps, 'children'>, Omit<TMAClientProviderProps, 'children'> {
+}
+declare function TMAProvider({ env, background, url, children }: TMAProviderProps): react_jsx_runtime.JSX.Element;
 
 declare const HEADER_HEIGHT = 56;
 declare const TAB_BAR_HEIGHT = 60;
@@ -156,4 +167,4 @@ declare const Layout: {
     TabBar: typeof TabBar;
 };
 
-export { HEADER_HEIGHT, Layout, TAB_BAR_HEIGHT, TELEGRAM_ENV, TMAProvider, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, useTMASDK, useTelegramSDK };
+export { HEADER_HEIGHT, Layout, TAB_BAR_HEIGHT, TELEGRAM_ENV, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAProvider, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, useTMAClient, useTMASDK, useTelegramSDK };

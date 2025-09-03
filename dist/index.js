@@ -133,22 +133,49 @@ function useTMASDK() {
   return context;
 }
 
-// src/store/TMAContext.tsx
+// src/store/TMAClientContext.tsx
+import React2 from "react";
+import { Request } from "request";
 import { jsx as jsx2 } from "react/jsx-runtime";
-function TMAProvider({ env, background, children }) {
-  return /* @__PURE__ */ jsx2(TMASDKProvider, { env, background, children });
+var TMAClientContext = React2.createContext(void 0);
+function TMAClientProvider({ url, children }) {
+  const { initDataRaw } = useTMASDK();
+  const request = React2.useMemo(() => new Request({
+    baseUrl: url,
+    transformRequest(headers) {
+      headers.set("Authorization", `tma ${initDataRaw}`);
+      return headers;
+    }
+  }), [url, initDataRaw]);
+  const value = React2.useMemo(() => ({
+    request
+  }), [request]);
+  return /* @__PURE__ */ jsx2(TMAClientContext.Provider, { value, children });
+}
+function useTMAClient() {
+  const context = React2.use(TMAClientContext);
+  if (!context) {
+    throw new Error("useTMA must be used within a TMAClientProvider");
+  }
+  return context;
+}
+
+// src/store/TMAContext.tsx
+import { jsx as jsx3 } from "react/jsx-runtime";
+function TMAProvider({ env, background, url, children }) {
+  return /* @__PURE__ */ jsx3(TMASDKProvider, { env, background, children: /* @__PURE__ */ jsx3(TMAClientProvider, { url, children }) });
 }
 
 // src/components/Layout.tsx
-import React2 from "react";
+import React3 from "react";
 import { postEvent as postEvent2 } from "@telegram-apps/sdk-react";
-import { jsx as jsx3, jsxs } from "react/jsx-runtime";
+import { jsx as jsx4, jsxs } from "react/jsx-runtime";
 var HEADER_HEIGHT = 56;
 var TAB_BAR_HEIGHT = 60;
 function Root({ children }) {
   const { platform } = useTMASDK();
   const safeAreaBottom = platform === "ios" ? 20 : 12;
-  return /* @__PURE__ */ jsx3("div", { style: {
+  return /* @__PURE__ */ jsx4("div", { style: {
     display: "flex",
     flexDirection: "column",
     width: "100vw",
@@ -177,7 +204,7 @@ function Header({ className, logo, children }) {
       },
       children: [
         logo,
-        /* @__PURE__ */ jsx3(
+        /* @__PURE__ */ jsx4(
           "div",
           {
             style: {
@@ -194,7 +221,7 @@ function Header({ className, logo, children }) {
   );
 }
 function Main({ className, children }) {
-  return /* @__PURE__ */ jsx3(
+  return /* @__PURE__ */ jsx4(
     "div",
     {
       className,
@@ -209,7 +236,7 @@ function Main({ className, children }) {
 function TabBar({ className, children }) {
   const { platform } = useTMASDK();
   const safeAreaBottom = platform === "ios" ? 20 : 12;
-  return /* @__PURE__ */ jsx3(
+  return /* @__PURE__ */ jsx4(
     "div",
     {
       className,
@@ -235,7 +262,7 @@ function TabBarItem({
   active = false,
   onClick
 }) {
-  const [isActivating, setIsActivating] = React2.useState(false);
+  const [isActivating, setIsActivating] = React3.useState(false);
   return /* @__PURE__ */ jsxs(
     "button",
     {
@@ -263,13 +290,13 @@ function TabBarItem({
         onClick?.();
       },
       children: [
-        /* @__PURE__ */ jsx3("div", { style: {
+        /* @__PURE__ */ jsx4("div", { style: {
           width: "30px",
           height: "30px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center"
-        }, children: /* @__PURE__ */ jsx3(Icon, { width: 28, height: 28 }) }),
+        }, children: /* @__PURE__ */ jsx4(Icon, { width: 28, height: 28 }) }),
         text
       ]
     }
@@ -287,9 +314,12 @@ export {
   Layout,
   TAB_BAR_HEIGHT,
   TELEGRAM_ENV,
+  TMAClientContext,
+  TMAClientProvider,
   TMAProvider,
   TMASDKContext,
   TMASDKProvider,
+  useTMAClient,
   useTMASDK,
   useTelegramSDK
 };
