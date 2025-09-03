@@ -156,11 +156,13 @@ interface ResponseDataCommand {
 interface ResponseData {
     commands: ResponseDataCommand[];
 }
-declare const useTMAStore: zustand.UseBoundStore<zustand.StoreApi<{
+type Store = {
     state: Record<string, unknown>;
     status: Status;
+    loading: string[];
     update: (action: ResponseDataCommand) => void;
-}>>;
+};
+declare const useTMAStore: zustand.UseBoundStore<zustand.StoreApi<Store>>;
 declare function TMAStateProvider({ children }: TMAStateProviderProps): react_jsx_runtime.JSX.Element;
 declare function useTMAState(): TMAStateContextState;
 
@@ -216,4 +218,4 @@ interface TypographyProps extends ReactKit.TypographyProps {
 }
 declare function Typography({ i18n, params, children, ...props }: TypographyProps): react_jsx_runtime.JSX.Element;
 
-export { HEADER_HEIGHT, Layout, type Locale, type Locales, type ResponseData, type ResponseDataCommand, Status, TAB_BAR_HEIGHT, TELEGRAM_ENV, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMAProvider, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStateContext, type TMAStateContextState, TMAStateProvider, type TMAStateProviderProps, Typography, useTMAClient, useTMAI18n, useTMASDK, useTMAState, useTMAStore, useTelegramSDK };
+export { HEADER_HEIGHT, Layout, type Locale, type Locales, type ResponseData, type ResponseDataCommand, Status, type Store, TAB_BAR_HEIGHT, TELEGRAM_ENV, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMAProvider, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStateContext, type TMAStateContextState, TMAStateProvider, type TMAStateProviderProps, Typography, useTMAClient, useTMAI18n, useTMASDK, useTMAState, useTMAStore, useTelegramSDK };

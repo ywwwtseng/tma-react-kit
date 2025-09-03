@@ -206,14 +206,29 @@ var TMAStateContext = React3.createContext(void 0);
 var useTMAStore = create((set) => ({
   state: {},
   status: 0 /* Loading */,
+  loading: [],
   update: (command) => {
-    set((store) => update(store, command.update, command.payload));
+    set((store) => {
+      if (typeof command.payload === "function") {
+        return command.payload(store);
+      } else {
+        return update(store, command.update, command.payload);
+      }
+    });
   }
 }));
 function TMAStateProvider({ children }) {
   const client = useTMAClient();
   const { update: update2 } = useTMAStore();
   const query = React3.useCallback((path) => {
+    const key = JSON.stringify(path);
+    update2({
+      update: ["loading"],
+      payload: (store) => ({
+        ...store,
+        loading: [...store.loading, key]
+      })
+    });
     return client.query(path).then((res) => {
       for (const command of res.commands) {
         if (command.update?.[0] === "state") {
@@ -221,9 +236,25 @@ function TMAStateProvider({ children }) {
         }
       }
       return res;
+    }).finally(() => {
+      update2({
+        update: ["loading"],
+        payload: (store) => ({
+          ...store,
+          loading: store.loading.filter((k) => k !== key)
+        })
+      });
     });
   }, [client.query]);
   const mutate = React3.useCallback((action, payload) => {
+    const key = JSON.stringify({ action, payload });
+    update2({
+      update: ["loading"],
+      payload: (store) => ({
+        ...store,
+        loading: [...store.loading, key]
+      })
+    });
     return client.mutate(action, payload).then((res) => {
       for (const command of res.commands) {
         if (command.update?.[0] === "state") {
@@ -231,6 +262,14 @@ function TMAStateProvider({ children }) {
         }
       }
       return res;
+    }).finally(() => {
+      update2({
+        update: ["loading"],
+        payload: (store) => ({
+          ...store,
+          loading: store.loading.filter((k) => k !== key)
+        })
+      });
     });
   }, [client.mutate]);
   React3.useEffect(() => {

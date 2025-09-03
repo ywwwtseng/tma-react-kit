@@ -30,15 +30,25 @@ export interface ResponseData {
   commands: ResponseDataCommand[];
 }
 
-export const useTMAStore = create<{
-  state: Record<string, unknown>,
+export type Store = {
   status: Status,
+  state: Record<string, unknown>,
+  loading: string[],
   update: (action: ResponseDataCommand) => void,
-}>((set) => ({
-  state: {},
+}
+
+export const useTMAStore = create<Store>((set) => ({
   status: Status.Loading,
+  state: {},
+  loading: [],
   update: (command: ResponseDataCommand) => {
-    set((store: { state: Record<string, unknown> }) => update(store, command.update, command.payload));
+    set((store) => {
+      if (typeof command.payload === 'function') {
+        return command.payload(store);
+      } else {
+        return update(store, command.update, command.payload);
+      }
+    });
   }
 }));
 
@@ -47,6 +57,16 @@ export function TMAStateProvider({ children }: TMAStateProviderProps) {
   const { update } = useTMAStore();
 
   const query = React.useCallback((path: string | string[]) => {
+    const key = JSON.stringify(path);
+
+    update({
+      update: ['loading'],
+      payload: (store: Store) => ({
+        ...store,
+        loading: [...store.loading, key],
+      }),
+    });
+
     return client.query(path)
       .then((res: ResponseData) => {
         for (const command of res.commands) {
@@ -56,10 +76,29 @@ export function TMAStateProvider({ children }: TMAStateProviderProps) {
         }
 
         return res;
+      })
+      .finally(() => {
+        update({
+          update: ['loading'],
+          payload: (store: Store) => ({
+            ...store,
+            loading: store.loading.filter((k) => k !== key),
+          }),
+        });
       });
   }, [client.query]);
 
   const mutate = React.useCallback((action: string, payload?: unknown) => {
+    const key = JSON.stringify({ action, payload });
+
+    update({
+      update: ['loading'],
+      payload: (store: Store) => ({
+        ...store,
+        loading: [...store.loading, key],
+      }),
+    });
+
     return client.mutate(action, payload)
       .then((res: ResponseData) => {
         for (const command of res.commands) {
@@ -69,6 +108,15 @@ export function TMAStateProvider({ children }: TMAStateProviderProps) {
         }
 
         return res;
+      })
+      .finally(() => {
+        update({
+          update: ['loading'],
+          payload: (store: Store) => ({
+            ...store,
+            loading: store.loading.filter((k) => k !== key),
+          }),
+        });
       });
   }, [client.mutate]);
 
