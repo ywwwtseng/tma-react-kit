@@ -10,14 +10,14 @@ export enum Status {
   Forbidden,
 }
 
-export interface TMAStateContextState {
+export interface TMAStoreContextState {
   query: (path: string | string[]) => Promise<unknown>;
   mutate: (action: string, payload: unknown) => Promise<unknown>;
 }
 
-export const TMAStateContext = React.createContext<TMAStateContextState | undefined>(undefined);
+export const TMAStoreContext = React.createContext<TMAStoreContextState | undefined>(undefined);
 
-export interface TMAStateProviderProps extends React.PropsWithChildren {
+export interface TMAStoreProviderProps extends React.PropsWithChildren {
 }
 
 export interface ResponseDataCommand {
@@ -34,25 +34,34 @@ export type Store = {
   status: Status,
   state: Record<string, unknown>,
   loading: string[],
-  update: (action: ResponseDataCommand) => void,
+  update: (commands: ResponseDataCommand | ResponseDataCommand[]) => void,
 }
 
 export const useTMAStore = create<Store>((set) => ({
   status: Status.Loading,
   state: {},
   loading: [],
-  update: (command: ResponseDataCommand) => {
+  update: (commands: ResponseDataCommand |ResponseDataCommand[]) => {
     set((store) => {
-      if (typeof command.payload === 'function') {
-        return command.payload(store);
-      } else {
-        return update(store, command.update, command.payload);
+      commands = Array.isArray(commands) ? commands : [commands];
+
+      for (const command of commands) {
+        if (typeof command.payload === 'function') {
+          store = command.payload(store);
+        } else {
+          store = {
+            ...store,
+            state: update(store.state, command.update, command.payload),
+          };
+        }
       }
+
+      return store;
     });
   }
 }));
 
-export function TMAStateProvider({ children }: TMAStateProviderProps) {
+export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
   const client = useTMAClient();
   const { update } = useTMAStore();
 
@@ -69,15 +78,20 @@ export function TMAStateProvider({ children }: TMAStateProviderProps) {
 
     return client.query(path)
       .then((res: ResponseData) => {
-        for (const command of res.commands) {
-          if (command.update?.[0] === 'state') {
-            update(command);
+        update([
+          ...res.commands,
+          {
+            update: ['loading'],
+            payload: (store: Store) => ({
+              ...store,
+              loading: store.loading.filter((k) => k !== key),
+            }),
           }
-        }
+        ]);
 
         return res;
       })
-      .finally(() => {
+      .catch(() => {
         update({
           update: ['loading'],
           payload: (store: Store) => ({
@@ -101,15 +115,20 @@ export function TMAStateProvider({ children }: TMAStateProviderProps) {
 
     return client.mutate(action, payload)
       .then((res: ResponseData) => {
-        for (const command of res.commands) {
-          if (command.update?.[0] === 'state') {
-            update(command);
+        update([
+          ...res.commands,
+          {
+            update: ['loading'],
+            payload: (store: Store) => ({
+              ...store,
+              loading: store.loading.filter((k) => k !== key),
+            }),
           }
-        }
+        ]);
 
         return res;
       })
-      .finally(() => {
+      .catch(() => {
         update({
           update: ['loading'],
           payload: (store: Store) => ({
@@ -143,18 +162,28 @@ export function TMAStateProvider({ children }: TMAStateProviderProps) {
   }), [query, mutate]);
 
   return (
-    <TMAStateContext.Provider value={value}>
+    <TMAStoreContext.Provider value={value}>
       {children}
-    </TMAStateContext.Provider>
+    </TMAStoreContext.Provider>
   );
 }
 
-export function useTMAState(): TMAStateContextState {
-  const context = React.use(TMAStateContext);
+export function useTMAStoreQuery(): TMAStoreContextState['query'] {
+  const context = React.use(TMAStoreContext);
 
   if (!context) {
-    throw new Error('useTMA must be used within a TMAStateProvider');
+    throw new Error('useTMA must be used within a TMAStoreProvider');
   }
 
-  return context;
+  return context.query;
+}
+
+export function useTMAStoreMutate(): TMAStoreContextState['mutate'] {
+  const context = React.use(TMAStoreContext);
+
+  if (!context) {
+    throw new Error('useTMA must be used within a TMAStoreProvider');
+  }
+
+  return context.mutate;
 }

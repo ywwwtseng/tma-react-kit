@@ -141,12 +141,12 @@ declare enum Status {
     Unauthenticated = 2,
     Forbidden = 3
 }
-interface TMAStateContextState {
+interface TMAStoreContextState {
     query: (path: string | string[]) => Promise<unknown>;
     mutate: (action: string, payload: unknown) => Promise<unknown>;
 }
-declare const TMAStateContext: React.Context<TMAStateContextState>;
-interface TMAStateProviderProps extends React.PropsWithChildren {
+declare const TMAStoreContext: React.Context<TMAStoreContextState>;
+interface TMAStoreProviderProps extends React.PropsWithChildren {
 }
 interface ResponseDataCommand {
     update?: string[];
@@ -157,14 +157,15 @@ interface ResponseData {
     commands: ResponseDataCommand[];
 }
 type Store = {
-    state: Record<string, unknown>;
     status: Status;
+    state: Record<string, unknown>;
     loading: string[];
-    update: (action: ResponseDataCommand) => void;
+    update: (commands: ResponseDataCommand | ResponseDataCommand[]) => void;
 };
 declare const useTMAStore: zustand.UseBoundStore<zustand.StoreApi<Store>>;
-declare function TMAStateProvider({ children }: TMAStateProviderProps): react_jsx_runtime.JSX.Element;
-declare function useTMAState(): TMAStateContextState;
+declare function TMAStoreProvider({ children }: TMAStoreProviderProps): react_jsx_runtime.JSX.Element;
+declare function useTMAStoreQuery(): TMAStoreContextState['query'];
+declare function useTMAStoreMutate(): TMAStoreContextState['mutate'];
 
 interface TMAI18nContextState {
     t: (key: string, params?: Record<string, string | number>) => string;
@@ -178,9 +179,14 @@ interface TMAI18nProviderProps extends React.PropsWithChildren {
 declare function TMAI18nProvider({ locales, children }: TMAI18nProviderProps): react_jsx_runtime.JSX.Element;
 declare function useTMAI18n(): TMAI18nContextState;
 
-interface TMAProviderProps extends React.PropsWithChildren, Omit<TMASDKProviderProps, 'children'>, Omit<TMAClientProviderProps, 'children'>, Omit<TMAStateProviderProps, 'children'>, Omit<TMAI18nProviderProps, 'children'> {
+interface TMAProviderProps extends React.PropsWithChildren, Omit<TMASDKProviderProps, 'children'>, Omit<TMAClientProviderProps, 'children'>, Omit<TMAStoreProviderProps, 'children'>, Omit<TMAI18nProviderProps, 'children'> {
 }
 declare function TMAProvider({ env, background, url, locales, children }: TMAProviderProps): react_jsx_runtime.JSX.Element;
+
+declare function useQuery(path: string | string[]): {
+    isLoading: boolean;
+    data: any;
+};
 
 declare const HEADER_HEIGHT = 56;
 declare const TAB_BAR_HEIGHT = 60;
@@ -218,4 +224,4 @@ interface TypographyProps extends ReactKit.TypographyProps {
 }
 declare function Typography({ i18n, params, children, ...props }: TypographyProps): react_jsx_runtime.JSX.Element;
 
-export { HEADER_HEIGHT, Layout, type Locale, type Locales, type ResponseData, type ResponseDataCommand, Status, type Store, TAB_BAR_HEIGHT, TELEGRAM_ENV, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMAProvider, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStateContext, type TMAStateContextState, TMAStateProvider, type TMAStateProviderProps, Typography, useTMAClient, useTMAI18n, useTMASDK, useTMAState, useTMAStore, useTelegramSDK };
+export { HEADER_HEIGHT, Layout, type Locale, type Locales, type ResponseData, type ResponseDataCommand, Status, type Store, TAB_BAR_HEIGHT, TELEGRAM_ENV, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMAProvider, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, useQuery, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTMAStoreMutate, useTMAStoreQuery, useTelegramSDK };

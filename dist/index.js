@@ -167,7 +167,7 @@ function useTMAClient() {
   return context;
 }
 
-// src/store/TMAStateContext.tsx
+// src/store/TMAStoreContext.tsx
 import React3 from "react";
 import { create } from "zustand";
 
@@ -182,7 +182,7 @@ function update(obj, path, value) {
   };
 }
 var get = (obj, path, callback) => {
-  const keys = path.split(".");
+  const keys = typeof path === "string" ? path.split(".") : path;
   let anchor = obj;
   for (let i = 0; i < keys.length; i++) {
     anchor = anchor[keys[i]];
@@ -193,7 +193,7 @@ var get = (obj, path, callback) => {
   return anchor;
 };
 
-// src/store/TMAStateContext.tsx
+// src/store/TMAStoreContext.tsx
 import { jsx as jsx3 } from "react/jsx-runtime";
 var Status = /* @__PURE__ */ ((Status2) => {
   Status2[Status2["Loading"] = 0] = "Loading";
@@ -202,22 +202,29 @@ var Status = /* @__PURE__ */ ((Status2) => {
   Status2[Status2["Forbidden"] = 3] = "Forbidden";
   return Status2;
 })(Status || {});
-var TMAStateContext = React3.createContext(void 0);
+var TMAStoreContext = React3.createContext(void 0);
 var useTMAStore = create((set) => ({
-  state: {},
   status: 0 /* Loading */,
+  state: {},
   loading: [],
-  update: (command) => {
+  update: (commands) => {
     set((store) => {
-      if (typeof command.payload === "function") {
-        return command.payload(store);
-      } else {
-        return update(store, command.update, command.payload);
+      commands = Array.isArray(commands) ? commands : [commands];
+      for (const command of commands) {
+        if (typeof command.payload === "function") {
+          store = command.payload(store);
+        } else {
+          store = {
+            ...store,
+            state: update(store.state, command.update, command.payload)
+          };
+        }
       }
+      return store;
     });
   }
 }));
-function TMAStateProvider({ children }) {
+function TMAStoreProvider({ children }) {
   const client = useTMAClient();
   const { update: update2 } = useTMAStore();
   const query = React3.useCallback((path) => {
@@ -230,13 +237,18 @@ function TMAStateProvider({ children }) {
       })
     });
     return client.query(path).then((res) => {
-      for (const command of res.commands) {
-        if (command.update?.[0] === "state") {
-          update2(command);
+      update2([
+        ...res.commands,
+        {
+          update: ["loading"],
+          payload: (store) => ({
+            ...store,
+            loading: store.loading.filter((k) => k !== key)
+          })
         }
-      }
+      ]);
       return res;
-    }).finally(() => {
+    }).catch(() => {
       update2({
         update: ["loading"],
         payload: (store) => ({
@@ -256,13 +268,18 @@ function TMAStateProvider({ children }) {
       })
     });
     return client.mutate(action, payload).then((res) => {
-      for (const command of res.commands) {
-        if (command.update?.[0] === "state") {
-          update2(command);
+      update2([
+        ...res.commands,
+        {
+          update: ["loading"],
+          payload: (store) => ({
+            ...store,
+            loading: store.loading.filter((k) => k !== key)
+          })
         }
-      }
+      ]);
       return res;
-    }).finally(() => {
+    }).catch(() => {
       update2({
         update: ["loading"],
         payload: (store) => ({
@@ -290,14 +307,21 @@ function TMAStateProvider({ children }) {
     query,
     mutate
   }), [query, mutate]);
-  return /* @__PURE__ */ jsx3(TMAStateContext.Provider, { value, children });
+  return /* @__PURE__ */ jsx3(TMAStoreContext.Provider, { value, children });
 }
-function useTMAState() {
-  const context = React3.use(TMAStateContext);
+function useTMAStoreQuery() {
+  const context = React3.use(TMAStoreContext);
   if (!context) {
-    throw new Error("useTMA must be used within a TMAStateProvider");
+    throw new Error("useTMA must be used within a TMAStoreProvider");
   }
-  return context;
+  return context.query;
+}
+function useTMAStoreMutate() {
+  const context = React3.use(TMAStoreContext);
+  if (!context) {
+    throw new Error("useTMA must be used within a TMAStoreProvider");
+  }
+  return context.mutate;
 }
 
 // src/store/TMAI18nContext.tsx
@@ -305,10 +329,10 @@ import React4 from "react";
 import { jsx as jsx4 } from "react/jsx-runtime";
 var TMAI18nContext = React4.createContext(void 0);
 function TMAI18nProvider({ locales, children }) {
-  const me = useTMAStore((store) => store.state.me);
+  const me = useTMAStore((store) => store.state.settings);
   const t = React4.useCallback((key, params) => {
     if (!locales) return key;
-    const locale = locales?.[me?.language_code?.toLowerCase()?.slice(0, 2)] || locales?.["en"];
+    const locale = locales?.[me?.language_code?.toLowerCase()?.slice(0, 2)] || locales[localStorage.getItem("language_code") || "en"];
     if (!locale || typeof key !== "string") return key;
     const template = get(locale, key, key);
     if (!params) return template;
@@ -330,11 +354,43 @@ function useTMAI18n() {
 // src/store/TMAContext.tsx
 import { jsx as jsx5 } from "react/jsx-runtime";
 function TMAProvider({ env, background, url, locales, children }) {
-  return /* @__PURE__ */ jsx5(TMASDKProvider, { env, background, children: /* @__PURE__ */ jsx5(TMAClientProvider, { url, children: /* @__PURE__ */ jsx5(TMAStateProvider, { children: /* @__PURE__ */ jsx5(TMAI18nProvider, { locales, children }) }) }) });
+  return /* @__PURE__ */ jsx5(TMASDKProvider, { env, background, children: /* @__PURE__ */ jsx5(TMAClientProvider, { url, children: /* @__PURE__ */ jsx5(TMAStoreProvider, { children: /* @__PURE__ */ jsx5(TMAI18nProvider, { locales, children }) }) }) });
+}
+
+// src/hooks/useQuery.tsx
+import React6 from "react";
+
+// src/hooks/useRefValue.ts
+import React5 from "react";
+function useRefValue(value) {
+  const ref = React5.useRef(value);
+  React5.useEffect(() => {
+    ref.current = value;
+  }, [value]);
+  return ref;
+}
+
+// src/hooks/useQuery.tsx
+function useQuery(path) {
+  const key = JSON.stringify(path);
+  const query = useTMAStoreQuery();
+  const isLoading = useTMAStore((store) => store.loading).includes(key);
+  const isLoadingRef = useRefValue(isLoading);
+  const data = useTMAStore((store) => get(store.state, path));
+  React6.useEffect(() => {
+    if (isLoadingRef.current) {
+      return;
+    }
+    query(path);
+  }, [JSON.stringify(path)]);
+  return {
+    isLoading,
+    data
+  };
 }
 
 // src/components/Layout.tsx
-import React5 from "react";
+import React7 from "react";
 import { postEvent as postEvent2 } from "@telegram-apps/sdk-react";
 import { jsx as jsx6, jsxs } from "react/jsx-runtime";
 var HEADER_HEIGHT = 56;
@@ -429,7 +485,7 @@ function TabBarItem({
   active = false,
   onClick
 }) {
-  const [isActivating, setIsActivating] = React5.useState(false);
+  const [isActivating, setIsActivating] = React7.useState(false);
   return /* @__PURE__ */ jsxs(
     "button",
     {
@@ -498,13 +554,15 @@ export {
   TMAProvider,
   TMASDKContext,
   TMASDKProvider,
-  TMAStateContext,
-  TMAStateProvider,
+  TMAStoreContext,
+  TMAStoreProvider,
   Typography2 as Typography,
+  useQuery,
   useTMAClient,
   useTMAI18n,
   useTMASDK,
-  useTMAState,
   useTMAStore,
+  useTMAStoreMutate,
+  useTMAStoreQuery,
   useTelegramSDK
 };
