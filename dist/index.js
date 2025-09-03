@@ -227,8 +227,10 @@ var useTMAStore = create((set) => ({
 function TMAStoreProvider({ children }) {
   const client = useTMAClient();
   const { update: update2 } = useTMAStore();
+  const loadingRef = React3.useRef([]);
   const query = React3.useCallback((path) => {
     const key = JSON.stringify(path);
+    loadingRef.current.push(key);
     update2({
       update: ["loading"],
       payload: (store) => ({
@@ -237,6 +239,7 @@ function TMAStoreProvider({ children }) {
       })
     });
     return client.query(path).then((res) => {
+      loadingRef.current = loadingRef.current.filter((k) => k !== key);
       update2([
         ...res.commands,
         {
@@ -249,6 +252,7 @@ function TMAStoreProvider({ children }) {
       ]);
       return res;
     }).catch(() => {
+      loadingRef.current = loadingRef.current.filter((k) => k !== key);
       update2({
         update: ["loading"],
         payload: (store) => ({
@@ -288,8 +292,9 @@ function TMAStoreProvider({ children }) {
   }, [mutate]);
   const value = React3.useMemo(() => ({
     query,
-    mutate
-  }), [query, mutate]);
+    mutate,
+    loadingRef
+  }), [query, mutate, loadingRef]);
   return /* @__PURE__ */ jsx3(TMAStoreContext.Provider, { value, children });
 }
 function useTMAStoreQuery() {
@@ -297,7 +302,10 @@ function useTMAStoreQuery() {
   if (!context) {
     throw new Error("useTMA must be used within a TMAStoreProvider");
   }
-  return context.query;
+  return {
+    query: context.query,
+    loadingRef: context.loadingRef
+  };
 }
 function useTMAStoreMutate() {
   const context = React3.use(TMAStoreContext);
@@ -341,39 +349,47 @@ function TMAProvider({ env, background, url, locales, children }) {
 }
 
 // src/hooks/useQuery.tsx
-import React6 from "react";
+import React5 from "react";
+function useQuery(path, options = {}) {
+  const gcTimeRef = React5.useRef(options.gcTime || Infinity);
+  const key = JSON.stringify(path);
+  const { query, loadingRef } = useTMAStoreQuery();
+  const isLoading = useTMAStore((store) => store.loading).includes(key);
+  const data = useTMAStore((store) => get(store.state, path));
+  React5.useEffect(() => {
+    if (loadingRef.current.includes(key)) {
+      return;
+    }
+    if (gcTimeRef.current > 0 && gcTimeRef.current !== Infinity) {
+      setTimeout(() => {
+        gcTimeRef.current = 0;
+      }, gcTimeRef.current);
+    }
+    if (data !== void 0 && gcTimeRef.current > 0) {
+      return;
+    }
+    query(path);
+  }, [JSON.stringify(path)]);
+  return {
+    isLoading,
+    data
+  };
+}
+
+// src/hooks/useMutation.tsx
+import React7 from "react";
 
 // src/hooks/useRefValue.ts
-import React5 from "react";
+import React6 from "react";
 function useRefValue(value) {
-  const ref = React5.useRef(value);
-  React5.useEffect(() => {
+  const ref = React6.useRef(value);
+  React6.useEffect(() => {
     ref.current = value;
   }, [value]);
   return ref;
 }
 
-// src/hooks/useQuery.tsx
-function useQuery(path) {
-  const key = JSON.stringify(path);
-  const query = useTMAStoreQuery();
-  const isLoading = useTMAStore((store) => store.loading).includes(key);
-  const isLoadingRef = useRefValue(isLoading);
-  const data = useTMAStore((store) => get(store.state, path));
-  React6.useEffect(() => {
-    if (isLoadingRef.current) {
-      return;
-    }
-    query(path);
-  }, [JSON.stringify(path)]);
-  return React6.useMemo(() => ({
-    isLoading,
-    data
-  }), [isLoading, data]);
-}
-
 // src/hooks/useMutation.tsx
-import React7 from "react";
 function useMutation() {
   const mutate = useTMAStoreMutate();
   const [isLoading, setIsLoading] = React7.useState(false);

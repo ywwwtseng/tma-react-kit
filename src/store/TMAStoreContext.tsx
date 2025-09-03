@@ -13,6 +13,7 @@ export enum Status {
 export interface TMAStoreContextState {
   query: (path: string | string[]) => Promise<unknown>;
   mutate: (action: string, payload: unknown) => Promise<unknown>;
+  loadingRef: React.RefObject<string[]>;
 }
 
 export const TMAStoreContext = React.createContext<TMAStoreContextState | undefined>(undefined);
@@ -64,9 +65,12 @@ export const useTMAStore = create<Store>((set) => ({
 export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
   const client = useTMAClient();
   const { update } = useTMAStore();
+  const loadingRef = React.useRef([]);
 
   const query = React.useCallback((path: string | string[]) => {
     const key = JSON.stringify(path);
+
+    loadingRef.current.push(key);
 
     update({
       update: ['loading'],
@@ -78,6 +82,8 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
 
     return client.query(path)
       .then((res: ResponseData) => {
+        loadingRef.current = loadingRef.current.filter((k) => k !== key);
+
         update([
           ...res.commands,
           {
@@ -92,6 +98,8 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
         return res;
       })
       .catch(() => {
+        loadingRef.current = loadingRef.current.filter((k) => k !== key);
+
         update({
           update: ['loading'],
           payload: (store: Store) => ({
@@ -141,7 +149,8 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
   const value = React.useMemo(() => ({
     query,
     mutate,
-  }), [query, mutate]);
+    loadingRef,
+  }), [query, mutate, loadingRef]);
 
   return (
     <TMAStoreContext.Provider value={value}>
@@ -150,17 +159,20 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
   );
 }
 
-export function useTMAStoreQuery(): TMAStoreContextState['query'] {
+export function useTMAStoreQuery() {
   const context = React.use(TMAStoreContext);
 
   if (!context) {
     throw new Error('useTMA must be used within a TMAStoreProvider');
   }
 
-  return context.query;
+  return {
+    query: context.query,
+    loadingRef: context.loadingRef,
+  };
 }
 
-export function useTMAStoreMutate(): TMAStoreContextState['mutate'] {
+export function useTMAStoreMutate() {
   const context = React.use(TMAStoreContext);
 
   if (!context) {

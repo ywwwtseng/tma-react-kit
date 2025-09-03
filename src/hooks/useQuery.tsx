@@ -1,25 +1,38 @@
 import React from 'react';
 import { useTMAStore, useTMAStoreQuery } from '../store/TMAStoreContext';
-import { useRefValue } from './useRefValue';
 import { get } from '../utils';
 
-export function useQuery(path: string | string[]) {
+interface UseQueryOptions {
+  gcTime?: number;
+}
+
+export function useQuery(path: string | string[], options: UseQueryOptions = {}) {
+  const gcTimeRef = React.useRef(options.gcTime || Infinity);
   const key = JSON.stringify(path);
-  const query = useTMAStoreQuery();
+  const { query, loadingRef } = useTMAStoreQuery();
   const isLoading = useTMAStore((store) => store.loading).includes(key);
-  const isLoadingRef = useRefValue(isLoading);
   const data = useTMAStore((store) => get(store.state, path));
 
   React.useEffect(() => {
-    if (isLoadingRef.current) {
+    if (loadingRef.current.includes(key)) {
+      return;
+    }
+
+    if (gcTimeRef.current > 0 && gcTimeRef.current !== Infinity) {
+      setTimeout(() => {
+        gcTimeRef.current = 0;
+      }, gcTimeRef.current);
+    }
+
+    if (data !== undefined && gcTimeRef.current > 0) {
       return;
     }
 
     query(path);
   }, [JSON.stringify(path)]);
 
-  return React.useMemo(() => ({
+  return {
     isLoading,
     data,
-  }), [isLoading, data]);
+  };
 }

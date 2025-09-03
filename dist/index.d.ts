@@ -144,6 +144,7 @@ declare enum Status {
 interface TMAStoreContextState {
     query: (path: string | string[]) => Promise<unknown>;
     mutate: (action: string, payload: unknown) => Promise<unknown>;
+    loadingRef: React.RefObject<string[]>;
 }
 declare const TMAStoreContext: React.Context<TMAStoreContextState>;
 interface TMAStoreProviderProps extends React.PropsWithChildren {
@@ -164,8 +165,11 @@ type Store = {
 };
 declare const useTMAStore: zustand.UseBoundStore<zustand.StoreApi<Store>>;
 declare function TMAStoreProvider({ children }: TMAStoreProviderProps): react_jsx_runtime.JSX.Element;
-declare function useTMAStoreQuery(): TMAStoreContextState['query'];
-declare function useTMAStoreMutate(): TMAStoreContextState['mutate'];
+declare function useTMAStoreQuery(): {
+    query: (path: string | string[]) => Promise<unknown>;
+    loadingRef: React.RefObject<string[]>;
+};
+declare function useTMAStoreMutate(): (action: string, payload: unknown) => Promise<unknown>;
 
 interface TMAI18nContextState {
     t: (key: string, params?: Record<string, string | number>) => string;
@@ -183,7 +187,10 @@ interface TMAProviderProps extends React.PropsWithChildren, Omit<TMASDKProviderP
 }
 declare function TMAProvider({ env, background, url, locales, children }: TMAProviderProps): react_jsx_runtime.JSX.Element;
 
-declare function useQuery(path: string | string[]): {
+interface UseQueryOptions {
+    gcTime?: number;
+}
+declare function useQuery(path: string | string[], options?: UseQueryOptions): {
     isLoading: boolean;
     data: any;
 };
