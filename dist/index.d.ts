@@ -206,9 +206,18 @@ declare function useStore<T = unknown>(path: string | string[]): T;
 declare const HEADER_HEIGHT = 56;
 declare const TAB_BAR_HEIGHT = 60;
 declare function Root({ children }: React.PropsWithChildren): react_jsx_runtime.JSX.Element;
-declare function Header({ className, logo, children }: React.PropsWithChildren<{
+declare function Header({ className, children }: React.PropsWithChildren<{
     className?: string;
-    logo: React.ReactElement;
+}>): react_jsx_runtime.JSX.Element;
+declare namespace Header {
+    var Left: typeof HeaderLeft;
+    var Right: typeof HeaderRight;
+}
+declare function HeaderLeft({ className, children }: React.PropsWithChildren<{
+    className?: string;
+}>): react_jsx_runtime.JSX.Element;
+declare function HeaderRight({ className, children }: React.PropsWithChildren<{
+    className?: string;
 }>): react_jsx_runtime.JSX.Element;
 declare function Main({ className, children }: React.PropsWithChildren<{
     className?: string;

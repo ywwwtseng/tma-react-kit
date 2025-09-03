@@ -24,7 +24,7 @@ function Root({ children }: React.PropsWithChildren) {
   );
 }
 
-function Header({ className, logo, children }: React.PropsWithChildren<{ className?: string; logo: React.ReactElement; }>) {
+function Header({ className, children }: React.PropsWithChildren<{ className?: string; }>) {
   return (
     <div
       className={className}
@@ -41,20 +41,43 @@ function Header({ className, logo, children }: React.PropsWithChildren<{ classNa
         gap: '8px',
         
       }}>
-      {logo}
-      <div 
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px',
-        }}
-      >
-        {children}
-      </div>
+      {children}
     </div>
   )
 }
+
+function HeaderLeft({ className, children }: React.PropsWithChildren<{ className?: string; }>) {
+  return (
+    <div
+      className={className}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '8px',
+      }}>
+      {children}
+    </div>
+  );
+}
+
+function HeaderRight({ className, children }: React.PropsWithChildren<{ className?: string; }>) {
+  return (
+    <div
+      className={className}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '8px',
+      }}>
+      {children}
+    </div>
+  );
+}
+
+Header.Left = HeaderLeft;
+Header.Right = HeaderRight;
 
 function Main({ className, children }: React.PropsWithChildren<{ className?: string; }>) {
   return (

@@ -434,8 +434,8 @@ function Root({ children }) {
     overflow: "hidden"
   }, children });
 }
-function Header({ className, logo, children }) {
-  return /* @__PURE__ */ jsxs(
+function Header({ className, children }) {
+  return /* @__PURE__ */ jsx6(
     "div",
     {
       className,
@@ -451,24 +451,42 @@ function Header({ className, logo, children }) {
         justifyContent: "space-between",
         gap: "8px"
       },
-      children: [
-        logo,
-        /* @__PURE__ */ jsx6(
-          "div",
-          {
-            style: {
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "8px"
-            },
-            children
-          }
-        )
-      ]
+      children
     }
   );
 }
+function HeaderLeft({ className, children }) {
+  return /* @__PURE__ */ jsx6(
+    "div",
+    {
+      className,
+      style: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "8px"
+      },
+      children
+    }
+  );
+}
+function HeaderRight({ className, children }) {
+  return /* @__PURE__ */ jsx6(
+    "div",
+    {
+      className,
+      style: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "8px"
+      },
+      children
+    }
+  );
+}
+Header.Left = HeaderLeft;
+Header.Right = HeaderRight;
 function Main({ className, children }) {
   return /* @__PURE__ */ jsx6(
     "div",
