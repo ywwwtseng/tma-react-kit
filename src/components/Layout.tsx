@@ -167,7 +167,10 @@ function TabBarItem({
         height: '30px',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        transition: 'transform 200ms',
+        transformOrigin: 'center',
+        transform: isActivating ? 'scale(1.1)' : 'scale(1)',
       }}>
         <Icon width={28} height={28} />
       </div>

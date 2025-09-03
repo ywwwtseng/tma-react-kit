@@ -3,7 +3,7 @@ import { TMAClientProvider, TMAClientProviderProps} from './TMAClientContext';
 import { TMAStoreProvider, TMAStoreProviderProps } from './TMAStoreContext';
 import { TMAI18nProvider, TMAI18nProviderProps } from './TMAI18nContext';
 
-interface TMAProviderProps extends React.PropsWithChildren,
+export interface TMAProviderProps extends React.PropsWithChildren,
   Omit<TMASDKProviderProps, 'children'>,
   Omit<TMAClientProviderProps, 'children'>,
   Omit<TMAStoreProviderProps, 'children'>,

@@ -1,14 +1,14 @@
 import React from 'react';
+import { useRefValue } from '@ywwwtseng/react-kit';
 import { useTMAStoreMutate } from '../store/TMAStoreContext';
-import { useRefValue } from './useRefValue';
 
-export function useMutation() {
+export function useMutation<T = unknown>() {
   const mutate = useTMAStoreMutate();
   const [isLoading, setIsLoading] = React.useState(false);
   const isLoadingRef = useRefValue(isLoading);
 
   return {
-    mutate: (action: string, payload: unknown) => {
+    mutate: (action: string, payload: T) => {
       if (isLoadingRef.current) {
         return;
       }

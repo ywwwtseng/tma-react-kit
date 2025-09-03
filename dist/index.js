@@ -1,6 +1,7 @@
 // src/store/TMASDKContext.tsx
-import { useMemo as useMemo2, useEffect as useEffect2, createContext, useState, use } from "react";
+import { useMemo as useMemo2, useEffect, createContext, useState, use } from "react";
 import { init, postEvent } from "@telegram-apps/sdk-react";
+import { useClientOnce } from "@ywwwtseng/react-kit";
 
 // src/hooks/useTelegramSDK.ts
 import { useMemo } from "react";
@@ -70,24 +71,6 @@ function useTelegramSDK(env) {
   }, []);
 }
 
-// src/hooks/useClientOnce.ts
-import { useEffect, useRef } from "react";
-function useClientOnce(setup) {
-  const canCall = useRef(true);
-  useEffect(() => {
-    if (!canCall.current) {
-      return;
-    }
-    canCall.current = false;
-    const destroy = setup();
-    return () => {
-      if (destroy) {
-        destroy();
-      }
-    };
-  }, []);
-}
-
 // src/store/TMASDKContext.tsx
 import { jsx } from "react/jsx-runtime";
 var TMASDKContext = createContext(void 0);
@@ -114,7 +97,7 @@ function TMASDKProvider({
       postEvent("web_app_set_background_color", { color: background });
     }
   });
-  useEffect2(() => {
+  useEffect(() => {
     if (user?.photo_url) {
       const image = new Image();
       image.onload = () => {
@@ -168,7 +151,7 @@ function useTMAClient() {
 }
 
 // src/store/TMAStoreContext.tsx
-import { createContext as createContext3, useRef as useRef2, useCallback as useCallback2, useEffect as useEffect3, useMemo as useMemo4, use as use3 } from "react";
+import { createContext as createContext3, useRef, useCallback as useCallback2, useEffect as useEffect2, useMemo as useMemo4, use as use3 } from "react";
 import { create } from "zustand";
 
 // src/utils/index.ts
@@ -227,7 +210,7 @@ var useTMAStore = create((set) => ({
 function TMAStoreProvider({ children }) {
   const client = useTMAClient();
   const { update: update2 } = useTMAStore();
-  const loadingRef = useRef2([]);
+  const loadingRef = useRef([]);
   const query = useCallback2((path) => {
     const key = JSON.stringify(path);
     loadingRef.current.push(key);
@@ -276,7 +259,7 @@ function TMAStoreProvider({ children }) {
       return res;
     });
   }, [client.mutate]);
-  useEffect3(() => {
+  useEffect2(() => {
     mutate("init").then(() => {
       update2({
         update: ["status"],
@@ -384,22 +367,11 @@ function useQuery(path, options = {}) {
 }
 
 // src/hooks/useMutation.ts
-import React3 from "react";
-
-// src/hooks/useRefValue.ts
 import React2 from "react";
-function useRefValue(value) {
-  const ref = React2.useRef(value);
-  React2.useEffect(() => {
-    ref.current = value;
-  }, [value]);
-  return ref;
-}
-
-// src/hooks/useMutation.ts
+import { useRefValue } from "@ywwwtseng/react-kit";
 function useMutation() {
   const mutate = useTMAStoreMutate();
-  const [isLoading, setIsLoading] = React3.useState(false);
+  const [isLoading, setIsLoading] = React2.useState(false);
   const isLoadingRef = useRefValue(isLoading);
   return {
     mutate: (action, payload) => {
@@ -563,7 +535,10 @@ function TabBarItem({
           height: "30px",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center"
+          justifyContent: "center",
+          transition: "transform 200ms",
+          transformOrigin: "center",
+          transform: isActivating ? "scale(1.1)" : "scale(1)"
         }, children: /* @__PURE__ */ jsx6(Icon, { width: 28, height: 28 }) }),
         text
       ]

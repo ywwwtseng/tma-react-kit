@@ -6,12 +6,12 @@ interface UseQueryOptions {
   gcTime?: number;
 }
 
-export function useQuery(path: string | string[], options: UseQueryOptions = {}) {
+export function useQuery<T = unknown>(path: string | string[], options: UseQueryOptions = {}) {
   const gcTimeRef = React.useRef(options.gcTime || Infinity);
   const key = JSON.stringify(path);
   const { query, loadingRef } = useTMAStoreQuery();
   const isLoading = useTMAStore((store) => store.loading).includes(key);
-  const data = useTMAStore((store) => get(store.state, path));
+  const data = useTMAStore((store) => get(store.state, path)) as T;
 
   React.useEffect(() => {
     if (loadingRef.current.includes(key)) {

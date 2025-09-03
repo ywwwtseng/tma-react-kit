@@ -1,7 +1,7 @@
 import { useMemo, useEffect, createContext, useState, use, type PropsWithChildren } from 'react';
 import { type User, type Platform, init, postEvent } from '@telegram-apps/sdk-react';
+import { useClientOnce } from '@ywwwtseng/react-kit';
 import { useTelegramSDK, TELEGRAM_ENV } from '../hooks/useTelegramSDK';
-import { useClientOnce } from '../hooks/useClientOnce';
 
 export interface TMASDKContextState {
   initDataRaw: string | null | undefined;

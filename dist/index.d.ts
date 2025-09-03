@@ -191,13 +191,13 @@ declare function TMAProvider({ env, background, url, locales, children }: TMAPro
 interface UseQueryOptions {
     gcTime?: number;
 }
-declare function useQuery(path: string | string[], options?: UseQueryOptions): {
+declare function useQuery<T = unknown>(path: string | string[], options?: UseQueryOptions): {
     isLoading: boolean;
-    data: any;
+    data: T;
 };
 
-declare function useMutation(): {
-    mutate: (action: string, payload: unknown) => void;
+declare function useMutation<T = unknown>(): {
+    mutate: (action: string, payload: T) => void;
     isLoading: boolean;
 };
 
@@ -253,4 +253,4 @@ interface LanguageMenuProps {
 }
 declare function LanguageMenu({ className }: LanguageMenuProps): react_jsx_runtime.JSX.Element;
 
-export { HEADER_HEIGHT, LanguageMenu, Layout, type Locale, type Locales, type ResponseData, type ResponseDataCommand, Status, type Store, TAB_BAR_HEIGHT, TELEGRAM_ENV, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMAProvider, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, useMutation, useQuery, useStore, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTMAStoreMutate, useTMAStoreQuery, useTelegramSDK };
+export { HEADER_HEIGHT, LanguageMenu, Layout, type Locale, type Locales, type ResponseData, type ResponseDataCommand, Status, type Store, TAB_BAR_HEIGHT, TELEGRAM_ENV, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, useMutation, useQuery, useStore, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTMAStoreMutate, useTMAStoreQuery, useTelegramSDK };
