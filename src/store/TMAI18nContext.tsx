@@ -17,7 +17,7 @@ export interface TMAI18nProviderProps extends React.PropsWithChildren {
 }
 
 export function TMAI18nProvider({ locales, children }: TMAI18nProviderProps) {
-  const me = useTMAStore((state) => state.data.me) as { language_code: string };
+  const me = useTMAStore((store) => store.state.me) as { language_code: string };
 
   const t = React.useCallback((key: string, params?: Record<string, string | number>) => {
     if (!locales) return key;

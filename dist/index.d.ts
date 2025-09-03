@@ -1,8 +1,9 @@
-import { LaunchParamsLike } from '@telegram-apps/transformers';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import React from 'react';
 import { User, Platform } from '@telegram-apps/sdk-react';
+import { LaunchParamsLike } from '@telegram-apps/transformers';
 import * as zustand from 'zustand';
+import * as ReactKit from '@ywwwtseng/react-kit';
 
 declare const TELEGRAM_ENV: {
     MOCK: {
@@ -156,7 +157,7 @@ interface ResponseData {
     commands: ResponseDataCommand[];
 }
 declare const useTMAStore: zustand.UseBoundStore<zustand.StoreApi<{
-    data: Record<string, unknown>;
+    state: Record<string, unknown>;
     status: Status;
     update: (action: ResponseDataCommand) => void;
 }>>;
@@ -209,4 +210,10 @@ declare const Layout: {
     TabBar: typeof TabBar;
 };
 
-export { HEADER_HEIGHT, Layout, type Locale, type Locales, type ResponseData, type ResponseDataCommand, Status, TAB_BAR_HEIGHT, TELEGRAM_ENV, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMAProvider, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStateContext, type TMAStateContextState, TMAStateProvider, type TMAStateProviderProps, useTMAClient, useTMAI18n, useTMASDK, useTMAState, useTMAStore, useTelegramSDK };
+interface TypographyProps extends ReactKit.TypographyProps {
+    i18n?: string;
+    params?: Record<string, string | number>;
+}
+declare function Typography({ i18n, params, children, ...props }: TypographyProps): react_jsx_runtime.JSX.Element;
+
+export { HEADER_HEIGHT, Layout, type Locale, type Locales, type ResponseData, type ResponseDataCommand, Status, TAB_BAR_HEIGHT, TELEGRAM_ENV, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMAProvider, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStateContext, type TMAStateContextState, TMAStateProvider, type TMAStateProviderProps, Typography, useTMAClient, useTMAI18n, useTMASDK, useTMAState, useTMAStore, useTelegramSDK };

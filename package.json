@@ -1,5 +1,5 @@
 {
-  "name": "tma-react-kit",
+  "name": "@ywwwtseng/tma-react-kit",
   "description": "library for seamless communication with telegram mini apps functionality",
   "version": "0.0.1",
   "license": "MIT",
@@ -20,7 +20,8 @@
   "dependencies": {
     "@telegram-apps/sdk-react": "^3.3.7",
     "@telegram-apps/transformers": "^2.2.6",
-    "request": "github:ywwwtseng/request#bc19773",
+    "@ywwwtseng/react-kit": "^0",
+    "@ywwwtseng/request": "^0",
     "zustand": "^5.0.8"
   }
 }

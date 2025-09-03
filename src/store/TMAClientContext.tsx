@@ -1,5 +1,5 @@
 import React from 'react';
-import { Request } from 'request';
+import { Request } from '@ywwwtseng/request';
 import { useTMASDK } from './TMASDKContext';
 
 export interface TMAClientContextState {

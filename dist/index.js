@@ -1,3 +1,7 @@
+// src/store/TMASDKContext.tsx
+import React from "react";
+import { init, postEvent } from "@telegram-apps/sdk-react";
+
 // src/hooks/useTelegramSDK.ts
 import { useMemo } from "react";
 import {
@@ -66,10 +70,6 @@ function useTelegramSDK(env) {
   }, []);
 }
 
-// src/store/TMASDKContext.tsx
-import React from "react";
-import { init, postEvent } from "@telegram-apps/sdk-react";
-
 // src/hooks/useClientOnce.ts
 import { useEffect, useRef } from "react";
 function useClientOnce(setup) {
@@ -135,7 +135,7 @@ function useTMASDK() {
 
 // src/store/TMAClientContext.tsx
 import React2 from "react";
-import { Request } from "request";
+import { Request } from "@ywwwtseng/request";
 import { jsx as jsx2 } from "react/jsx-runtime";
 var TMAClientContext = React2.createContext(void 0);
 function TMAClientProvider({ url, children }) {
@@ -204,10 +204,10 @@ var Status = /* @__PURE__ */ ((Status2) => {
 })(Status || {});
 var TMAStateContext = React3.createContext(void 0);
 var useTMAStore = create((set) => ({
-  data: {},
+  state: {},
   status: 0 /* Loading */,
   update: (command) => {
-    set((state) => update(state, command.update, command.payload));
+    set((store) => update(store, command.update, command.payload));
   }
 }));
 function TMAStateProvider({ children }) {
@@ -216,7 +216,7 @@ function TMAStateProvider({ children }) {
   const query = React3.useCallback((path) => {
     return client.query(path).then((res) => {
       for (const command of res.commands) {
-        if (command.update?.[0] === "data") {
+        if (command.update?.[0] === "state") {
           update2(command);
         }
       }
@@ -226,7 +226,7 @@ function TMAStateProvider({ children }) {
   const mutate = React3.useCallback((action, payload) => {
     return client.mutate(action, payload).then((res) => {
       for (const command of res.commands) {
-        if (command.update?.[0] === "data") {
+        if (command.update?.[0] === "state") {
           update2(command);
         }
       }
@@ -266,7 +266,7 @@ import React4 from "react";
 import { jsx as jsx4 } from "react/jsx-runtime";
 var TMAI18nContext = React4.createContext(void 0);
 function TMAI18nProvider({ locales, children }) {
-  const me = useTMAStore((state) => state.data.me);
+  const me = useTMAStore((store) => store.state.me);
   const t = React4.useCallback((key, params) => {
     if (!locales) return key;
     const locale = locales?.[me?.language_code?.toLowerCase()?.slice(0, 2)] || locales?.["en"];
@@ -438,6 +438,14 @@ var Layout = {
   Main,
   TabBar
 };
+
+// src/components/Typography.tsx
+import * as ReactKit from "@ywwwtseng/react-kit";
+import { jsx as jsx7 } from "react/jsx-runtime";
+function Typography2({ i18n, params, children, ...props }) {
+  const { t } = useTMAI18n();
+  return /* @__PURE__ */ jsx7(ReactKit.Typography, { ...props, children: i18n ? t(i18n, params) : children });
+}
 export {
   HEADER_HEIGHT,
   Layout,
@@ -453,6 +461,7 @@ export {
   TMASDKProvider,
   TMAStateContext,
   TMAStateProvider,
+  Typography2 as Typography,
   useTMAClient,
   useTMAI18n,
   useTMASDK,

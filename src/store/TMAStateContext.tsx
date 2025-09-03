@@ -31,14 +31,14 @@ export interface ResponseData {
 }
 
 export const useTMAStore = create<{
-  data: Record<string, unknown>,
+  state: Record<string, unknown>,
   status: Status,
   update: (action: ResponseDataCommand) => void,
 }>((set) => ({
-  data: {},
+  state: {},
   status: Status.Loading,
   update: (command: ResponseDataCommand) => {
-    set((state: { data: Record<string, unknown> }) => update(state, command.update, command.payload));
+    set((store: { state: Record<string, unknown> }) => update(store, command.update, command.payload));
   }
 }));
 
@@ -50,7 +50,7 @@ export function TMAStateProvider({ children }: TMAStateProviderProps) {
     return client.query(path)
       .then((res: ResponseData) => {
         for (const command of res.commands) {
-          if (command.update?.[0] === 'data') {
+          if (command.update?.[0] === 'state') {
             update(command);
           }
         }
@@ -63,7 +63,7 @@ export function TMAStateProvider({ children }: TMAStateProviderProps) {
     return client.mutate(action, payload)
       .then((res: ResponseData) => {
         for (const command of res.commands) {
-          if (command.update?.[0] === 'data') {
+          if (command.update?.[0] === 'state') {
             update(command);
           }
         }
