@@ -11,3 +11,4 @@ export * from './hooks/useStore';
 
 export * from './components/Layout';
 export * from './components/Typography';
+export * from './components/LanguageMenu';

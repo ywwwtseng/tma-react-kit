@@ -567,8 +567,34 @@ function Typography2({ i18n, params, children, ...props }) {
   const { t } = useTMAI18n();
   return /* @__PURE__ */ jsx7(ReactKit.Typography, { ...props, children: i18n ? t(i18n, params) : children });
 }
+
+// src/components/LanguageMenu.tsx
+import { Dropdown } from "@ywwwtseng/react-kit";
+import { jsx as jsx8 } from "react/jsx-runtime";
+var languages = [
+  {
+    key: "en",
+    name: "English",
+    icon: "https://hatscripts.github.io/circle-flags/flags/gb.svg"
+  },
+  {
+    key: "zh",
+    name: "\u4E2D\u6587",
+    icon: "https://hatscripts.github.io/circle-flags/flags/tw.svg"
+  }
+];
+function LanguageMenu() {
+  const settings = useStore("settings");
+  const mutate = useTMAStoreMutate();
+  const language = languages.find((language2) => language2.key === settings?.language_code || language2.key === localStorage.getItem("language_code"));
+  return /* @__PURE__ */ jsx8(Dropdown, { items: languages, onChange: (key) => {
+    localStorage.setItem("language_code", key);
+    mutate("update:settings", { language_code: key });
+  }, children: /* @__PURE__ */ jsx8("button", { style: { display: language ? "block" : "none" }, children: /* @__PURE__ */ jsx8("img", { src: language?.icon, width: "40", height: "40", alt: language?.name }) }) });
+}
 export {
   HEADER_HEIGHT,
+  LanguageMenu,
   Layout,
   Status,
   TAB_BAR_HEIGHT,
