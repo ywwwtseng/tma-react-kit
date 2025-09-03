@@ -18,8 +18,8 @@ export function useQuery(path: string | string[]) {
     query(path);
   }, [JSON.stringify(path)]);
 
-  return {
+  return React.useMemo(() => ({
     isLoading,
     data,
-  };
+  }), [isLoading, data]);
 }

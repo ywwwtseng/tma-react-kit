@@ -115,28 +115,10 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
 
     return client.mutate(action, payload)
       .then((res: ResponseData) => {
-        update([
-          ...res.commands,
-          {
-            update: ['loading'],
-            payload: (store: Store) => ({
-              ...store,
-              loading: store.loading.filter((k) => k !== key),
-            }),
-          }
-        ]);
+        update(res.commands);
 
         return res;
       })
-      .catch(() => {
-        update({
-          update: ['loading'],
-          payload: (store: Store) => ({
-            ...store,
-            loading: store.loading.filter((k) => k !== key),
-          }),
-        });
-      });
   }, [client.mutate]);
 
   React.useEffect(() => {

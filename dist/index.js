@@ -268,25 +268,8 @@ function TMAStoreProvider({ children }) {
       })
     });
     return client.mutate(action, payload).then((res) => {
-      update2([
-        ...res.commands,
-        {
-          update: ["loading"],
-          payload: (store) => ({
-            ...store,
-            loading: store.loading.filter((k) => k !== key)
-          })
-        }
-      ]);
+      update2(res.commands);
       return res;
-    }).catch(() => {
-      update2({
-        update: ["loading"],
-        payload: (store) => ({
-          ...store,
-          loading: store.loading.filter((k) => k !== key)
-        })
-      });
     });
   }, [client.mutate]);
   React3.useEffect(() => {
@@ -383,14 +366,34 @@ function useQuery(path) {
     }
     query(path);
   }, [JSON.stringify(path)]);
-  return {
+  return React6.useMemo(() => ({
     isLoading,
     data
+  }), [isLoading, data]);
+}
+
+// src/hooks/useMutation.tsx
+import React7 from "react";
+function useMutation() {
+  const mutate = useTMAStoreMutate();
+  const [isLoading, setIsLoading] = React7.useState(false);
+  const isLoadingRef = useRefValue(isLoading);
+  return {
+    mutate: (action, payload) => {
+      if (isLoadingRef.current) {
+        return;
+      }
+      setIsLoading(true);
+      mutate(action, payload).finally(() => {
+        setIsLoading(false);
+      });
+    },
+    isLoading
   };
 }
 
 // src/components/Layout.tsx
-import React7 from "react";
+import React8 from "react";
 import { postEvent as postEvent2 } from "@telegram-apps/sdk-react";
 import { jsx as jsx6, jsxs } from "react/jsx-runtime";
 var HEADER_HEIGHT = 56;
@@ -485,7 +488,7 @@ function TabBarItem({
   active = false,
   onClick
 }) {
-  const [isActivating, setIsActivating] = React7.useState(false);
+  const [isActivating, setIsActivating] = React8.useState(false);
   return /* @__PURE__ */ jsxs(
     "button",
     {
@@ -557,6 +560,7 @@ export {
   TMAStoreContext,
   TMAStoreProvider,
   Typography2 as Typography,
+  useMutation,
   useQuery,
   useTMAClient,
   useTMAI18n,
