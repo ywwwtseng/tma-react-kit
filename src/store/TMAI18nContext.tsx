@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTMAStore } from './TMAStoreContext';
+import { useStore } from '../hooks/useStore';
 import { get } from '../utils';
 
 export interface TMAI18nContextState {
@@ -17,16 +17,16 @@ export interface TMAI18nProviderProps extends React.PropsWithChildren {
 }
 
 export function TMAI18nProvider({ locales, children }: TMAI18nProviderProps) {
-  const me = useTMAStore((store) => store.state.settings) as { language_code: string };
+  const settings = useStore<{ language_code: string }>('settings');
 
   const t = React.useCallback((key: string, params?: Record<string, string | number>) => {
     if (!locales) return key;
-    const locale = locales?.[me?.language_code?.toLowerCase()?.slice(0, 2)] || locales[localStorage.getItem('language_code') || 'en'];
+    const locale = locales?.[settings?.language_code?.toLowerCase()?.slice(0, 2)] || locales[localStorage.getItem('language_code') || 'en'];
     if (!locale || typeof key !== 'string') return key;
     const template = get(locale, key, key);
     if (!params) return template;
     return template.replace(/\{(\w+)\}/g, (_: string, key: string) => String(params[key]) || '');
-  }, [me]);
+  }, [settings]);
 
   const value = React.useMemo(() => ({
     t,

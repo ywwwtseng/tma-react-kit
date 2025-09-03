@@ -7,6 +7,7 @@ export * from './store/TMAContext';
 export * from './hooks/useTelegramSDK';
 export * from './hooks/useQuery';
 export * from './hooks/useMutation';
+export * from './hooks/useStore';
 
 export * from './components/Layout';
 export * from './components/Typography';

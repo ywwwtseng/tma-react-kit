@@ -317,18 +317,25 @@ function useTMAStoreMutate() {
 
 // src/store/TMAI18nContext.tsx
 import React4 from "react";
+
+// src/hooks/useStore.ts
+function useStore(path) {
+  return useTMAStore((store) => get(store.state, path));
+}
+
+// src/store/TMAI18nContext.tsx
 import { jsx as jsx4 } from "react/jsx-runtime";
 var TMAI18nContext = React4.createContext(void 0);
 function TMAI18nProvider({ locales, children }) {
-  const me = useTMAStore((store) => store.state.settings);
+  const settings = useStore("settings");
   const t = React4.useCallback((key, params) => {
     if (!locales) return key;
-    const locale = locales?.[me?.language_code?.toLowerCase()?.slice(0, 2)] || locales[localStorage.getItem("language_code") || "en"];
+    const locale = locales?.[settings?.language_code?.toLowerCase()?.slice(0, 2)] || locales[localStorage.getItem("language_code") || "en"];
     if (!locale || typeof key !== "string") return key;
     const template = get(locale, key, key);
     if (!params) return template;
     return template.replace(/\{(\w+)\}/g, (_, key2) => String(params[key2]) || "");
-  }, [me]);
+  }, [settings]);
   const value = React4.useMemo(() => ({
     t
   }), [t]);
@@ -348,7 +355,7 @@ function TMAProvider({ env, background, url, locales, children }) {
   return /* @__PURE__ */ jsx5(TMASDKProvider, { env, background, children: /* @__PURE__ */ jsx5(TMAClientProvider, { url, children: /* @__PURE__ */ jsx5(TMAStoreProvider, { children: /* @__PURE__ */ jsx5(TMAI18nProvider, { locales, children }) }) }) });
 }
 
-// src/hooks/useQuery.tsx
+// src/hooks/useQuery.ts
 import React5 from "react";
 function useQuery(path, options = {}) {
   const gcTimeRef = React5.useRef(options.gcTime || Infinity);
@@ -376,7 +383,7 @@ function useQuery(path, options = {}) {
   };
 }
 
-// src/hooks/useMutation.tsx
+// src/hooks/useMutation.ts
 import React7 from "react";
 
 // src/hooks/useRefValue.ts
@@ -389,7 +396,7 @@ function useRefValue(value) {
   return ref;
 }
 
-// src/hooks/useMutation.tsx
+// src/hooks/useMutation.ts
 function useMutation() {
   const mutate = useTMAStoreMutate();
   const [isLoading, setIsLoading] = React7.useState(false);
@@ -578,6 +585,7 @@ export {
   Typography2 as Typography,
   useMutation,
   useQuery,
+  useStore,
   useTMAClient,
   useTMAI18n,
   useTMASDK,

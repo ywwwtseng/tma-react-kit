@@ -200,6 +200,8 @@ declare function useMutation(): {
     isLoading: boolean;
 };
 
+declare function useStore<T = unknown>(path: string | string[]): T;
+
 declare const HEADER_HEIGHT = 56;
 declare const TAB_BAR_HEIGHT = 60;
 declare function Root({ children }: React.PropsWithChildren): react_jsx_runtime.JSX.Element;
@@ -236,4 +238,4 @@ interface TypographyProps extends ReactKit.TypographyProps {
 }
 declare function Typography({ i18n, params, children, ...props }: TypographyProps): react_jsx_runtime.JSX.Element;
 
-export { HEADER_HEIGHT, Layout, type Locale, type Locales, type ResponseData, type ResponseDataCommand, Status, type Store, TAB_BAR_HEIGHT, TELEGRAM_ENV, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMAProvider, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, useMutation, useQuery, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTMAStoreMutate, useTMAStoreQuery, useTelegramSDK };
+export { HEADER_HEIGHT, Layout, type Locale, type Locales, type ResponseData, type ResponseDataCommand, Status, type Store, TAB_BAR_HEIGHT, TELEGRAM_ENV, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMAProvider, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, useMutation, useQuery, useStore, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTMAStoreMutate, useTMAStoreQuery, useTelegramSDK };
