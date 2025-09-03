@@ -2,7 +2,7 @@ import { LaunchParamsLike } from '@telegram-apps/transformers';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import React from 'react';
 import { User, Platform } from '@telegram-apps/sdk-react';
-import { Request } from 'request';
+import * as zustand from 'zustand';
 
 declare const TELEGRAM_ENV: {
     MOCK: {
@@ -124,7 +124,8 @@ declare function TMASDKProvider({ env, background, children, }: TMASDKProviderPr
 declare function useTMASDK(): TMASDKContextState;
 
 interface TMAClientContextState {
-    request: Request;
+    query: (path: string | string[]) => Promise<unknown>;
+    mutate: <TPayload>(action: string, payload: TPayload) => Promise<unknown>;
 }
 declare const TMAClientContext: React.Context<TMAClientContextState>;
 interface TMAClientProviderProps extends React.PropsWithChildren {
@@ -133,9 +134,50 @@ interface TMAClientProviderProps extends React.PropsWithChildren {
 declare function TMAClientProvider({ url, children }: TMAClientProviderProps): react_jsx_runtime.JSX.Element;
 declare function useTMAClient(): TMAClientContextState;
 
-interface TMAProviderProps extends React.PropsWithChildren, Omit<TMASDKProviderProps, 'children'>, Omit<TMAClientProviderProps, 'children'> {
+declare enum Status {
+    Loading = 0,
+    Authenticated = 1,
+    Unauthenticated = 2,
+    Forbidden = 3
 }
-declare function TMAProvider({ env, background, url, children }: TMAProviderProps): react_jsx_runtime.JSX.Element;
+interface TMAStateContextState {
+    query: (path: string | string[]) => Promise<unknown>;
+    mutate: (action: string, payload: unknown) => Promise<unknown>;
+}
+declare const TMAStateContext: React.Context<TMAStateContextState>;
+interface TMAStateProviderProps extends React.PropsWithChildren {
+}
+interface ResponseDataCommand {
+    update?: string[];
+    action?: string;
+    payload: unknown;
+}
+interface ResponseData {
+    commands: ResponseDataCommand[];
+}
+declare const useTMAStore: zustand.UseBoundStore<zustand.StoreApi<{
+    data: Record<string, unknown>;
+    status: Status;
+    update: (action: ResponseDataCommand) => void;
+}>>;
+declare function TMAStateProvider({ children }: TMAStateProviderProps): react_jsx_runtime.JSX.Element;
+declare function useTMAState(): TMAStateContextState;
+
+interface TMAI18nContextState {
+    t: (key: string, params?: Record<string, string | number>) => string;
+}
+declare const TMAI18nContext: React.Context<TMAI18nContextState>;
+type Locale = Record<string, Record<string, string>>;
+type Locales = Record<string, Locale>;
+interface TMAI18nProviderProps extends React.PropsWithChildren {
+    locales?: Locales;
+}
+declare function TMAI18nProvider({ locales, children }: TMAI18nProviderProps): react_jsx_runtime.JSX.Element;
+declare function useTMAI18n(): TMAI18nContextState;
+
+interface TMAProviderProps extends React.PropsWithChildren, Omit<TMASDKProviderProps, 'children'>, Omit<TMAClientProviderProps, 'children'>, Omit<TMAStateProviderProps, 'children'>, Omit<TMAI18nProviderProps, 'children'> {
+}
+declare function TMAProvider({ env, background, url, locales, children }: TMAProviderProps): react_jsx_runtime.JSX.Element;
 
 declare const HEADER_HEIGHT = 56;
 declare const TAB_BAR_HEIGHT = 60;
@@ -167,4 +209,4 @@ declare const Layout: {
     TabBar: typeof TabBar;
 };
 
-export { HEADER_HEIGHT, Layout, TAB_BAR_HEIGHT, TELEGRAM_ENV, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAProvider, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, useTMAClient, useTMASDK, useTelegramSDK };
+export { HEADER_HEIGHT, Layout, type Locale, type Locales, type ResponseData, type ResponseDataCommand, Status, TAB_BAR_HEIGHT, TELEGRAM_ENV, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMAProvider, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStateContext, type TMAStateContextState, TMAStateProvider, type TMAStateProviderProps, useTMAClient, useTMAI18n, useTMASDK, useTMAState, useTMAStore, useTelegramSDK };

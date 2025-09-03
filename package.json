@@ -14,12 +14,13 @@
     "typescript": "^5"
   },
   "peerDependencies": {
-    "react": ">=18.0.0",
-    "@types/react": ">=18.0.0"
+    "@types/react": ">=18.0.0",
+    "react": ">=18.0.0"
   },
   "dependencies": {
     "@telegram-apps/sdk-react": "^3.3.7",
     "@telegram-apps/transformers": "^2.2.6",
-    "request": "github:ywwwtseng/request#bc19773"
+    "request": "github:ywwwtseng/request#bc19773",
+    "zustand": "^5.0.8"
   }
 }

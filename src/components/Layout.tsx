@@ -119,6 +119,7 @@ function TabBarItem({
         justifyContent: 'center',
         outline: 'none',
         gap: '2px',
+        width: '54px',
         color: active || isActivating ? 'white' : '#7c7c7c',
         transition: 'color 200ms',
       }}

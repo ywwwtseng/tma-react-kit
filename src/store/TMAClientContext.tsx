@@ -3,7 +3,8 @@ import { Request } from 'request';
 import { useTMASDK } from './TMASDKContext';
 
 export interface TMAClientContextState {
-  request: Request;
+  query: (path: string | string[]) => Promise<unknown>;
+  mutate: <TPayload,>(action: string, payload: TPayload) => Promise<unknown>;
 }
 
 export const TMAClientContext = React.createContext<TMAClientContextState | undefined>(undefined);
@@ -16,16 +17,25 @@ export function TMAClientProvider({ url, children }: TMAClientProviderProps) {
   const { initDataRaw } = useTMASDK();
 
   const request = React.useMemo(() => new Request({
-    baseUrl: url,
     transformRequest(headers) {
       headers.set('Authorization', `tma ${initDataRaw}`);
       return headers;
     },
   }), [url, initDataRaw]);
 
+  const query = React.useCallback((path: string | string[]) => {
+    path = Array.isArray(path) ? path : [path];
+    return request.post(url, { type: 'query', path });
+  }, [request]);
+
+  const mutate = React.useCallback((action: string, payload: unknown) => {
+    return request.post(url, { type: 'mutate', action, payload });
+  }, [request]);
+
   const value = React.useMemo(() => ({
-    request,
-  }), [request]);
+    query,
+    mutate,
+  }), [query, mutate]);
 
   return (
     <TMAClientContext.Provider value={value}>
