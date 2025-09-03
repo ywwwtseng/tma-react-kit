@@ -1,4 +1,4 @@
-import React from 'react';
+import { useMemo, useEffect, createContext, useState, use, type PropsWithChildren } from 'react';
 import { type User, type Platform, init, postEvent } from '@telegram-apps/sdk-react';
 import { useTelegramSDK, TELEGRAM_ENV } from '../hooks/useTelegramSDK';
 import { useClientOnce } from '../hooks/useClientOnce';
@@ -10,9 +10,9 @@ export interface TMASDKContextState {
   avatar: HTMLImageElement | null;
 }
 
-export const TMASDKContext = React.createContext<TMASDKContextState | undefined>(undefined);
+export const TMASDKContext = createContext<TMASDKContextState | undefined>(undefined);
 
-export interface TMASDKProviderProps extends React.PropsWithChildren {
+export interface TMASDKProviderProps extends PropsWithChildren {
   env?: typeof TELEGRAM_ENV[keyof typeof TELEGRAM_ENV];
   background?: `#${string}`;
 }
@@ -25,9 +25,9 @@ export function TMASDKProvider({
   const { launchParams, initDataRaw } = useTelegramSDK(env);
   const user = launchParams?.tgWebAppData?.user;
   const platform = launchParams?.tgWebAppPlatform;
-  const [avatar, setAvatar] = React.useState<HTMLImageElement | null>(null);
+  const [avatar, setAvatar] = useState<HTMLImageElement | null>(null);
 
-  const value = React.useMemo(() => ({
+  const value = useMemo(() => ({
     initDataRaw,
     user,
     platform,
@@ -43,7 +43,7 @@ export function TMASDKProvider({
     }
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (user?.photo_url) {
       const image = new Image();
       
@@ -60,7 +60,7 @@ export function TMASDKProvider({
 }
 
 export function useTMASDK(): TMASDKContextState {
-  const context = React.use(TMASDKContext);
+  const context = use(TMASDKContext);
 
   if (!context) {
     throw new Error('useTMA must be used within a TMASDKProvider');

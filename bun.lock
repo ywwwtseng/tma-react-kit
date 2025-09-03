@@ -6,7 +6,7 @@
       "dependencies": {
         "@telegram-apps/sdk-react": "^3.3.7",
         "@telegram-apps/transformers": "^2.2.6",
-        "@ywwwtseng/react-kit": "^0",
+        "@ywwwtseng/react-kit": "v0.0.5",
         "@ywwwtseng/request": "^0",
         "zustand": "^5.0.8",
       },
@@ -253,7 +253,7 @@
 
     "@types/react": ["@types/react@19.1.12", "", { "dependencies": { "csstype": "^3.0.2" } }, "sha512-cMoR+FoAf/Jyq6+Df2/Z41jISvGZZ2eTlnsaJRptmZ76Caldwy1odD4xTr/gNV9VLj0AWgg/nmkevIyUfIIq5w=="],
 
-    "@ywwwtseng/react-kit": ["@ywwwtseng/react-kit@0.0.2", "", { "dependencies": { "@heroui/dropdown": "^2.3.25" }, "peerDependencies": { "@types/react": ">=18.0.0", "react": ">=18.0.0" } }, "sha512-6jHNiv/W/MWAZW21S54e9538xA7tYkNt6Pp4+DWMd248mdlZ8qkctrtsSHqX9qqtd6sgObtEIG0/b4Q+wsRHSA=="],
+    "@ywwwtseng/react-kit": ["@ywwwtseng/react-kit@0.0.5", "", { "dependencies": { "@heroui/dropdown": "^2.3.25" }, "peerDependencies": { "@types/react": ">=18.0.0", "react": ">=18.0.0" } }, "sha512-2uqj3UIWHW24mEcsGqpmIrYhvqMQJ5rHYujwjzQuo0izWcrw1YwtQetp1Wka/xqsgCaBFFrCjk1oBOR65epyyQ=="],
 
     "@ywwwtseng/request": ["@ywwwtseng/request@0.0.1", "", {}, "sha512-FTIXuHu2Zq+N6T89UAKS7fr3pa3Z+PqJe9aZ7SZjRhdSAI9F0KlI+ielPyKcnpx+wOgdJmQaCBnQnxVvCXChPw=="],
 

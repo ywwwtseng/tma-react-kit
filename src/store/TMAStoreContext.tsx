@@ -1,4 +1,4 @@
-import React from 'react';
+import { RefObject, createContext, useRef, useCallback, useEffect, useMemo, use, type PropsWithChildren } from 'react';
 import { create } from 'zustand';
 import { useTMAClient } from './TMAClientContext';
 import { update } from '../utils';
@@ -13,12 +13,12 @@ export enum Status {
 export interface TMAStoreContextState {
   query: (path: string | string[]) => Promise<unknown>;
   mutate: (action: string, payload: unknown) => Promise<unknown>;
-  loadingRef: React.RefObject<string[]>;
+  loadingRef: RefObject<string[]>;
 }
 
-export const TMAStoreContext = React.createContext<TMAStoreContextState | undefined>(undefined);
+export const TMAStoreContext = createContext<TMAStoreContextState | undefined>(undefined);
 
-export interface TMAStoreProviderProps extends React.PropsWithChildren {
+export interface TMAStoreProviderProps extends PropsWithChildren {
 }
 
 export interface ResponseDataCommand {
@@ -65,9 +65,9 @@ export const useTMAStore = create<Store>((set) => ({
 export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
   const client = useTMAClient();
   const { update } = useTMAStore();
-  const loadingRef = React.useRef([]);
+  const loadingRef = useRef([]);
 
-  const query = React.useCallback((path: string | string[]) => {
+  const query = useCallback((path: string | string[]) => {
     const key = JSON.stringify(path);
 
     loadingRef.current.push(key);
@@ -110,7 +110,7 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
       });
   }, [client.query]);
 
-  const mutate = React.useCallback((action: string, payload?: unknown) => {
+  const mutate = useCallback((action: string, payload?: unknown) => {
     const key = JSON.stringify({ action, payload });
 
     update({
@@ -129,7 +129,7 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
       })
   }, [client.mutate]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     mutate('init')
       .then(() => {
         update({
@@ -146,7 +146,7 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
       });
   }, [mutate]);
 
-  const value = React.useMemo(() => ({
+  const value = useMemo(() => ({
     query,
     mutate,
     loadingRef,
@@ -160,7 +160,7 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
 }
 
 export function useTMAStoreQuery() {
-  const context = React.use(TMAStoreContext);
+  const context = use(TMAStoreContext);
 
   if (!context) {
     throw new Error('useTMA must be used within a TMAStoreProvider');
@@ -173,7 +173,7 @@ export function useTMAStoreQuery() {
 }
 
 export function useTMAStoreMutate() {
-  const context = React.use(TMAStoreContext);
+  const context = use(TMAStoreContext);
 
   if (!context) {
     throw new Error('useTMA must be used within a TMAStoreProvider');

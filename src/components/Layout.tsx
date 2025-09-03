@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState } from 'react';
 import { postEvent } from '@telegram-apps/sdk-react';
 import { useTMASDK } from '../store/TMASDKContext';
 
@@ -107,7 +107,7 @@ function TabBarItem({
   active?: boolean;
   onClick?: () => void;
 }) {
-  const [isActivating, setIsActivating] = React.useState(false);
+  const [isActivating, setIsActivating] = useState(false);
 
   return (
     <button

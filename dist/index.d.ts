@@ -1,5 +1,6 @@
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import React from 'react';
+import * as react from 'react';
+import { PropsWithChildren, RefObject } from 'react';
 import { User, Platform } from '@telegram-apps/sdk-react';
 import { LaunchParamsLike } from '@telegram-apps/transformers';
 import * as zustand from 'zustand';
@@ -116,8 +117,8 @@ interface TMASDKContextState {
     platform: Platform | undefined;
     avatar: HTMLImageElement | null;
 }
-declare const TMASDKContext: React.Context<TMASDKContextState>;
-interface TMASDKProviderProps extends React.PropsWithChildren {
+declare const TMASDKContext: react.Context<TMASDKContextState>;
+interface TMASDKProviderProps extends PropsWithChildren {
     env?: typeof TELEGRAM_ENV[keyof typeof TELEGRAM_ENV];
     background?: `#${string}`;
 }
@@ -128,8 +129,8 @@ interface TMAClientContextState {
     query: (path: string | string[]) => Promise<unknown>;
     mutate: <TPayload>(action: string, payload: TPayload) => Promise<unknown>;
 }
-declare const TMAClientContext: React.Context<TMAClientContextState>;
-interface TMAClientProviderProps extends React.PropsWithChildren {
+declare const TMAClientContext: react.Context<TMAClientContextState>;
+interface TMAClientProviderProps extends PropsWithChildren {
     url: string;
 }
 declare function TMAClientProvider({ url, children }: TMAClientProviderProps): react_jsx_runtime.JSX.Element;
@@ -144,10 +145,10 @@ declare enum Status {
 interface TMAStoreContextState {
     query: (path: string | string[]) => Promise<unknown>;
     mutate: (action: string, payload: unknown) => Promise<unknown>;
-    loadingRef: React.RefObject<string[]>;
+    loadingRef: RefObject<string[]>;
 }
-declare const TMAStoreContext: React.Context<TMAStoreContextState>;
-interface TMAStoreProviderProps extends React.PropsWithChildren {
+declare const TMAStoreContext: react.Context<TMAStoreContextState>;
+interface TMAStoreProviderProps extends PropsWithChildren {
 }
 interface ResponseDataCommand {
     update?: string[];
@@ -167,17 +168,17 @@ declare const useTMAStore: zustand.UseBoundStore<zustand.StoreApi<Store>>;
 declare function TMAStoreProvider({ children }: TMAStoreProviderProps): react_jsx_runtime.JSX.Element;
 declare function useTMAStoreQuery(): {
     query: (path: string | string[]) => Promise<unknown>;
-    loadingRef: React.RefObject<string[]>;
+    loadingRef: RefObject<string[]>;
 };
 declare function useTMAStoreMutate(): (action: string, payload: unknown) => Promise<unknown>;
 
 interface TMAI18nContextState {
     t: (key: string, params?: Record<string, string | number>) => string;
 }
-declare const TMAI18nContext: React.Context<TMAI18nContextState>;
+declare const TMAI18nContext: react.Context<TMAI18nContextState>;
 type Locale = Record<string, Record<string, string>>;
 type Locales = Record<string, Locale>;
-interface TMAI18nProviderProps extends React.PropsWithChildren {
+interface TMAI18nProviderProps extends PropsWithChildren {
     locales?: Locales;
 }
 declare function TMAI18nProvider({ locales, children }: TMAI18nProviderProps): react_jsx_runtime.JSX.Element;
@@ -238,6 +239,9 @@ interface TypographyProps extends ReactKit.TypographyProps {
 }
 declare function Typography({ i18n, params, children, ...props }: TypographyProps): react_jsx_runtime.JSX.Element;
 
-declare function LanguageMenu(): react_jsx_runtime.JSX.Element;
+interface LanguageMenuProps {
+    className?: string;
+}
+declare function LanguageMenu({ className }: LanguageMenuProps): react_jsx_runtime.JSX.Element;
 
 export { HEADER_HEIGHT, LanguageMenu, Layout, type Locale, type Locales, type ResponseData, type ResponseDataCommand, Status, type Store, TAB_BAR_HEIGHT, TELEGRAM_ENV, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMAProvider, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, useMutation, useQuery, useStore, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTMAStoreMutate, useTMAStoreQuery, useTelegramSDK };

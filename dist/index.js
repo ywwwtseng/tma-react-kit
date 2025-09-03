@@ -1,5 +1,5 @@
 // src/store/TMASDKContext.tsx
-import React from "react";
+import { useMemo as useMemo2, useEffect as useEffect2, createContext, useState, use } from "react";
 import { init, postEvent } from "@telegram-apps/sdk-react";
 
 // src/hooks/useTelegramSDK.ts
@@ -90,7 +90,7 @@ function useClientOnce(setup) {
 
 // src/store/TMASDKContext.tsx
 import { jsx } from "react/jsx-runtime";
-var TMASDKContext = React.createContext(void 0);
+var TMASDKContext = createContext(void 0);
 function TMASDKProvider({
   env,
   background = "#000000",
@@ -99,8 +99,8 @@ function TMASDKProvider({
   const { launchParams, initDataRaw } = useTelegramSDK(env);
   const user = launchParams?.tgWebAppData?.user;
   const platform = launchParams?.tgWebAppPlatform;
-  const [avatar, setAvatar] = React.useState(null);
-  const value = React.useMemo(() => ({
+  const [avatar, setAvatar] = useState(null);
+  const value = useMemo2(() => ({
     initDataRaw,
     user,
     platform,
@@ -114,7 +114,7 @@ function TMASDKProvider({
       postEvent("web_app_set_background_color", { color: background });
     }
   });
-  React.useEffect(() => {
+  useEffect2(() => {
     if (user?.photo_url) {
       const image = new Image();
       image.onload = () => {
@@ -126,7 +126,7 @@ function TMASDKProvider({
   return /* @__PURE__ */ jsx(TMASDKContext.Provider, { value, children });
 }
 function useTMASDK() {
-  const context = React.use(TMASDKContext);
+  const context = use(TMASDKContext);
   if (!context) {
     throw new Error("useTMA must be used within a TMASDKProvider");
   }
@@ -134,33 +134,33 @@ function useTMASDK() {
 }
 
 // src/store/TMAClientContext.tsx
-import React2 from "react";
+import { useMemo as useMemo3, useCallback, createContext as createContext2, use as use2 } from "react";
 import { Request } from "@ywwwtseng/request";
 import { jsx as jsx2 } from "react/jsx-runtime";
-var TMAClientContext = React2.createContext(void 0);
+var TMAClientContext = createContext2(void 0);
 function TMAClientProvider({ url, children }) {
   const { initDataRaw } = useTMASDK();
-  const request = React2.useMemo(() => new Request({
+  const request = useMemo3(() => new Request({
     transformRequest(headers) {
       headers.set("Authorization", `tma ${initDataRaw}`);
       return headers;
     }
   }), [url, initDataRaw]);
-  const query = React2.useCallback((path) => {
+  const query = useCallback((path) => {
     path = Array.isArray(path) ? path : [path];
     return request.post(url, { type: "query", path });
   }, [request]);
-  const mutate = React2.useCallback((action, payload) => {
+  const mutate = useCallback((action, payload) => {
     return request.post(url, { type: "mutate", action, payload });
   }, [request]);
-  const value = React2.useMemo(() => ({
+  const value = useMemo3(() => ({
     query,
     mutate
   }), [query, mutate]);
   return /* @__PURE__ */ jsx2(TMAClientContext.Provider, { value, children });
 }
 function useTMAClient() {
-  const context = React2.use(TMAClientContext);
+  const context = use2(TMAClientContext);
   if (!context) {
     throw new Error("useTMA must be used within a TMAClientProvider");
   }
@@ -168,7 +168,7 @@ function useTMAClient() {
 }
 
 // src/store/TMAStoreContext.tsx
-import React3 from "react";
+import { createContext as createContext3, useRef as useRef2, useCallback as useCallback2, useEffect as useEffect3, useMemo as useMemo4, use as use3 } from "react";
 import { create } from "zustand";
 
 // src/utils/index.ts
@@ -202,7 +202,7 @@ var Status = /* @__PURE__ */ ((Status2) => {
   Status2[Status2["Forbidden"] = 3] = "Forbidden";
   return Status2;
 })(Status || {});
-var TMAStoreContext = React3.createContext(void 0);
+var TMAStoreContext = createContext3(void 0);
 var useTMAStore = create((set) => ({
   status: 0 /* Loading */,
   state: {},
@@ -227,8 +227,8 @@ var useTMAStore = create((set) => ({
 function TMAStoreProvider({ children }) {
   const client = useTMAClient();
   const { update: update2 } = useTMAStore();
-  const loadingRef = React3.useRef([]);
-  const query = React3.useCallback((path) => {
+  const loadingRef = useRef2([]);
+  const query = useCallback2((path) => {
     const key = JSON.stringify(path);
     loadingRef.current.push(key);
     update2({
@@ -262,7 +262,7 @@ function TMAStoreProvider({ children }) {
       });
     });
   }, [client.query]);
-  const mutate = React3.useCallback((action, payload) => {
+  const mutate = useCallback2((action, payload) => {
     const key = JSON.stringify({ action, payload });
     update2({
       update: ["loading"],
@@ -276,7 +276,7 @@ function TMAStoreProvider({ children }) {
       return res;
     });
   }, [client.mutate]);
-  React3.useEffect(() => {
+  useEffect3(() => {
     mutate("init").then(() => {
       update2({
         update: ["status"],
@@ -290,7 +290,7 @@ function TMAStoreProvider({ children }) {
       });
     });
   }, [mutate]);
-  const value = React3.useMemo(() => ({
+  const value = useMemo4(() => ({
     query,
     mutate,
     loadingRef
@@ -298,7 +298,7 @@ function TMAStoreProvider({ children }) {
   return /* @__PURE__ */ jsx3(TMAStoreContext.Provider, { value, children });
 }
 function useTMAStoreQuery() {
-  const context = React3.use(TMAStoreContext);
+  const context = use3(TMAStoreContext);
   if (!context) {
     throw new Error("useTMA must be used within a TMAStoreProvider");
   }
@@ -308,7 +308,7 @@ function useTMAStoreQuery() {
   };
 }
 function useTMAStoreMutate() {
-  const context = React3.use(TMAStoreContext);
+  const context = use3(TMAStoreContext);
   if (!context) {
     throw new Error("useTMA must be used within a TMAStoreProvider");
   }
@@ -316,7 +316,7 @@ function useTMAStoreMutate() {
 }
 
 // src/store/TMAI18nContext.tsx
-import React4 from "react";
+import { useCallback as useCallback3, useMemo as useMemo5, createContext as createContext4, use as use4 } from "react";
 
 // src/hooks/useStore.ts
 function useStore(path) {
@@ -325,10 +325,10 @@ function useStore(path) {
 
 // src/store/TMAI18nContext.tsx
 import { jsx as jsx4 } from "react/jsx-runtime";
-var TMAI18nContext = React4.createContext(void 0);
+var TMAI18nContext = createContext4(void 0);
 function TMAI18nProvider({ locales, children }) {
   const settings = useStore("settings");
-  const t = React4.useCallback((key, params) => {
+  const t = useCallback3((key, params) => {
     if (!locales) return key;
     const locale = locales?.[settings?.language_code?.toLowerCase()?.slice(0, 2)] || locales[localStorage.getItem("language_code") || "en"];
     if (!locale || typeof key !== "string") return key;
@@ -336,13 +336,13 @@ function TMAI18nProvider({ locales, children }) {
     if (!params) return template;
     return template.replace(/\{(\w+)\}/g, (_, key2) => String(params[key2]) || "");
   }, [settings]);
-  const value = React4.useMemo(() => ({
+  const value = useMemo5(() => ({
     t
   }), [t]);
   return /* @__PURE__ */ jsx4(TMAI18nContext.Provider, { value, children });
 }
 function useTMAI18n() {
-  const context = React4.use(TMAI18nContext);
+  const context = use4(TMAI18nContext);
   if (!context) {
     throw new Error("useTMA must be used within a TMAI18nProvider");
   }
@@ -356,14 +356,14 @@ function TMAProvider({ env, background, url, locales, children }) {
 }
 
 // src/hooks/useQuery.ts
-import React5 from "react";
+import React from "react";
 function useQuery(path, options = {}) {
-  const gcTimeRef = React5.useRef(options.gcTime || Infinity);
+  const gcTimeRef = React.useRef(options.gcTime || Infinity);
   const key = JSON.stringify(path);
   const { query, loadingRef } = useTMAStoreQuery();
   const isLoading = useTMAStore((store) => store.loading).includes(key);
   const data = useTMAStore((store) => get(store.state, path));
-  React5.useEffect(() => {
+  React.useEffect(() => {
     if (loadingRef.current.includes(key)) {
       return;
     }
@@ -384,13 +384,13 @@ function useQuery(path, options = {}) {
 }
 
 // src/hooks/useMutation.ts
-import React7 from "react";
+import React3 from "react";
 
 // src/hooks/useRefValue.ts
-import React6 from "react";
+import React2 from "react";
 function useRefValue(value) {
-  const ref = React6.useRef(value);
-  React6.useEffect(() => {
+  const ref = React2.useRef(value);
+  React2.useEffect(() => {
     ref.current = value;
   }, [value]);
   return ref;
@@ -399,7 +399,7 @@ function useRefValue(value) {
 // src/hooks/useMutation.ts
 function useMutation() {
   const mutate = useTMAStoreMutate();
-  const [isLoading, setIsLoading] = React7.useState(false);
+  const [isLoading, setIsLoading] = React3.useState(false);
   const isLoadingRef = useRefValue(isLoading);
   return {
     mutate: (action, payload) => {
@@ -416,7 +416,7 @@ function useMutation() {
 }
 
 // src/components/Layout.tsx
-import React8 from "react";
+import { useState as useState2 } from "react";
 import { postEvent as postEvent2 } from "@telegram-apps/sdk-react";
 import { jsx as jsx6, jsxs } from "react/jsx-runtime";
 var HEADER_HEIGHT = 56;
@@ -511,7 +511,7 @@ function TabBarItem({
   active = false,
   onClick
 }) {
-  const [isActivating, setIsActivating] = React8.useState(false);
+  const [isActivating, setIsActivating] = useState2(false);
   return /* @__PURE__ */ jsxs(
     "button",
     {
@@ -570,27 +570,47 @@ function Typography2({ i18n, params, children, ...props }) {
 
 // src/components/LanguageMenu.tsx
 import { Dropdown } from "@ywwwtseng/react-kit";
-import { jsx as jsx8 } from "react/jsx-runtime";
+import { jsx as jsx8, jsxs as jsxs2 } from "react/jsx-runtime";
+var icons = {
+  en: /* @__PURE__ */ jsxs2("svg", { xmlns: "http://www.w3.org/2000/svg", width: "40", height: "40", viewBox: "0 0 512 512", children: [
+    /* @__PURE__ */ jsx8("mask", { id: "a", children: /* @__PURE__ */ jsx8("circle", { cx: "256", cy: "256", r: "256", fill: "#fff" }) }),
+    /* @__PURE__ */ jsxs2("g", { mask: "url(#a)", children: [
+      /* @__PURE__ */ jsx8("path", { fill: "#eee", d: "m0 0 8 22-8 23v23l32 54-32 54v32l32 48-32 48v32l32 54-32 54v68l22-8 23 8h23l54-32 54 32h32l48-32 48 32h32l54-32 54 32h68l-8-22 8-23v-23l-32-54 32-54v-32l-32-48 32-48v-32l-32-54 32-54V0l-22 8-23-8h-23l-54 32-54-32h-32l-48 32-48-32h-32l-54 32L68 0H0z" }),
+      /* @__PURE__ */ jsx8("path", { fill: "#0052b4", d: "M336 0v108L444 0Zm176 68L404 176h108zM0 176h108L0 68ZM68 0l108 108V0Zm108 512V404L68 512ZM0 444l108-108H0Zm512-108H404l108 108Zm-68 176L336 404v108z" }),
+      /* @__PURE__ */ jsx8("path", { fill: "#d80027", d: "M0 0v45l131 131h45L0 0zm208 0v208H0v96h208v208h96V304h208v-96H304V0h-96zm259 0L336 131v45L512 0h-45zM176 336 0 512h45l131-131v-45zm160 0 176 176v-45L381 336h-45z" })
+    ] })
+  ] }),
+  zh: /* @__PURE__ */ jsxs2("svg", { xmlns: "http://www.w3.org/2000/svg", width: "40", height: "40", viewBox: "0 0 512 512", children: [
+    /* @__PURE__ */ jsx8("mask", { id: "a", children: /* @__PURE__ */ jsx8("circle", { cx: "256", cy: "256", r: "256", fill: "#fff" }) }),
+    /* @__PURE__ */ jsxs2("g", { mask: "url(#a)", children: [
+      /* @__PURE__ */ jsx8("path", { fill: "#d80027", d: "M0 256 256 0h256v512H0z" }),
+      /* @__PURE__ */ jsx8("path", { fill: "#0052b4", d: "M256 256V0H0v256z" }),
+      /* @__PURE__ */ jsx8("path", { fill: "#eee", d: "m222.6 149.8-31.3 14.7 16.7 30.3-34-6.5-4.3 34.3-23.6-25.2-23.7 25.2-4.3-34.3-34 6.5 16.7-30.3-31.2-14.7 31.2-14.7-16.6-30.3 34 6.5 4.2-34.3 23.7 25.3L169.7 77l4.3 34.3 34-6.5-16.7 30.3z" }),
+      /* @__PURE__ */ jsx8("circle", { cx: "146.1", cy: "149.8", r: "47.7", fill: "#0052b4" }),
+      /* @__PURE__ */ jsx8("circle", { cx: "146.1", cy: "149.8", r: "41.5", fill: "#eee" })
+    ] })
+  ] })
+};
 var languages = [
   {
     key: "en",
     name: "English",
-    icon: "https://hatscripts.github.io/circle-flags/flags/gb.svg"
+    icon: icons.en
   },
   {
     key: "zh",
     name: "\u4E2D\u6587",
-    icon: "https://hatscripts.github.io/circle-flags/flags/tw.svg"
+    icon: icons.zh
   }
 ];
-function LanguageMenu() {
+function LanguageMenu({ className }) {
   const settings = useStore("settings");
   const mutate = useTMAStoreMutate();
   const language = languages.find((language2) => language2.key === settings?.language_code || language2.key === localStorage.getItem("language_code"));
-  return /* @__PURE__ */ jsx8(Dropdown, { items: languages, onChange: (key) => {
+  return /* @__PURE__ */ jsx8(Dropdown, { className, items: languages, onChange: (key) => {
     localStorage.setItem("language_code", key);
     mutate("update:settings", { language_code: key });
-  }, children: /* @__PURE__ */ jsx8("button", { style: { display: language ? "block" : "none" }, children: /* @__PURE__ */ jsx8("img", { src: language?.icon, width: "40", height: "40", alt: language?.name }) }) });
+  }, children: /* @__PURE__ */ jsx8("button", { style: { display: language ? "block" : "none" }, children: icons[language?.key] }) });
 }
 export {
   HEADER_HEIGHT,

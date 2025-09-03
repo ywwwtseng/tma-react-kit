@@ -1,4 +1,3 @@
-import React from 'react';
 import { TMASDKProvider, TMASDKProviderProps } from './TMASDKContext';
 import { TMAClientProvider, TMAClientProviderProps} from './TMAClientContext';
 import { TMAStoreProvider, TMAStoreProviderProps } from './TMAStoreContext';

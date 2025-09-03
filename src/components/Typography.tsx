@@ -1,4 +1,3 @@
-import React from 'react';
 import * as ReactKit from '@ywwwtseng/react-kit';
 import { useTMAI18n } from '../store/TMAI18nContext';
 
