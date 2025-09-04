@@ -1,4 +1,4 @@
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import { TMAProvider, TMAProviderProps } from '../store/TMAContext';
 import { TMALayout, TMALayoutProps } from './TMALayout';
 
@@ -17,7 +17,7 @@ export function TMA({
 }: TMAProps) {
   return (
     <TMAProvider env={env} url={url} locales={locales}>
-      <BrowserRouter>
+      <MemoryRouter>
         <TMALayout
           backIcon={backIcon}
           backText={backText}
@@ -25,7 +25,7 @@ export function TMA({
           headerRight={headerRight}
           views={views}
         />
-      </BrowserRouter>
+      </MemoryRouter>
     </TMAProvider>
   );
 }

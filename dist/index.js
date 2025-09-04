@@ -681,7 +681,7 @@ function TMALayout({
 }
 
 // src/components/TMA.tsx
-import { BrowserRouter } from "react-router-dom";
+import { MemoryRouter } from "react-router-dom";
 import { jsx as jsx10 } from "react/jsx-runtime";
 function TMA({
   backIcon,
@@ -693,7 +693,7 @@ function TMA({
   locales,
   views = []
 }) {
-  return /* @__PURE__ */ jsx10(TMAProvider, { env, url, locales, children: /* @__PURE__ */ jsx10(BrowserRouter, { children: /* @__PURE__ */ jsx10(
+  return /* @__PURE__ */ jsx10(TMAProvider, { env, url, locales, children: /* @__PURE__ */ jsx10(MemoryRouter, { children: /* @__PURE__ */ jsx10(
     TMALayout,
     {
       backIcon,
