@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, type PropsWithChildren, type ReactNode } from 'react';
 import { postEvent } from '@telegram-apps/sdk-react';
 import { useTMASDK } from '../store/TMASDKContext';
+import { useTMAI18n } from '../store/TMAI18nContext';
 
 export const HEADER_HEIGHT = 56;
 export const TAB_BAR_HEIGHT = 60;
 
-function Root({ children }: React.PropsWithChildren) {
+function Root({ children }: PropsWithChildren) {
   const { platform } = useTMASDK();
   const safeAreaBottom = platform === 'ios' ? 20 : 12;
 
@@ -24,7 +25,7 @@ function Root({ children }: React.PropsWithChildren) {
   );
 }
 
-function Header({ className, children }: React.PropsWithChildren<{ className?: string; }>) {
+function Header({ className, children }: PropsWithChildren<{ className?: string; }>) {
   return (
     <div
       className={className}
@@ -46,7 +47,7 @@ function Header({ className, children }: React.PropsWithChildren<{ className?: s
   )
 }
 
-function HeaderLeft({ className, children }: React.PropsWithChildren<{ className?: string; }>) {
+function HeaderLeft({ className, children }: PropsWithChildren<{ className?: string; }>) {
   return (
     <div
       className={className}
@@ -61,7 +62,7 @@ function HeaderLeft({ className, children }: React.PropsWithChildren<{ className
   );
 }
 
-function HeaderRight({ className, children }: React.PropsWithChildren<{ className?: string; }>) {
+function HeaderRight({ className, children }: PropsWithChildren<{ className?: string; }>) {
   return (
     <div
       className={className}
@@ -76,10 +77,7 @@ function HeaderRight({ className, children }: React.PropsWithChildren<{ classNam
   );
 }
 
-Header.Left = HeaderLeft;
-Header.Right = HeaderRight;
-
-function Main({ className, children }: React.PropsWithChildren<{ className?: string; }>) {
+function Main({ className, children }: PropsWithChildren<{ className?: string; }>) {
   return (
     <div
       className={className}
@@ -93,7 +91,7 @@ function Main({ className, children }: React.PropsWithChildren<{ className?: str
   );
 } 
 
-function TabBar({ className, children }: React.PropsWithChildren<{ className?: string; }>) {
+function TabBar({ className, children }: PropsWithChildren<{ className?: string; }>) {
   const { platform } = useTMASDK();
   const safeAreaBottom = platform === 'ios' ? 20 : 12;
 
@@ -119,17 +117,18 @@ function TabBar({ className, children }: React.PropsWithChildren<{ className?: s
 
 function TabBarItem({
   className,
-  icon: Icon,
+  icon,
   text,
-  active = false,
+  isActive = false,
   onClick,
 }: {
   className?: string;
-  icon: React.ElementType;
-  text: React.ReactNode;
-  active?: boolean;
+  icon: ReactNode;
+  text: string;
+  isActive?: boolean;
   onClick?: () => void;
 }) {
+  const { t } = useTMAI18n();
   const [isActivating, setIsActivating] = useState(false);
 
   return (
@@ -143,11 +142,11 @@ function TabBarItem({
         outline: 'none',
         gap: '2px',
         width: '54px',
-        color: active || isActivating ? 'white' : '#7c7c7c',
+        color: isActive || isActivating ? 'white' : '#7c7c7c',
         transition: 'color 200ms',
       }}
       onClick={() => {
-        if (active || isActivating) return;
+        if (isActive || isActivating) return;
 
         postEvent('web_app_trigger_haptic_feedback', {
           type: 'impact',
@@ -172,18 +171,19 @@ function TabBarItem({
         transformOrigin: 'center',
         transform: isActivating ? 'scale(1.1)' : 'scale(1)',
       }}>
-        <Icon width={28} height={28} />
+        {icon}
       </div>
-      {text}
+      {t(text)}
     </button>
   );
 }
 
-TabBar.Item = TabBarItem;
-
 export const Layout = {
   Root,
   Header,
+  HeaderLeft,
+  HeaderRight,
   Main,
   TabBar,
+  TabBarItem,
 };

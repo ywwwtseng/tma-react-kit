@@ -35,10 +35,13 @@ export function LanguageMenu({ className }: LanguageMenuProps) {
   const language = languages.find((language) => language.key === settings?.language_code || language.key === localStorage.getItem('language_code'));
 
   return (
-    <Dropdown className={className} items={languages} onChange={(key) => {
-      localStorage.setItem('language_code', key);
-      mutate('update:settings', { language_code: key });
-    }}>
+    <Dropdown
+      className={className}
+      items={languages}
+      onChange={(key) => {
+        localStorage.setItem('language_code', key);
+        mutate('update:settings', { language_code: key });
+      }}>
       <button style={{ display: language ? 'block' : 'none' }}>
         {icons[language?.key as keyof typeof icons]}
       </button>

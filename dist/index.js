@@ -1,3 +1,6 @@
+// src/index.tsx
+import { useNavigate as useNavigate2 } from "react-router-dom";
+
 // src/store/TMASDKContext.tsx
 import { useMemo as useMemo2, useEffect, createContext, useState, use } from "react";
 import { init, postEvent } from "@telegram-apps/sdk-react";
@@ -457,8 +460,6 @@ function HeaderRight({ className, children }) {
     }
   );
 }
-Header.Left = HeaderLeft;
-Header.Right = HeaderRight;
 function Main({ className, children }) {
   return /* @__PURE__ */ jsx6(
     "div",
@@ -496,11 +497,12 @@ function TabBar({ className, children }) {
 }
 function TabBarItem({
   className,
-  icon: Icon,
+  icon,
   text,
-  active = false,
+  isActive = false,
   onClick
 }) {
+  const { t } = useTMAI18n();
   const [isActivating, setIsActivating] = useState2(false);
   return /* @__PURE__ */ jsxs(
     "button",
@@ -514,11 +516,11 @@ function TabBarItem({
         outline: "none",
         gap: "2px",
         width: "54px",
-        color: active || isActivating ? "white" : "#7c7c7c",
+        color: isActive || isActivating ? "white" : "#7c7c7c",
         transition: "color 200ms"
       },
       onClick: () => {
-        if (active || isActivating) return;
+        if (isActive || isActivating) return;
         postEvent2("web_app_trigger_haptic_feedback", {
           type: "impact",
           impact_style: "light"
@@ -539,18 +541,20 @@ function TabBarItem({
           transition: "transform 200ms",
           transformOrigin: "center",
           transform: isActivating ? "scale(1.1)" : "scale(1)"
-        }, children: /* @__PURE__ */ jsx6(Icon, { width: 28, height: 28 }) }),
-        text
+        }, children: icon }),
+        t(text)
       ]
     }
   );
 }
-TabBar.Item = TabBarItem;
 var Layout = {
   Root,
   Header,
+  HeaderLeft,
+  HeaderRight,
   Main,
-  TabBar
+  TabBar,
+  TabBarItem
 };
 
 // src/components/Typography.tsx
@@ -600,10 +604,105 @@ function LanguageMenu({ className }) {
   const settings = useStore("settings");
   const mutate = useTMAStoreMutate();
   const language = languages.find((language2) => language2.key === settings?.language_code || language2.key === localStorage.getItem("language_code"));
-  return /* @__PURE__ */ jsx8(Dropdown, { className, items: languages, onChange: (key) => {
-    localStorage.setItem("language_code", key);
-    mutate("update:settings", { language_code: key });
-  }, children: /* @__PURE__ */ jsx8("button", { style: { display: language ? "block" : "none" }, children: icons[language?.key] }) });
+  return /* @__PURE__ */ jsx8(
+    Dropdown,
+    {
+      className,
+      items: languages,
+      onChange: (key) => {
+        localStorage.setItem("language_code", key);
+        mutate("update:settings", { language_code: key });
+      },
+      children: /* @__PURE__ */ jsx8("button", { style: { display: language ? "block" : "none" }, children: icons[language?.key] })
+    }
+  );
+}
+
+// src/components/TMALayout.tsx
+import { Routes, Route, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { jsx as jsx9, jsxs as jsxs3 } from "react/jsx-runtime";
+function TMALayout({
+  headerLeft,
+  headerRight,
+  backIcon,
+  backText = "Back",
+  views = []
+}) {
+  const tabs = views.filter((view) => view.tab);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const currentView = views.find((view) => view.path === location.pathname);
+  return /* @__PURE__ */ jsxs3(Layout.Root, { children: [
+    /* @__PURE__ */ jsxs3(Layout.Header, { children: [
+      /* @__PURE__ */ jsxs3(Layout.HeaderLeft, { children: [
+        /* @__PURE__ */ jsx9(
+          "div",
+          {
+            className: "animation-fade-in",
+            style: {
+              display: !!currentView?.tab ? "block" : "none"
+            },
+            children: headerLeft
+          }
+        ),
+        /* @__PURE__ */ jsxs3(
+          "button",
+          {
+            className: "animation-fade-in",
+            style: {
+              display: !!currentView?.tab ? "none" : "flex",
+              alignItems: "center",
+              gap: "8px",
+              outline: "none",
+              background: "none",
+              border: "none"
+            },
+            onClick: () => navigate(-1),
+            children: [
+              backIcon && backIcon,
+              /* @__PURE__ */ jsx9(Typography2, { size: "4", i18n: backText })
+            ]
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsx9(Layout.HeaderRight, { children: headerRight })
+    ] }),
+    /* @__PURE__ */ jsx9(Layout.Main, { children: /* @__PURE__ */ jsx9(Routes, { children: views.map((view) => view.path ? /* @__PURE__ */ jsx9(Route, { path: view.path, element: view.element }, view.path) : void 0) }) }),
+    /* @__PURE__ */ jsx9(Layout.TabBar, { children: tabs.map(({ path, tab }) => /* @__PURE__ */ jsx9(NavLink, { to: path, children: ({ isActive }) => /* @__PURE__ */ jsx9(
+      Layout.TabBarItem,
+      {
+        icon: tab.icon,
+        text: tab.text,
+        isActive
+      },
+      tab.text
+    ) }, tab.text)) })
+  ] });
+}
+
+// src/components/TMA.tsx
+import { BrowserRouter } from "react-router-dom";
+import { jsx as jsx10 } from "react/jsx-runtime";
+function TMA({
+  backIcon,
+  backText,
+  headerLeft,
+  headerRight,
+  env,
+  url,
+  locales,
+  views = []
+}) {
+  return /* @__PURE__ */ jsx10(TMAProvider, { env, url, locales, children: /* @__PURE__ */ jsx10(BrowserRouter, { children: /* @__PURE__ */ jsx10(
+    TMALayout,
+    {
+      backIcon,
+      backText,
+      headerLeft,
+      headerRight,
+      views
+    }
+  ) }) });
 }
 export {
   HEADER_HEIGHT,
@@ -612,10 +711,12 @@ export {
   Status,
   TAB_BAR_HEIGHT,
   TELEGRAM_ENV,
+  TMA,
   TMAClientContext,
   TMAClientProvider,
   TMAI18nContext,
   TMAI18nProvider,
+  TMALayout,
   TMAProvider,
   TMASDKContext,
   TMASDKProvider,
@@ -623,6 +724,7 @@ export {
   TMAStoreProvider,
   Typography2 as Typography,
   useMutation,
+  useNavigate2 as useNavigate,
   useQuery,
   useStore,
   useTMAClient,

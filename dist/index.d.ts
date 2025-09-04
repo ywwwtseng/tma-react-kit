@@ -1,6 +1,7 @@
+export { useNavigate } from 'react-router-dom';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import * as react from 'react';
-import { PropsWithChildren, RefObject } from 'react';
+import { PropsWithChildren, RefObject, ReactNode, ReactElement } from 'react';
 import { User, Platform } from '@telegram-apps/sdk-react';
 import { LaunchParamsLike } from '@telegram-apps/transformers';
 import * as zustand from 'zustand';
@@ -205,41 +206,37 @@ declare function useStore<T = unknown>(path: string | string[]): T;
 
 declare const HEADER_HEIGHT = 56;
 declare const TAB_BAR_HEIGHT = 60;
-declare function Root({ children }: React.PropsWithChildren): react_jsx_runtime.JSX.Element;
-declare function Header({ className, children }: React.PropsWithChildren<{
+declare function Root({ children }: PropsWithChildren): react_jsx_runtime.JSX.Element;
+declare function Header({ className, children }: PropsWithChildren<{
     className?: string;
 }>): react_jsx_runtime.JSX.Element;
-declare namespace Header {
-    var Left: typeof HeaderLeft;
-    var Right: typeof HeaderRight;
-}
-declare function HeaderLeft({ className, children }: React.PropsWithChildren<{
+declare function HeaderLeft({ className, children }: PropsWithChildren<{
     className?: string;
 }>): react_jsx_runtime.JSX.Element;
-declare function HeaderRight({ className, children }: React.PropsWithChildren<{
+declare function HeaderRight({ className, children }: PropsWithChildren<{
     className?: string;
 }>): react_jsx_runtime.JSX.Element;
-declare function Main({ className, children }: React.PropsWithChildren<{
+declare function Main({ className, children }: PropsWithChildren<{
     className?: string;
 }>): react_jsx_runtime.JSX.Element;
-declare function TabBar({ className, children }: React.PropsWithChildren<{
+declare function TabBar({ className, children }: PropsWithChildren<{
     className?: string;
 }>): react_jsx_runtime.JSX.Element;
-declare namespace TabBar {
-    var Item: typeof TabBarItem;
-}
-declare function TabBarItem({ className, icon: Icon, text, active, onClick, }: {
+declare function TabBarItem({ className, icon, text, isActive, onClick, }: {
     className?: string;
-    icon: React.ElementType;
-    text: React.ReactNode;
-    active?: boolean;
+    icon: ReactNode;
+    text: string;
+    isActive?: boolean;
     onClick?: () => void;
 }): react_jsx_runtime.JSX.Element;
 declare const Layout: {
     Root: typeof Root;
     Header: typeof Header;
+    HeaderLeft: typeof HeaderLeft;
+    HeaderRight: typeof HeaderRight;
     Main: typeof Main;
     TabBar: typeof TabBar;
+    TabBarItem: typeof TabBarItem;
 };
 
 interface TypographyProps extends ReactKit.TypographyProps {
@@ -253,4 +250,26 @@ interface LanguageMenuProps {
 }
 declare function LanguageMenu({ className }: LanguageMenuProps): react_jsx_runtime.JSX.Element;
 
-export { HEADER_HEIGHT, LanguageMenu, Layout, type Locale, type Locales, type ResponseData, type ResponseDataCommand, Status, type Store, TAB_BAR_HEIGHT, TELEGRAM_ENV, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, useMutation, useQuery, useStore, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTMAStoreMutate, useTMAStoreQuery, useTelegramSDK };
+interface View {
+    path: string;
+    tab?: {
+        icon: ReactNode;
+        text: string;
+    };
+    element: ReactNode;
+}
+
+interface TMALayoutProps {
+    headerLeft: ReactElement;
+    backIcon?: ReactElement;
+    backText?: string;
+    headerRight: ReactElement;
+    views?: View[];
+}
+declare function TMALayout({ headerLeft, headerRight, backIcon, backText, views, }: TMALayoutProps): react_jsx_runtime.JSX.Element;
+
+interface TMAProps extends TMAProviderProps, TMALayoutProps {
+}
+declare function TMA({ backIcon, backText, headerLeft, headerRight, env, url, locales, views, }: TMAProps): react_jsx_runtime.JSX.Element;
+
+export { HEADER_HEIGHT, LanguageMenu, Layout, type Locale, type Locales, type ResponseData, type ResponseDataCommand, Status, type Store, TAB_BAR_HEIGHT, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, useMutation, useQuery, useStore, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTMAStoreMutate, useTMAStoreQuery, useTelegramSDK };
