@@ -181,13 +181,6 @@ var get = (obj, path, callback) => {
 
 // src/store/TMAStoreContext.tsx
 import { jsx as jsx3 } from "react/jsx-runtime";
-var Status = /* @__PURE__ */ ((Status2) => {
-  Status2[Status2["Loading"] = 0] = "Loading";
-  Status2[Status2["Authenticated"] = 1] = "Authenticated";
-  Status2[Status2["Unauthenticated"] = 2] = "Unauthenticated";
-  Status2[Status2["Forbidden"] = 3] = "Forbidden";
-  return Status2;
-})(Status || {});
 var TMAStoreContext = createContext3(void 0);
 var useTMAStore = create((set) => ({
   status: 0 /* Loading */,
@@ -266,13 +259,19 @@ function TMAStoreProvider({ children }) {
     mutate("init").then(() => {
       update2({
         update: ["status"],
-        payload: 1 /* Authenticated */
+        payload: (store) => ({
+          ...store,
+          status: 1 /* Authenticated */
+        })
       });
     }).catch((error) => {
       console.error(error);
       update2({
         update: ["status"],
-        payload: 3 /* Forbidden */
+        payload: (store) => ({
+          ...store,
+          status: 3 /* Forbidden */
+        })
       });
     });
   }, [mutate]);
@@ -397,17 +396,26 @@ import { jsx as jsx6, jsxs } from "react/jsx-runtime";
 var HEADER_HEIGHT = 56;
 var TAB_BAR_HEIGHT = 60;
 function Root({ children }) {
+  const { status } = useTMAStore();
   const { platform } = useTMASDK();
   const safeAreaBottom = platform === "ios" ? 20 : 12;
-  return /* @__PURE__ */ jsx6("div", { style: {
-    display: "flex",
-    flexDirection: "column",
-    width: "100vw",
-    height: "100vh",
-    paddingTop: HEADER_HEIGHT,
-    paddingBottom: TAB_BAR_HEIGHT + safeAreaBottom,
-    overflow: "hidden"
-  }, children });
+  return /* @__PURE__ */ jsx6(
+    "div",
+    {
+      className: status !== 0 /* Loading */ ? "animation-fade-in" : "",
+      style: {
+        display: "flex",
+        opacity: 0,
+        flexDirection: "column",
+        width: "100vw",
+        height: "100vh",
+        paddingTop: HEADER_HEIGHT,
+        paddingBottom: TAB_BAR_HEIGHT + safeAreaBottom,
+        overflow: "hidden"
+      },
+      children
+    }
+  );
 }
 function Header({ className, children }) {
   return /* @__PURE__ */ jsx6(
@@ -682,36 +690,92 @@ function TMALayout({
 
 // src/components/TMA.tsx
 import { MemoryRouter } from "react-router-dom";
+
+// src/components/LaunchLaunchScreen.tsx
+import { useEffect as useEffect3, useState as useState3, useRef as useRef2 } from "react";
 import { jsx as jsx10 } from "react/jsx-runtime";
+function LaunchLaunchScreen({ children, duration = 2e3 }) {
+  const startTime = useRef2(Date.now());
+  const { status } = useTMAStore();
+  const [hide, setHide] = useState3(false);
+  useEffect3(() => {
+    if (status === 0 /* Loading */) {
+      return;
+    }
+    const delay = duration - (Date.now() - startTime.current);
+    if (delay > 0) {
+      setTimeout(() => {
+        setHide(true);
+      }, delay);
+    } else {
+      setHide(true);
+    }
+  }, [status]);
+  return /* @__PURE__ */ jsx10(
+    "div",
+    {
+      style: {
+        backgroundColor: "black",
+        zIndex: 2147483647,
+        display: "flex",
+        position: "fixed",
+        left: 0,
+        right: 0,
+        bottom: 0,
+        top: 0,
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "column",
+        opacity: hide ? 0 : 1,
+        pointerEvents: hide ? "none" : "auto",
+        transition: "opacity 0.3s ease-in-out"
+      },
+      children: /* @__PURE__ */ jsx10(
+        "div",
+        {
+          className: "animation-fade-in",
+          style: {
+            transform: "translateY(-27px)",
+            display: "flex",
+            gap: "8px",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center"
+          },
+          children
+        }
+      )
+    }
+  );
+}
+
+// src/components/TMA.tsx
+import { jsx as jsx11, jsxs as jsxs4 } from "react/jsx-runtime";
 function TMA({
-  backIcon,
-  backText,
-  headerLeft,
-  headerRight,
   env,
   url,
   locales,
-  views = []
+  launchScreen,
+  ...props
 }) {
-  return /* @__PURE__ */ jsx10(TMAProvider, { env, url, locales, children: /* @__PURE__ */ jsx10(MemoryRouter, { children: /* @__PURE__ */ jsx10(
-    TMALayout,
-    {
-      backIcon,
-      backText,
-      headerLeft,
-      headerRight,
-      views
-    }
-  ) }) });
+  return /* @__PURE__ */ jsx11(TMAProvider, { env, url, locales, children: /* @__PURE__ */ jsxs4(MemoryRouter, { children: [
+    /* @__PURE__ */ jsx11(
+      TMALayout,
+      {
+        ...props
+      }
+    ),
+    launchScreen && /* @__PURE__ */ jsx11(LaunchLaunchScreen, { children: launchScreen })
+  ] }) });
 }
 
 // src/components/ClientAvatar.tsx
-import { useEffect as useEffect3, useRef as useRef2 } from "react";
-import { jsx as jsx11 } from "react/jsx-runtime";
+import { useEffect as useEffect4, useRef as useRef3 } from "react";
+import { jsx as jsx12 } from "react/jsx-runtime";
 function ClientAvatar({ style, size = 40 }) {
   const { avatar } = useTMASDK();
-  const canvasRef = useRef2(null);
-  useEffect3(() => {
+  const canvasRef = useRef3(null);
+  useEffect4(() => {
     if (avatar) {
       const canvas = canvasRef.current;
       if (canvas) {
@@ -724,7 +788,7 @@ function ClientAvatar({ style, size = 40 }) {
       }
     }
   }, [avatar, size]);
-  return /* @__PURE__ */ jsx11(
+  return /* @__PURE__ */ jsx12(
     "canvas",
     {
       className: "animation-fade-in",
@@ -744,7 +808,6 @@ export {
   HEADER_HEIGHT,
   LanguageMenu,
   Layout,
-  Status,
   TAB_BAR_HEIGHT,
   TELEGRAM_ENV,
   TMA,

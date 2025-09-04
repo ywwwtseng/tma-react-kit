@@ -6,9 +6,9 @@ import { View } from '../types';
 
 export interface TMALayoutProps {
   headerLeft: ReactElement;
+  headerRight: ReactElement;
   backIcon?: ReactElement;
   backText?: string;
-  headerRight: ReactElement;
   views?: View[];
 }
 

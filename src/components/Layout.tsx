@@ -1,18 +1,24 @@
 import { useState, type PropsWithChildren, type ReactNode } from 'react';
 import { postEvent } from '@telegram-apps/sdk-react';
 import { useTMASDK } from '../store/TMASDKContext';
+import { useTMAStore } from '../store/TMAStoreContext';
 import { useTMAI18n } from '../store/TMAI18nContext';
+import { Status } from '../constants';
 
 export const HEADER_HEIGHT = 56;
 export const TAB_BAR_HEIGHT = 60;
 
 function Root({ children }: PropsWithChildren) {
+  const { status } = useTMAStore();
   const { platform } = useTMASDK();
   const safeAreaBottom = platform === 'ios' ? 20 : 12;
 
   return (
-    <div style={{
+    <div
+      className={status !== Status.Loading ? 'animation-fade-in' : ''}
+      style={{
       display: 'flex',
+      opacity: 0,
       flexDirection: 'column',
       width: '100vw',
       height: '100vh',

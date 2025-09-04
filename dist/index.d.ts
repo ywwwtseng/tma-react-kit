@@ -143,6 +143,7 @@ declare enum Status {
     Unauthenticated = 2,
     Forbidden = 3
 }
+
 interface TMAStoreContextState {
     query: (path: string | string[]) => Promise<unknown>;
     mutate: (action: string, payload: unknown) => Promise<unknown>;
@@ -261,16 +262,17 @@ interface View {
 
 interface TMALayoutProps {
     headerLeft: ReactElement;
+    headerRight: ReactElement;
     backIcon?: ReactElement;
     backText?: string;
-    headerRight: ReactElement;
     views?: View[];
 }
 declare function TMALayout({ headerLeft, headerRight, backIcon, backText, views, }: TMALayoutProps): react_jsx_runtime.JSX.Element;
 
 interface TMAProps extends TMAProviderProps, TMALayoutProps {
+    launchScreen?: ReactElement;
 }
-declare function TMA({ backIcon, backText, headerLeft, headerRight, env, url, locales, views, }: TMAProps): react_jsx_runtime.JSX.Element;
+declare function TMA({ env, url, locales, launchScreen, ...props }: TMAProps): react_jsx_runtime.JSX.Element;
 
 interface ClientAvatarProps {
     style?: React.CSSProperties;
@@ -278,4 +280,4 @@ interface ClientAvatarProps {
 }
 declare function ClientAvatar({ style, size }: ClientAvatarProps): react_jsx_runtime.JSX.Element;
 
-export { ClientAvatar, type ClientAvatarProps, HEADER_HEIGHT, LanguageMenu, Layout, type Locale, type Locales, type ResponseData, type ResponseDataCommand, Status, type Store, TAB_BAR_HEIGHT, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, useMutation, useQuery, useStore, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTMAStoreMutate, useTMAStoreQuery, useTelegramSDK };
+export { ClientAvatar, type ClientAvatarProps, HEADER_HEIGHT, LanguageMenu, Layout, type Locale, type Locales, type ResponseData, type ResponseDataCommand, type Store, TAB_BAR_HEIGHT, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, useMutation, useQuery, useStore, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTMAStoreMutate, useTMAStoreQuery, useTelegramSDK };

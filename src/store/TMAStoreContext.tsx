@@ -2,13 +2,7 @@ import { RefObject, createContext, useRef, useCallback, useEffect, useMemo, use,
 import { create } from 'zustand';
 import { useTMAClient } from './TMAClientContext';
 import { update } from '../utils';
-
-export enum Status {
-  Loading,
-  Authenticated,
-  Unauthenticated,
-  Forbidden,
-}
+import { Status } from '../constants';
 
 export interface TMAStoreContextState {
   query: (path: string | string[]) => Promise<unknown>;
@@ -134,14 +128,20 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
       .then(() => {
         update({
           update: ['status'],
-          payload: Status.Authenticated,
+          payload: (store: Store) => ({
+            ...store,
+            status: Status.Authenticated,
+          }),
         });
       })
       .catch((error) => {
         console.error(error);
         update({
           update: ['status'],
-          payload: Status.Forbidden,
+          payload: (store: Store) => ({
+            ...store,
+            status: Status.Forbidden,
+          }),
         });
       });
   }, [mutate]);
