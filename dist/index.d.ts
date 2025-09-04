@@ -272,4 +272,10 @@ interface TMAProps extends TMAProviderProps, TMALayoutProps {
 }
 declare function TMA({ backIcon, backText, headerLeft, headerRight, env, url, locales, views, }: TMAProps): react_jsx_runtime.JSX.Element;
 
-export { HEADER_HEIGHT, LanguageMenu, Layout, type Locale, type Locales, type ResponseData, type ResponseDataCommand, Status, type Store, TAB_BAR_HEIGHT, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, useMutation, useQuery, useStore, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTMAStoreMutate, useTMAStoreQuery, useTelegramSDK };
+interface ClientAvatarProps {
+    style?: React.CSSProperties;
+    size?: number;
+}
+declare function ClientAvatar({ style, size }: ClientAvatarProps): react_jsx_runtime.JSX.Element;
+
+export { ClientAvatar, type ClientAvatarProps, HEADER_HEIGHT, LanguageMenu, Layout, type Locale, type Locales, type ResponseData, type ResponseDataCommand, Status, type Store, TAB_BAR_HEIGHT, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, useMutation, useQuery, useStore, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTMAStoreMutate, useTMAStoreQuery, useTelegramSDK };

@@ -16,5 +16,6 @@ export * from './components/Typography';
 export * from './components/LanguageMenu';
 export * from './components/TMALayout';
 export * from './components/TMA';
+export * from './components/ClientAvatar';
 
 import './index.css';

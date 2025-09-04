@@ -704,7 +704,43 @@ function TMA({
     }
   ) }) });
 }
+
+// src/components/ClientAvatar.tsx
+import { useEffect as useEffect3, useRef as useRef2 } from "react";
+import { jsx as jsx11 } from "react/jsx-runtime";
+function ClientAvatar({ style, size = 40 }) {
+  const { avatar } = useTMASDK();
+  const canvasRef = useRef2(null);
+  useEffect3(() => {
+    if (avatar) {
+      const canvas = canvasRef.current;
+      if (canvas) {
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(avatar, 0, 0, size, size);
+        }
+      }
+    }
+  }, [avatar, size]);
+  return /* @__PURE__ */ jsx11(
+    "canvas",
+    {
+      className: "animation-fade-in",
+      ref: canvasRef,
+      style: {
+        borderRadius: "100%",
+        border: "1px solid #1F1F1F",
+        ...style
+      },
+      width: size,
+      height: size
+    }
+  );
+}
 export {
+  ClientAvatar,
   HEADER_HEIGHT,
   LanguageMenu,
   Layout,
