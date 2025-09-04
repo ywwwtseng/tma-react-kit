@@ -36,7 +36,7 @@ export function LanguageMenu({ className }: LanguageMenuProps) {
 
   return (
     <Dropdown
-      className={className}
+      className={className || 'dropdown'}
       items={languages}
       onChange={(key) => {
         localStorage.setItem('language_code', key);

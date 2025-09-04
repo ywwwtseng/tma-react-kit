@@ -615,7 +615,7 @@ function LanguageMenu({ className }) {
   return /* @__PURE__ */ jsx8(
     Dropdown,
     {
-      className,
+      className: className || "dropdown",
       items: languages,
       onChange: (key) => {
         localStorage.setItem("language_code", key);

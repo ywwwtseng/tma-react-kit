@@ -1,3 +1,7 @@
+.dropdown {
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
 .animation-fade-in {
   animation: fade-in 0.3s ease-in-out forwards;
 }
