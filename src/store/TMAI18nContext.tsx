@@ -1,6 +1,6 @@
 import { useCallback, useMemo, createContext, use, type PropsWithChildren } from 'react';
+import { get } from '@ywwwtseng/utils';
 import { useStore } from '../hooks/useStore';
-import { get } from '../utils';
 
 export interface TMAI18nContextState {
   t: (key: string, params?: Record<string, string | number>) => string;

@@ -1,6 +1,6 @@
 import React from 'react';
+import { get } from '@ywwwtseng/utils';
 import { useTMAStore, useTMAStoreQuery } from '../store/TMAStoreContext';
-import { get } from '../utils';
 
 interface UseQueryOptions {
   gcTime?: number;

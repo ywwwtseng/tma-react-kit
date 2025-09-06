@@ -1,15 +1,42 @@
-import { type ReactElement } from 'react';
-import { Routes, Route, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { Layout } from './Layout';
+import {
+  type ReactNode,
+  type PropsWithChildren,
+  type ElementType,
+  CSSProperties,
+  useState,
+} from 'react';
+import { createPortal } from 'react-dom';
+import {
+  Layout,
+  TabBar,
+  Route,
+  useNavigate,
+  useRoute,
+  type Tab,
+} from '@ywwwtseng/react-kit';
+import { useTMASDK } from '../store/TMASDKContext';
+import { useTMAStore } from '../store/TMAStoreContext';
+import { Status } from '../constants';
+import { TabBarItem } from './TabBarItem';
 import { Typography } from './Typography';
-import { View } from '../types';
 
-export interface TMALayoutProps {
-  headerLeft: ReactElement;
-  headerRight: ReactElement;
-  backIcon?: ReactElement;
+export interface TMALayoutProps extends PropsWithChildren {
+  headerLeft: ReactNode | ((route: Route) => ReactNode);
+  headerRight: ReactNode | ((route: Route) => ReactNode);
+  backIcon?: ReactNode;
   backText?: string;
-  views?: View[];
+  tabs?: (Tab & { modal?: ElementType })[];
+  headerHeight?: number;
+  tabBarHeight?: number;
+  styles?: {
+    root?: CSSProperties;
+    header?: CSSProperties;
+    headerLeft?: CSSProperties;
+    headerRight?: CSSProperties;
+    main?: CSSProperties;
+    tabBar?: CSSProperties;
+    tabBarItem?: CSSProperties;
+  };
 }
 
 export function TMALayout({
@@ -17,67 +44,104 @@ export function TMALayout({
   headerRight,
   backIcon,
   backText = 'Back',
-  views = [],
+  tabs = [],
+  headerHeight = 56,
+  tabBarHeight = 60,
+  styles = {},
+  children,
 }: TMALayoutProps) {
-  const tabs = views.filter((view) => view.tab);
+  const route = useRoute();
   const navigate = useNavigate();
-  const location = useLocation();
-  const currentView = views.find((view) => view.path === location.pathname);
+  const { status } = useTMAStore();
+  const { platform } = useTMASDK();
+  const [modal, setModal] = useState<ReactNode | null>(null);
+  const safeAreaBottom = platform === 'ios' ? 20 : 12;
 
   return (
-    <Layout.Root>
-      <Layout.Header>
-        <Layout.HeaderLeft>
-          <div
-            className="animation-fade-in"
-            style={{
-              display: !!currentView?.tab ? 'block' : 'none',
-            }}
-          >
-            {headerLeft}
-          </div>
-          <button
-            className="animation-fade-in"
-            style={{
-              display: !!currentView?.tab ? 'none' : 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              outline: 'none',
-              background: 'none',
-              border: 'none',
-            }}
-            onClick={() => navigate(-1)}
-          >
-            {backIcon && backIcon}
-            <Typography size="4" i18n={backText} />
-          </button>
-        </Layout.HeaderLeft>
-        <Layout.HeaderRight>
-          {headerRight}
-        </Layout.HeaderRight>
-      </Layout.Header>
-      <Layout.Main>
-        <Routes>
-          {views.map((view) => (
-            view.path ? <Route key={view.path} path={view.path} element={view.element} /> : undefined
-          ))}
-        </Routes>
+    <Layout.Root
+      className={status !== Status.Loading ? 'animate-fade-in' : ''}
+      style={styles?.root}
+    >
+      {createPortal(
+        <Layout.Header
+          style={{
+            ...styles?.header,
+            height: headerHeight,
+          }}
+        >
+          <Layout.HeaderLeft style={styles?.headerLeft}>
+            <div
+              className='animate-fade-in'
+              style={{
+                display: route.type === 'page' ? 'block' : 'none',
+              }}
+            >
+              {headerLeft
+                ? typeof headerLeft === 'function'
+                  ? headerLeft(route)
+                  : headerLeft
+                : null}
+            </div>
+            <button
+              className='animate-fade-in'
+              style={{
+                display: route.type === 'page' ? 'none' : 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                outline: 'none',
+                background: 'none',
+                border: 'none',
+              }}
+              onClick={() => navigate(-1)}
+            >
+              {backIcon && backIcon}
+              <Typography size='4' i18n={backText} />
+            </button>
+          </Layout.HeaderLeft>
+          <Layout.HeaderRight style={styles?.headerRight}>
+            {headerRight
+              ? typeof headerRight === 'function'
+                ? headerRight(route)
+                : headerRight
+              : null}
+          </Layout.HeaderRight>
+        </Layout.Header>,
+        document.body
+      )}
+      <Layout.Main
+        style={{
+          ...styles?.main,
+          paddingTop: headerHeight,
+          paddingBottom: tabBarHeight + safeAreaBottom,
+        }}
+      >
+        {children}
       </Layout.Main>
-      <Layout.TabBar>
-        {tabs.map(({ path, tab }) => (
-          <NavLink key={tab!.text} to={path}>
-            {({ isActive }) => (
-              <Layout.TabBarItem
-                key={tab!.text}
-                icon={tab!.icon}
-                text={tab!.text}
-                isActive={isActive}
-              />
-            )}
-          </NavLink>
-          
-        ))}
-      </Layout.TabBar>
+      <TabBar
+        style={{
+          ...styles?.tabBar,
+          height: tabBarHeight + safeAreaBottom,
+        }}
+        items={tabs}
+        renderItem={(tab: Tab & { modal?: ElementType }) => (
+          <TabBarItem
+            key={tab.name}
+            style={styles?.tabBarItem}
+            icon={tab.icon}
+            text={tab.title}
+            isActive={tab.name === route.name}
+            onClick={() => {
+              if (tab.modal) {
+                const Modal = tab.modal;
+                setModal(<Modal open onClose={() => setModal(null)} />);
+              } else {
+                navigate(tab.name);
+              }
+            }}
+          />
+        )}
+      />
+      {modal}
     </Layout.Root>
   );
 }

@@ -1,6 +1,3 @@
-// src/index.tsx
-import { useNavigate as useNavigate2 } from "react-router-dom";
-
 // src/store/TMASDKContext.tsx
 import { useMemo as useMemo2, useEffect, createContext, useState, use } from "react";
 import { init, postEvent } from "@telegram-apps/sdk-react";
@@ -156,30 +153,7 @@ function useTMAClient() {
 // src/store/TMAStoreContext.tsx
 import { createContext as createContext3, useRef, useCallback as useCallback2, useEffect as useEffect2, useMemo as useMemo4, use as use3 } from "react";
 import { create } from "zustand";
-
-// src/utils/index.ts
-function update(obj, path, value) {
-  path = typeof path === "string" ? [path] : path;
-  if (path.length === 0) return obj;
-  const [key, ...rest] = path;
-  return {
-    ...obj,
-    [key]: rest.length > 0 ? update(obj[key] ?? {}, rest, value) : value
-  };
-}
-var get = (obj, path, callback) => {
-  const keys = typeof path === "string" ? path.split(".") : path;
-  let anchor = obj;
-  for (let i = 0; i < keys.length; i++) {
-    anchor = anchor[keys[i]];
-    if (anchor === void 0) {
-      return callback ?? void 0;
-    }
-  }
-  return anchor;
-};
-
-// src/store/TMAStoreContext.tsx
+import { update } from "@ywwwtseng/utils";
 import { jsx as jsx3 } from "react/jsx-runtime";
 var TMAStoreContext = createContext3(void 0);
 var useTMAStore = create((set) => ({
@@ -302,8 +276,10 @@ function useTMAStoreMutate() {
 
 // src/store/TMAI18nContext.tsx
 import { useCallback as useCallback3, useMemo as useMemo5, createContext as createContext4, use as use4 } from "react";
+import { get as get2 } from "@ywwwtseng/utils";
 
 // src/hooks/useStore.ts
+import { get } from "@ywwwtseng/utils";
 function useStore(path) {
   return useTMAStore((store) => get(store.state, path));
 }
@@ -317,7 +293,7 @@ function TMAI18nProvider({ locales, children }) {
     if (!locales) return key;
     const locale = locales?.[settings?.language_code?.toLowerCase()?.slice(0, 2)] || locales[localStorage.getItem("language_code") || "en"];
     if (!locale || typeof key !== "string") return key;
-    const template = get(locale, key, key);
+    const template = get2(locale, key, key);
     if (!params) return template;
     return template.replace(/\{(\w+)\}/g, (_, key2) => String(params[key2]) || "");
   }, [settings]);
@@ -342,12 +318,13 @@ function TMAProvider({ env, background, url, locales, children }) {
 
 // src/hooks/useQuery.ts
 import React from "react";
+import { get as get3 } from "@ywwwtseng/utils";
 function useQuery(path, options = {}) {
   const gcTimeRef = React.useRef(options.gcTime || Infinity);
   const key = JSON.stringify(path);
   const { query, loadingRef } = useTMAStoreQuery();
   const isLoading = useTMAStore((store) => store.loading).includes(key);
-  const data = useTMAStore((store) => get(store.state, path));
+  const data = useTMAStore((store) => get3(store.state, path));
   React.useEffect(() => {
     if (loadingRef.current.includes(key)) {
       return;
@@ -389,133 +366,42 @@ function useMutation() {
   };
 }
 
-// src/components/Layout.tsx
+// src/components/Typography.tsx
+import { Typography as ReactKitTypography } from "@ywwwtseng/react-kit";
+import { jsx as jsx6 } from "react/jsx-runtime";
+function Typography({ i18n, params, children, ...props }) {
+  const { t } = useTMAI18n();
+  return /* @__PURE__ */ jsx6(ReactKitTypography, { ...props, children: i18n ? t(i18n, params) : children });
+}
+
+// src/components/TMALayout.tsx
+import {
+  useState as useState3
+} from "react";
+import { createPortal } from "react-dom";
+import {
+  Layout,
+  TabBar,
+  useNavigate,
+  useRoute
+} from "@ywwwtseng/react-kit";
+
+// src/components/TabBarItem.tsx
 import { useState as useState2 } from "react";
 import { postEvent as postEvent2 } from "@telegram-apps/sdk-react";
-import { jsx as jsx6, jsxs } from "react/jsx-runtime";
-var HEADER_HEIGHT = 56;
-var TAB_BAR_HEIGHT = 60;
-function Root({ children }) {
-  const { status } = useTMAStore();
-  const { platform } = useTMASDK();
-  const safeAreaBottom = platform === "ios" ? 20 : 12;
-  return /* @__PURE__ */ jsx6(
-    "div",
-    {
-      className: status !== 0 /* Loading */ ? "animation-fade-in" : "",
-      style: {
-        display: "flex",
-        opacity: 0,
-        flexDirection: "column",
-        width: "100vw",
-        height: "100vh",
-        paddingTop: HEADER_HEIGHT,
-        paddingBottom: TAB_BAR_HEIGHT + safeAreaBottom,
-        overflow: "hidden"
-      },
-      children
-    }
-  );
-}
-function Header({ className, children }) {
-  return /* @__PURE__ */ jsx6(
-    "div",
-    {
-      className,
-      style: {
-        width: "100vw",
-        height: HEADER_HEIGHT,
-        left: 0,
-        top: 0,
-        padding: "8px 16px",
-        position: "fixed",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: "8px"
-      },
-      children
-    }
-  );
-}
-function HeaderLeft({ className, children }) {
-  return /* @__PURE__ */ jsx6(
-    "div",
-    {
-      className,
-      style: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "8px"
-      },
-      children
-    }
-  );
-}
-function HeaderRight({ className, children }) {
-  return /* @__PURE__ */ jsx6(
-    "div",
-    {
-      className,
-      style: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "8px"
-      },
-      children
-    }
-  );
-}
-function Main({ className, children }) {
-  return /* @__PURE__ */ jsx6(
-    "div",
-    {
-      className,
-      style: {
-        height: "100%",
-        overflowY: "auto"
-      },
-      children
-    }
-  );
-}
-function TabBar({ className, children }) {
-  const { platform } = useTMASDK();
-  const safeAreaBottom = platform === "ios" ? 20 : 12;
-  return /* @__PURE__ */ jsx6(
-    "div",
-    {
-      className,
-      style: {
-        width: "100vw",
-        height: TAB_BAR_HEIGHT + safeAreaBottom,
-        left: 0,
-        bottom: 0,
-        padding: "4px 32px 0px",
-        position: "fixed",
-        display: "flex",
-        alignItems: "start",
-        justifyContent: "space-between"
-      },
-      children
-    }
-  );
-}
+import { jsx as jsx7, jsxs } from "react/jsx-runtime";
 function TabBarItem({
-  className,
   icon,
   text,
   isActive = false,
-  onClick
+  onClick,
+  style
 }) {
   const { t } = useTMAI18n();
   const [isActivating, setIsActivating] = useState2(false);
   return /* @__PURE__ */ jsxs(
     "button",
     {
-      className,
       style: {
         display: "flex",
         flexDirection: "column",
@@ -525,7 +411,10 @@ function TabBarItem({
         gap: "2px",
         width: "54px",
         color: isActive || isActivating ? "white" : "#7c7c7c",
-        transition: "color 200ms"
+        transition: "color 200ms",
+        fontSize: "12px",
+        whiteSpace: "nowrap",
+        ...style
       },
       onClick: () => {
         if (isActive || isActivating) return;
@@ -540,7 +429,7 @@ function TabBarItem({
         onClick?.();
       },
       children: [
-        /* @__PURE__ */ jsx6("div", { style: {
+        /* @__PURE__ */ jsx7("div", { style: {
           width: "30px",
           height: "30px",
           display: "flex",
@@ -555,150 +444,174 @@ function TabBarItem({
     }
   );
 }
-var Layout = {
-  Root,
-  Header,
-  HeaderLeft,
-  HeaderRight,
-  Main,
-  TabBar,
-  TabBarItem
-};
-
-// src/components/Typography.tsx
-import * as ReactKit from "@ywwwtseng/react-kit";
-import { jsx as jsx7 } from "react/jsx-runtime";
-function Typography2({ i18n, params, children, ...props }) {
-  const { t } = useTMAI18n();
-  return /* @__PURE__ */ jsx7(ReactKit.Typography, { ...props, children: i18n ? t(i18n, params) : children });
-}
-
-// src/components/LanguageMenu.tsx
-import { Dropdown } from "@ywwwtseng/react-kit";
-import { jsx as jsx8, jsxs as jsxs2 } from "react/jsx-runtime";
-var icons = {
-  en: /* @__PURE__ */ jsxs2("svg", { xmlns: "http://www.w3.org/2000/svg", width: "40", height: "40", viewBox: "0 0 512 512", children: [
-    /* @__PURE__ */ jsx8("mask", { id: "a", children: /* @__PURE__ */ jsx8("circle", { cx: "256", cy: "256", r: "256", fill: "#fff" }) }),
-    /* @__PURE__ */ jsxs2("g", { mask: "url(#a)", children: [
-      /* @__PURE__ */ jsx8("path", { fill: "#eee", d: "m0 0 8 22-8 23v23l32 54-32 54v32l32 48-32 48v32l32 54-32 54v68l22-8 23 8h23l54-32 54 32h32l48-32 48 32h32l54-32 54 32h68l-8-22 8-23v-23l-32-54 32-54v-32l-32-48 32-48v-32l-32-54 32-54V0l-22 8-23-8h-23l-54 32-54-32h-32l-48 32-48-32h-32l-54 32L68 0H0z" }),
-      /* @__PURE__ */ jsx8("path", { fill: "#0052b4", d: "M336 0v108L444 0Zm176 68L404 176h108zM0 176h108L0 68ZM68 0l108 108V0Zm108 512V404L68 512ZM0 444l108-108H0Zm512-108H404l108 108Zm-68 176L336 404v108z" }),
-      /* @__PURE__ */ jsx8("path", { fill: "#d80027", d: "M0 0v45l131 131h45L0 0zm208 0v208H0v96h208v208h96V304h208v-96H304V0h-96zm259 0L336 131v45L512 0h-45zM176 336 0 512h45l131-131v-45zm160 0 176 176v-45L381 336h-45z" })
-    ] })
-  ] }),
-  zh: /* @__PURE__ */ jsxs2("svg", { xmlns: "http://www.w3.org/2000/svg", width: "40", height: "40", viewBox: "0 0 512 512", children: [
-    /* @__PURE__ */ jsx8("mask", { id: "a", children: /* @__PURE__ */ jsx8("circle", { cx: "256", cy: "256", r: "256", fill: "#fff" }) }),
-    /* @__PURE__ */ jsxs2("g", { mask: "url(#a)", children: [
-      /* @__PURE__ */ jsx8("path", { fill: "#d80027", d: "M0 256 256 0h256v512H0z" }),
-      /* @__PURE__ */ jsx8("path", { fill: "#0052b4", d: "M256 256V0H0v256z" }),
-      /* @__PURE__ */ jsx8("path", { fill: "#eee", d: "m222.6 149.8-31.3 14.7 16.7 30.3-34-6.5-4.3 34.3-23.6-25.2-23.7 25.2-4.3-34.3-34 6.5 16.7-30.3-31.2-14.7 31.2-14.7-16.6-30.3 34 6.5 4.2-34.3 23.7 25.3L169.7 77l4.3 34.3 34-6.5-16.7 30.3z" }),
-      /* @__PURE__ */ jsx8("circle", { cx: "146.1", cy: "149.8", r: "47.7", fill: "#0052b4" }),
-      /* @__PURE__ */ jsx8("circle", { cx: "146.1", cy: "149.8", r: "41.5", fill: "#eee" })
-    ] })
-  ] })
-};
-var languages = [
-  {
-    key: "en",
-    name: "English",
-    icon: icons.en
-  },
-  {
-    key: "zh",
-    name: "\u4E2D\u6587",
-    icon: icons.zh
-  }
-];
-function LanguageMenu({ className }) {
-  const settings = useStore("settings");
-  const mutate = useTMAStoreMutate();
-  const language = languages.find((language2) => language2.key === settings?.language_code || language2.key === localStorage.getItem("language_code"));
-  return /* @__PURE__ */ jsx8(
-    Dropdown,
-    {
-      className: className || "dropdown",
-      items: languages,
-      onChange: (key) => {
-        localStorage.setItem("language_code", key);
-        mutate("update:settings", { language_code: key });
-      },
-      children: /* @__PURE__ */ jsx8("button", { style: { display: language ? "block" : "none" }, children: icons[language?.key] })
-    }
-  );
-}
 
 // src/components/TMALayout.tsx
-import { Routes, Route, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { jsx as jsx9, jsxs as jsxs3 } from "react/jsx-runtime";
+import { jsx as jsx8, jsxs as jsxs2 } from "react/jsx-runtime";
 function TMALayout({
   headerLeft,
   headerRight,
   backIcon,
   backText = "Back",
-  views = []
+  tabs = [],
+  headerHeight = 56,
+  tabBarHeight = 60,
+  styles = {},
+  children
 }) {
-  const tabs = views.filter((view) => view.tab);
+  const route = useRoute();
   const navigate = useNavigate();
-  const location = useLocation();
-  const currentView = views.find((view) => view.path === location.pathname);
-  return /* @__PURE__ */ jsxs3(Layout.Root, { children: [
-    /* @__PURE__ */ jsxs3(Layout.Header, { children: [
-      /* @__PURE__ */ jsxs3(Layout.HeaderLeft, { children: [
-        /* @__PURE__ */ jsx9(
-          "div",
+  const { status } = useTMAStore();
+  const { platform } = useTMASDK();
+  const [modal, setModal] = useState3(null);
+  const safeAreaBottom = platform === "ios" ? 20 : 12;
+  return /* @__PURE__ */ jsxs2(
+    Layout.Root,
+    {
+      className: status !== 0 /* Loading */ ? "animate-fade-in" : "",
+      style: styles?.root,
+      children: [
+        createPortal(
+          /* @__PURE__ */ jsxs2(
+            Layout.Header,
+            {
+              style: {
+                ...styles?.header,
+                height: headerHeight
+              },
+              children: [
+                /* @__PURE__ */ jsxs2(Layout.HeaderLeft, { style: styles?.headerLeft, children: [
+                  /* @__PURE__ */ jsx8(
+                    "div",
+                    {
+                      className: "animate-fade-in",
+                      style: {
+                        display: route.type === "page" ? "block" : "none"
+                      },
+                      children: headerLeft ? typeof headerLeft === "function" ? headerLeft(route) : headerLeft : null
+                    }
+                  ),
+                  /* @__PURE__ */ jsxs2(
+                    "button",
+                    {
+                      className: "animate-fade-in",
+                      style: {
+                        display: route.type === "page" ? "none" : "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        outline: "none",
+                        background: "none",
+                        border: "none"
+                      },
+                      onClick: () => navigate(-1),
+                      children: [
+                        backIcon && backIcon,
+                        /* @__PURE__ */ jsx8(Typography, { size: "4", i18n: backText })
+                      ]
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsx8(Layout.HeaderRight, { style: styles?.headerRight, children: headerRight ? typeof headerRight === "function" ? headerRight(route) : headerRight : null })
+              ]
+            }
+          ),
+          document.body
+        ),
+        /* @__PURE__ */ jsx8(
+          Layout.Main,
           {
-            className: "animation-fade-in",
             style: {
-              display: !!currentView?.tab ? "block" : "none"
+              ...styles?.main,
+              paddingTop: headerHeight,
+              paddingBottom: tabBarHeight + safeAreaBottom
             },
-            children: headerLeft
+            children
           }
         ),
-        /* @__PURE__ */ jsxs3(
-          "button",
+        /* @__PURE__ */ jsx8(
+          TabBar,
           {
-            className: "animation-fade-in",
             style: {
-              display: !!currentView?.tab ? "none" : "flex",
-              alignItems: "center",
-              gap: "8px",
-              outline: "none",
-              background: "none",
-              border: "none"
+              ...styles?.tabBar,
+              height: tabBarHeight + safeAreaBottom
             },
-            onClick: () => navigate(-1),
-            children: [
-              backIcon && backIcon,
-              /* @__PURE__ */ jsx9(Typography2, { size: "4", i18n: backText })
-            ]
+            items: tabs,
+            renderItem: (tab) => /* @__PURE__ */ jsx8(
+              TabBarItem,
+              {
+                style: styles?.tabBarItem,
+                icon: tab.icon,
+                text: tab.title,
+                isActive: tab.name === route.name,
+                onClick: () => {
+                  if (tab.modal) {
+                    const Modal = tab.modal;
+                    setModal(/* @__PURE__ */ jsx8(Modal, { open: true, onClose: () => setModal(null) }));
+                  } else {
+                    navigate(tab.name);
+                  }
+                }
+              },
+              tab.name
+            )
           }
-        )
-      ] }),
-      /* @__PURE__ */ jsx9(Layout.HeaderRight, { children: headerRight })
-    ] }),
-    /* @__PURE__ */ jsx9(Layout.Main, { children: /* @__PURE__ */ jsx9(Routes, { children: views.map((view) => view.path ? /* @__PURE__ */ jsx9(Route, { path: view.path, element: view.element }, view.path) : void 0) }) }),
-    /* @__PURE__ */ jsx9(Layout.TabBar, { children: tabs.map(({ path, tab }) => /* @__PURE__ */ jsx9(NavLink, { to: path, children: ({ isActive }) => /* @__PURE__ */ jsx9(
-      Layout.TabBarItem,
-      {
-        icon: tab.icon,
-        text: tab.text,
-        isActive
-      },
-      tab.text
-    ) }, tab.text)) })
-  ] });
+        ),
+        modal
+      ]
+    }
+  );
 }
 
-// src/components/TMA.tsx
-import { MemoryRouter } from "react-router-dom";
+// src/components/Account.tsx
+import { useEffect as useEffect3, useRef as useRef2 } from "react";
+import { jsx as jsx9 } from "react/jsx-runtime";
+function Avatar({ style, size = 40 }) {
+  const { avatar } = useTMASDK();
+  const canvasRef = useRef2(null);
+  useEffect3(() => {
+    if (avatar) {
+      const canvas = canvasRef.current;
+      if (canvas) {
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(avatar, 0, 0, size, size);
+        }
+      }
+    }
+  }, [avatar, size]);
+  return /* @__PURE__ */ jsx9(
+    "canvas",
+    {
+      className: "animate-fade-in",
+      ref: canvasRef,
+      style: {
+        borderRadius: "100%",
+        border: "1px solid #1F1F1F",
+        ...style
+      },
+      width: size,
+      height: size
+    }
+  );
+}
+var Account = {
+  Avatar
+};
+
+// src/TMA.tsx
+import { useCallback as useCallback4 } from "react";
+import { StackNavigatorProvider, useNavigate as useNavigate2, useRoute as useRoute2, ScreenType } from "@ywwwtseng/react-kit";
+import { merge } from "@ywwwtseng/utils";
 
 // src/components/LaunchLaunchScreen.tsx
-import { useEffect as useEffect3, useState as useState3, useRef as useRef2 } from "react";
+import { useEffect as useEffect4, useState as useState4, useRef as useRef3 } from "react";
 import { jsx as jsx10 } from "react/jsx-runtime";
 function LaunchLaunchScreen({ children, duration = 2e3 }) {
-  const startTime = useRef2(Date.now());
+  const startTime = useRef3(Date.now());
   const { status } = useTMAStore();
-  const [hide, setHide] = useState3(false);
-  useEffect3(() => {
+  const [hide, setHide] = useState4(false);
+  useEffect4(() => {
     if (status === 0 /* Loading */) {
       return;
     }
@@ -733,7 +646,7 @@ function LaunchLaunchScreen({ children, duration = 2e3 }) {
       children: /* @__PURE__ */ jsx10(
         "div",
         {
-          className: "animation-fade-in",
+          className: "animate-fade-in",
           style: {
             transform: "translateY(-27px)",
             display: "flex",
@@ -749,66 +662,51 @@ function LaunchLaunchScreen({ children, duration = 2e3 }) {
   );
 }
 
-// src/components/TMA.tsx
-import { jsx as jsx11, jsxs as jsxs4 } from "react/jsx-runtime";
+// src/TMA.tsx
+import { Fragment, jsx as jsx11, jsxs as jsxs3 } from "react/jsx-runtime";
 function TMA({
   env,
   url,
   locales,
   launchScreen,
-  ...props
+  screens,
+  headerHeight = 56,
+  tabBarHeight = 60,
+  ...layoutProps
 }) {
-  return /* @__PURE__ */ jsx11(TMAProvider, { env, url, locales, children: /* @__PURE__ */ jsxs4(MemoryRouter, { children: [
-    /* @__PURE__ */ jsx11(
+  const Layout2 = useCallback4(
+    (props) => /* @__PURE__ */ jsx11(
       TMALayout,
       {
-        ...props
+        ...props,
+        ...layoutProps,
+        styles: merge(props.styles || {}, layoutProps.styles || {}),
+        headerHeight,
+        tabBarHeight
+      }
+    ),
+    [layoutProps]
+  );
+  return /* @__PURE__ */ jsx11(TMAProvider, { env, url, locales, children: /* @__PURE__ */ jsxs3(Fragment, { children: [
+    /* @__PURE__ */ jsx11(
+      StackNavigatorProvider,
+      {
+        layout: Layout2,
+        screens,
+        drawer: {
+          style: {
+            paddingTop: headerHeight
+          }
+        }
       }
     ),
     launchScreen && /* @__PURE__ */ jsx11(LaunchLaunchScreen, { children: launchScreen })
   ] }) });
 }
-
-// src/components/ClientAvatar.tsx
-import { useEffect as useEffect4, useRef as useRef3 } from "react";
-import { jsx as jsx12 } from "react/jsx-runtime";
-function ClientAvatar({ style, size = 40 }) {
-  const { avatar } = useTMASDK();
-  const canvasRef = useRef3(null);
-  useEffect4(() => {
-    if (avatar) {
-      const canvas = canvasRef.current;
-      if (canvas) {
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          ctx.drawImage(avatar, 0, 0, size, size);
-        }
-      }
-    }
-  }, [avatar, size]);
-  return /* @__PURE__ */ jsx12(
-    "canvas",
-    {
-      className: "animation-fade-in",
-      ref: canvasRef,
-      style: {
-        borderRadius: "100%",
-        border: "1px solid #1F1F1F",
-        ...style
-      },
-      width: size,
-      height: size
-    }
-  );
-}
 export {
-  ClientAvatar,
-  HEADER_HEIGHT,
-  LanguageMenu,
-  Layout,
-  TAB_BAR_HEIGHT,
+  Account,
+  Avatar,
+  ScreenType,
   TELEGRAM_ENV,
   TMA,
   TMAClientContext,
@@ -821,10 +719,11 @@ export {
   TMASDKProvider,
   TMAStoreContext,
   TMAStoreProvider,
-  Typography2 as Typography,
+  Typography,
   useMutation,
   useNavigate2 as useNavigate,
   useQuery,
+  useRoute2 as useRoute,
   useStore,
   useTMAClient,
   useTMAI18n,
