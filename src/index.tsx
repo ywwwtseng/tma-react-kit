@@ -1,5 +1,3 @@
-export { useNavigate } from 'react-router-dom';
-
 export * from './store/TMASDKContext';
 export * from './store/TMAClientContext';
 export * from './store/TMAStoreContext';
@@ -11,11 +9,8 @@ export * from './hooks/useQuery';
 export * from './hooks/useMutation';
 export * from './hooks/useStore';
 
-export * from './components/Layout';
 export * from './components/Typography';
-export * from './components/LanguageMenu';
 export * from './components/TMALayout';
-export * from './components/TMA';
-export * from './components/ClientAvatar';
+export * from './components/Account';
 
-import './index.css';
+export * from './TMA';

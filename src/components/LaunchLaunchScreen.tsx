@@ -46,7 +46,7 @@ export function LaunchLaunchScreen({ children, duration = 2000 }: LaunchLaunchSc
         transition: 'opacity 0.3s ease-in-out',
       }}>
       <div
-        className="animation-fade-in"
+        className="animate-fade-in"
         style={{
           transform: 'translateY(-27px)',
           display: 'flex',
