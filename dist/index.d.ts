@@ -1,11 +1,11 @@
-export { useNavigate } from 'react-router-dom';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import * as react from 'react';
-import { PropsWithChildren, RefObject, ReactNode, ReactElement } from 'react';
+import { PropsWithChildren, RefObject, ReactNode, ElementType, CSSProperties, ReactElement } from 'react';
 import { User, Platform } from '@telegram-apps/sdk-react';
 import { LaunchParamsLike } from '@telegram-apps/transformers';
 import * as zustand from 'zustand';
-import * as ReactKit from '@ywwwtseng/react-kit';
+import { TypographyProps as TypographyProps$1, Route, Tab, StackNavigatorProviderProps } from '@ywwwtseng/react-kit';
+export { ScreenType, useNavigate, useRoute } from '@ywwwtseng/react-kit';
 
 declare const TELEGRAM_ENV: {
     MOCK: {
@@ -205,79 +205,45 @@ declare function useMutation<T = unknown>(): {
 
 declare function useStore<T = unknown>(path: string | string[]): T;
 
-declare const HEADER_HEIGHT = 56;
-declare const TAB_BAR_HEIGHT = 60;
-declare function Root({ children }: PropsWithChildren): react_jsx_runtime.JSX.Element;
-declare function Header({ className, children }: PropsWithChildren<{
-    className?: string;
-}>): react_jsx_runtime.JSX.Element;
-declare function HeaderLeft({ className, children }: PropsWithChildren<{
-    className?: string;
-}>): react_jsx_runtime.JSX.Element;
-declare function HeaderRight({ className, children }: PropsWithChildren<{
-    className?: string;
-}>): react_jsx_runtime.JSX.Element;
-declare function Main({ className, children }: PropsWithChildren<{
-    className?: string;
-}>): react_jsx_runtime.JSX.Element;
-declare function TabBar({ className, children }: PropsWithChildren<{
-    className?: string;
-}>): react_jsx_runtime.JSX.Element;
-declare function TabBarItem({ className, icon, text, isActive, onClick, }: {
-    className?: string;
-    icon: ReactNode;
-    text: string;
-    isActive?: boolean;
-    onClick?: () => void;
-}): react_jsx_runtime.JSX.Element;
-declare const Layout: {
-    Root: typeof Root;
-    Header: typeof Header;
-    HeaderLeft: typeof HeaderLeft;
-    HeaderRight: typeof HeaderRight;
-    Main: typeof Main;
-    TabBar: typeof TabBar;
-    TabBarItem: typeof TabBarItem;
-};
-
-interface TypographyProps extends ReactKit.TypographyProps {
+interface TypographyProps extends TypographyProps$1 {
     i18n?: string;
     params?: Record<string, string | number>;
 }
 declare function Typography({ i18n, params, children, ...props }: TypographyProps): react_jsx_runtime.JSX.Element;
 
-interface LanguageMenuProps {
-    className?: string;
-}
-declare function LanguageMenu({ className }: LanguageMenuProps): react_jsx_runtime.JSX.Element;
-
-interface View {
-    path: string;
-    tab?: {
-        icon: ReactNode;
-        text: string;
-    };
-    element: ReactNode;
-}
-
-interface TMALayoutProps {
-    headerLeft: ReactElement;
-    headerRight: ReactElement;
-    backIcon?: ReactElement;
+interface TMALayoutProps extends PropsWithChildren {
+    headerLeft: ReactNode | ((route: Route) => ReactNode);
+    headerRight: ReactNode | ((route: Route) => ReactNode);
+    backIcon?: ReactNode;
     backText?: string;
-    views?: View[];
+    tabs?: (Tab & {
+        modal?: ElementType;
+    })[];
+    headerHeight?: number;
+    tabBarHeight?: number;
+    styles?: {
+        root?: CSSProperties;
+        header?: CSSProperties;
+        headerLeft?: CSSProperties;
+        headerRight?: CSSProperties;
+        main?: CSSProperties;
+        tabBar?: CSSProperties;
+        tabBarItem?: CSSProperties;
+    };
 }
-declare function TMALayout({ headerLeft, headerRight, backIcon, backText, views, }: TMALayoutProps): react_jsx_runtime.JSX.Element;
+declare function TMALayout({ headerLeft, headerRight, backIcon, backText, tabs, headerHeight, tabBarHeight, styles, children, }: TMALayoutProps): react_jsx_runtime.JSX.Element;
 
-interface TMAProps extends TMAProviderProps, TMALayoutProps {
-    launchScreen?: ReactElement;
-}
-declare function TMA({ env, url, locales, launchScreen, ...props }: TMAProps): react_jsx_runtime.JSX.Element;
-
-interface ClientAvatarProps {
+declare function Avatar({ style, size }: {
     style?: React.CSSProperties;
     size?: number;
-}
-declare function ClientAvatar({ style, size }: ClientAvatarProps): react_jsx_runtime.JSX.Element;
+}): react_jsx_runtime.JSX.Element;
+declare const Account: {
+    Avatar: typeof Avatar;
+};
 
-export { ClientAvatar, type ClientAvatarProps, HEADER_HEIGHT, LanguageMenu, Layout, type Locale, type Locales, type ResponseData, type ResponseDataCommand, type Store, TAB_BAR_HEIGHT, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, useMutation, useQuery, useStore, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTMAStoreMutate, useTMAStoreQuery, useTelegramSDK };
+interface TMAProps extends TMAProviderProps, TMALayoutProps, Omit<StackNavigatorProviderProps, 'layout' | 'drawer'> {
+    launchScreen?: ReactElement;
+}
+declare function TMA({ env, url, locales, launchScreen, screens, headerHeight, tabBarHeight, ...layoutProps }: TMAProps): react_jsx_runtime.JSX.Element;
+
+export { Account, Avatar, type Locale, type Locales, type ResponseData, type ResponseDataCommand, type Store, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, useMutation, useQuery, useStore, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTMAStoreMutate, useTMAStoreQuery, useTelegramSDK };

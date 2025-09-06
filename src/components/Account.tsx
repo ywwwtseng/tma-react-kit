@@ -25,7 +25,7 @@ export function Avatar({ style, size = 40 }: {
 
   return (
     <canvas
-      className="animation-fade-in"
+      className="animate-fade-in"
       ref={canvasRef}
       style={{
         borderRadius: '100%',
