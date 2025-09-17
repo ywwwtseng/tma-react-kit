@@ -1,6 +1,5 @@
 import { useState, type ReactNode, CSSProperties } from 'react';
-
-import { postEvent } from '@telegram-apps/sdk-react';
+import { isTMA, postEvent } from '@tma.js/bridge';
 import { useTMAI18n } from '../store/TMAI18nContext';
 
 export function TabBarItem({
@@ -38,10 +37,12 @@ export function TabBarItem({
       onClick={() => {
         if (isActive || isActivating) return;
 
-        postEvent('web_app_trigger_haptic_feedback', {
-          type: 'impact',
-          impact_style: 'light',
-        });
+        if (isTMA()) {
+          postEvent('web_app_trigger_haptic_feedback', {
+            type: 'impact',
+            impact_style: 'light',
+          });
+        }
 
         setIsActivating(true);
         setTimeout(() => {

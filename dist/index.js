@@ -1,34 +1,50 @@
 // src/store/TMASDKContext.tsx
-import { useMemo as useMemo2, useEffect, createContext, useState, use } from "react";
-import { init, postEvent } from "@telegram-apps/sdk-react";
+import {
+  useMemo as useMemo2,
+  useEffect,
+  createContext,
+  useState,
+  use
+} from "react";
+import { postEvent, isTMA as isTMA2 } from "@tma.js/bridge";
 import { useClientOnce } from "@ywwwtseng/react-kit";
 
 // src/hooks/useTelegramSDK.ts
 import { useMemo } from "react";
 import {
   mockTelegramEnv,
-  retrieveLaunchParams,
-  retrieveRawInitData,
+  retrieveLaunchParamsFp,
+  retrieveRawLaunchParamsFp,
   isTMA
-} from "@telegram-apps/sdk-react";
+} from "@tma.js/bridge";
+import * as E from "fp-ts/Either";
 var TELEGRAM_ENV = {
   MOCK: {
     launchParams: {
       tgWebAppData: new URLSearchParams([
-        ["user", JSON.stringify({
-          id: 6666666666,
-          first_name: "T",
-          last_name: "yw",
-          username: "ywwwtseng",
-          language_code: "zh-hans",
-          allows_write_to_pm: true,
-          photo_url: "https://t.me/i/userpic/320/nQlDMwY_br5G4QK2sd9uK2yC7025mbODcLr8uHJWXX90vnZDywxIOKaH7vXai2FC.svg"
-        })],
+        [
+          "user",
+          JSON.stringify({
+            id: 6666666666,
+            first_name: "T",
+            last_name: "yw",
+            username: "ywwwtseng",
+            language_code: "zh-hans",
+            allows_write_to_pm: true,
+            photo_url: "https://t.me/i/userpic/320/nQlDMwY_br5G4QK2sd9uK2yC7025mbODcLr8uHJWXX90vnZDywxIOKaH7vXai2FC.svg"
+          })
+        ],
         ["chat_instance", "-5440521606958638813"],
         ["chat_type", "sender"],
         ["auth_date", "1742711181"],
-        ["signature", "FSFXaPVyWU5py8SyqrrstqPm59esA9zohIyPhn-nKJ9XQS47HeYtw5xnJ4SFy2G2fLFX7GQ5l7H4fxExGif8Aw"],
-        ["hash", "f2bc216132e681353f74476947e7cbdbc0afd05bbc53c790f829a11a1ac50883"]
+        [
+          "signature",
+          "FSFXaPVyWU5py8SyqrrstqPm59esA9zohIyPhn-nKJ9XQS47HeYtw5xnJ4SFy2G2fLFX7GQ5l7H4fxExGif8Aw"
+        ],
+        [
+          "hash",
+          "f2bc216132e681353f74476947e7cbdbc0afd05bbc53c790f829a11a1ac50883"
+        ]
       ]),
       tgWebAppVersion: "8.0",
       tgWebAppPlatform: "web",
@@ -57,8 +73,16 @@ function useTelegramSDK(env) {
       mockTelegramEnv(env);
     }
     if (isTMA()) {
-      const launchParams = retrieveLaunchParams();
-      const initDataRaw = retrieveRawInitData();
+      const launchParams = E.getOrElse((err) => {
+        console.error("\u932F\u8AA4:", err);
+        return null;
+      })(retrieveLaunchParamsFp());
+      const initDataRaw = E.getOrElse(
+        (err) => {
+          console.error("\u932F\u8AA4:", err);
+          return null;
+        }
+      )(retrieveRawLaunchParamsFp());
       return {
         launchParams,
         initDataRaw
@@ -73,7 +97,9 @@ function useTelegramSDK(env) {
 
 // src/store/TMASDKContext.tsx
 import { jsx } from "react/jsx-runtime";
-var TMASDKContext = createContext(void 0);
+var TMASDKContext = createContext(
+  void 0
+);
 function TMASDKProvider({
   env,
   background = "#000000",
@@ -83,15 +109,17 @@ function TMASDKProvider({
   const user = launchParams?.tgWebAppData?.user;
   const platform = launchParams?.tgWebAppPlatform;
   const [avatar, setAvatar] = useState(null);
-  const value = useMemo2(() => ({
-    initDataRaw,
-    user,
-    platform,
-    avatar
-  }), [initDataRaw, user, platform, avatar]);
+  const value = useMemo2(
+    () => ({
+      initDataRaw,
+      user,
+      platform,
+      avatar
+    }),
+    [initDataRaw, user, platform, avatar]
+  );
   useClientOnce(() => {
-    if (env !== TELEGRAM_ENV.MOCK && launchParams) {
-      init();
+    if (env === TELEGRAM_ENV.DEFAULT && isTMA2()) {
       postEvent("web_app_set_header_color", { color: background });
       postEvent("web_app_set_bottom_bar_color", { color: background });
       postEvent("web_app_set_background_color", { color: background });
@@ -388,7 +416,7 @@ import {
 
 // src/components/TabBarItem.tsx
 import { useState as useState2 } from "react";
-import { postEvent as postEvent2 } from "@telegram-apps/sdk-react";
+import { isTMA as isTMA3, postEvent as postEvent2 } from "@tma.js/bridge";
 import { jsx as jsx7, jsxs } from "react/jsx-runtime";
 function TabBarItem({
   icon,
@@ -418,10 +446,12 @@ function TabBarItem({
       },
       onClick: () => {
         if (isActive || isActivating) return;
-        postEvent2("web_app_trigger_haptic_feedback", {
-          type: "impact",
-          impact_style: "light"
-        });
+        if (isTMA3()) {
+          postEvent2("web_app_trigger_haptic_feedback", {
+            type: "impact",
+            impact_style: "light"
+          });
+        }
         setIsActivating(true);
         setTimeout(() => {
           setIsActivating(false);

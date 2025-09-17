@@ -1,8 +1,7 @@
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import * as react from 'react';
 import { PropsWithChildren, RefObject, ReactNode, ElementType, CSSProperties, ReactElement } from 'react';
-import { User, Platform } from '@telegram-apps/sdk-react';
-import { LaunchParamsLike } from '@telegram-apps/transformers';
+import { LaunchParamsLike } from '@tma.js/transformers';
 import * as zustand from 'zustand';
 import { TypographyProps as TypographyProps$1, Route, Tab, StackNavigatorProviderProps } from '@ywwwtseng/react-kit';
 export { ScreenType, useNavigate, useRoute } from '@ywwwtseng/react-kit';
@@ -15,7 +14,7 @@ declare const TELEGRAM_ENV: {
     };
     DEFAULT: 0;
 };
-declare function useTelegramSDK(env?: typeof TELEGRAM_ENV[keyof typeof TELEGRAM_ENV]): {
+declare function useTelegramSDK(env?: (typeof TELEGRAM_ENV)[keyof typeof TELEGRAM_ENV]): {
     launchParams: {
         tgWebAppBotInline?: boolean;
         tgWebAppData?: {
@@ -112,15 +111,29 @@ declare function useTelegramSDK(env?: typeof TELEGRAM_ENV[keyof typeof TELEGRAM_
     initDataRaw: string;
 };
 
+type User = {
+    added_to_attachment_menu?: boolean;
+    allows_write_to_pm?: boolean;
+    first_name: string;
+    id: number;
+    is_bot?: boolean;
+    is_premium?: boolean;
+    last_name?: string;
+    language_code?: string;
+    photo_url?: string;
+    username?: string;
+} & {
+    [key: string]: unknown;
+};
 interface TMASDKContextState {
     initDataRaw: string | null | undefined;
     user: User | undefined;
-    platform: Platform | undefined;
+    platform: string | undefined;
     avatar: HTMLImageElement | null;
 }
 declare const TMASDKContext: react.Context<TMASDKContextState>;
 interface TMASDKProviderProps extends PropsWithChildren {
-    env?: typeof TELEGRAM_ENV[keyof typeof TELEGRAM_ENV];
+    env?: (typeof TELEGRAM_ENV)[keyof typeof TELEGRAM_ENV];
     background?: `#${string}`;
 }
 declare function TMASDKProvider({ env, background, children, }: TMASDKProviderProps): react_jsx_runtime.JSX.Element;
@@ -246,4 +259,4 @@ interface TMAProps extends TMAProviderProps, TMALayoutProps, Omit<StackNavigator
 }
 declare function TMA({ env, url, locales, launchScreen, screens, headerHeight, tabBarHeight, ...layoutProps }: TMAProps): react_jsx_runtime.JSX.Element;
 
-export { Account, Avatar, type Locale, type Locales, type ResponseData, type ResponseDataCommand, type Store, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, useMutation, useQuery, useStore, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTMAStoreMutate, useTMAStoreQuery, useTelegramSDK };
+export { Account, Avatar, type Locale, type Locales, type ResponseData, type ResponseDataCommand, type Store, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, type User, useMutation, useQuery, useStore, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTMAStoreMutate, useTMAStoreQuery, useTelegramSDK };

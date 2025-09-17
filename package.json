@@ -21,10 +21,11 @@
     "react-dom": ">=18.0.0"
   },
   "dependencies": {
-    "@telegram-apps/sdk-react": "^3.3.7",
-    "@telegram-apps/transformers": "^2.2.6",
+    "@tma.js/bridge": "^2.0.0",
+    "@tma.js/transformers": "^1.0.0",
     "@ywwwtseng/request": "github:ywwwtseng/request",
-    "@ywwwtseng/utils": "^0.0.1",
+    "@ywwwtseng/utils": "^1.0.0",
+    "fp-ts": "^2.16.11",
     "zustand": "^5.0.8"
   }
 }
