@@ -1,40 +1,39 @@
-import { useEffect, useRef } from 'react';
+import { Canvas } from '@ywwwtseng/react-kit';
 import { useTMASDK } from '../store/TMASDKContext';
 
-export function Avatar({ style, size = 40 }: {
+export function Avatar({
+  style,
+  size = 40,
+}: {
   style?: React.CSSProperties;
   size?: number;
 }) {
-  const { avatar } = useTMASDK();
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { avatar, user } = useTMASDK();
 
-  useEffect(() => {
-    if (avatar) {
-      const canvas = canvasRef.current;
-      if (canvas) {
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext('2d');
-
-        if (ctx) {
-          ctx.drawImage(avatar, 0, 0, size, size);
-        }
-      }
-    }
-  }, [avatar, size]);
+  if (avatar) {
+    return (
+      <Canvas
+        className="animate-fade-in flex items-center justify-center border border-border rounded-full"
+        image={avatar}
+        size={size}
+        style={style}
+      />
+    );
+  }
 
   return (
-    <canvas
-      className="animate-fade-in"
-      ref={canvasRef}
+    <div
+      className="animate-fade-in flex items-center justify-center border border-border rounded-full"
       style={{
-        borderRadius: '100%',
-        border: '1px solid #1F1F1F',
+        width: size,
+        height: size,
         ...style,
       }}
-      width={size}
-      height={size}
-    />
+    >
+      <span className="text-lg font-semibold">
+        {user?.first_name?.[0] || ''}
+      </span>
+    </div>
   );
 }
 

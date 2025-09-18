@@ -592,36 +592,34 @@ function TMALayout({
 }
 
 // src/components/Account.tsx
-import { useEffect as useEffect3, useRef as useRef2 } from "react";
+import { Canvas } from "@ywwwtseng/react-kit";
 import { jsx as jsx9 } from "react/jsx-runtime";
-function Avatar({ style, size = 40 }) {
-  const { avatar } = useTMASDK();
-  const canvasRef = useRef2(null);
-  useEffect3(() => {
-    if (avatar) {
-      const canvas = canvasRef.current;
-      if (canvas) {
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          ctx.drawImage(avatar, 0, 0, size, size);
-        }
+function Avatar({
+  style,
+  size = 40
+}) {
+  const { avatar, user } = useTMASDK();
+  if (avatar) {
+    return /* @__PURE__ */ jsx9(
+      Canvas,
+      {
+        className: "animate-fade-in flex items-center justify-center border border-border rounded-full",
+        image: avatar,
+        size,
+        style
       }
-    }
-  }, [avatar, size]);
+    );
+  }
   return /* @__PURE__ */ jsx9(
-    "canvas",
+    "div",
     {
-      className: "animate-fade-in",
-      ref: canvasRef,
+      className: "animate-fade-in flex items-center justify-center border border-border rounded-full",
       style: {
-        borderRadius: "100%",
-        border: "1px solid #1F1F1F",
+        width: size,
+        height: size,
         ...style
       },
-      width: size,
-      height: size
+      children: /* @__PURE__ */ jsx9("span", { className: "text-lg font-semibold", children: user?.first_name?.[0] || "" })
     }
   );
 }
@@ -635,13 +633,13 @@ import { StackNavigatorProvider, useNavigate as useNavigate2, useRoute as useRou
 import { merge } from "@ywwwtseng/utils";
 
 // src/components/LaunchLaunchScreen.tsx
-import { useEffect as useEffect4, useState as useState4, useRef as useRef3 } from "react";
+import { useEffect as useEffect3, useState as useState4, useRef as useRef2 } from "react";
 import { jsx as jsx10 } from "react/jsx-runtime";
 function LaunchLaunchScreen({ children, duration = 2e3 }) {
-  const startTime = useRef3(Date.now());
+  const startTime = useRef2(Date.now());
   const { status } = useTMAStore();
   const [hide, setHide] = useState4(false);
-  useEffect4(() => {
+  useEffect3(() => {
     if (status === 0 /* Loading */) {
       return;
     }

@@ -216,7 +216,7 @@ declare function useMutation<T = unknown>(): {
     isLoading: boolean;
 };
 
-declare function useStore<T = unknown>(path: string | string[]): T;
+declare function useStore<T = unknown>(path: string | string[]): T | undefined;
 
 interface TypographyProps extends TypographyProps$1 {
     i18n?: string;
@@ -246,7 +246,7 @@ interface TMALayoutProps extends PropsWithChildren {
 }
 declare function TMALayout({ headerLeft, headerRight, backIcon, backText, tabs, headerHeight, tabBarHeight, styles, children, }: TMALayoutProps): react_jsx_runtime.JSX.Element;
 
-declare function Avatar({ style, size }: {
+declare function Avatar({ style, size, }: {
     style?: React.CSSProperties;
     size?: number;
 }): react_jsx_runtime.JSX.Element;
