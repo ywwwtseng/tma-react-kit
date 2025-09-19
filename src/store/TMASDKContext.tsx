@@ -66,6 +66,7 @@ export function TMASDKProvider({
       postEvent('web_app_set_header_color', { color: background });
       postEvent('web_app_set_bottom_bar_color', { color: background });
       postEvent('web_app_set_background_color', { color: background });
+      postEvent('web_app_expand');
     }
   });
 

@@ -8,7 +8,7 @@ export interface LaunchLaunchScreenProps extends PropsWithChildren {
 
 export function LaunchLaunchScreen({
   children,
-  duration = 2000,
+  duration = 3000,
 }: LaunchLaunchScreenProps) {
   const startTime = useRef(Date.now());
   const { status } = useTMAStore();

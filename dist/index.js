@@ -123,6 +123,7 @@ function TMASDKProvider({
       postEvent("web_app_set_header_color", { color: background });
       postEvent("web_app_set_bottom_bar_color", { color: background });
       postEvent("web_app_set_background_color", { color: background });
+      postEvent("web_app_expand");
     }
   });
   useEffect(() => {
@@ -687,7 +688,7 @@ import { useEffect as useEffect4, useState as useState4, useRef as useRef3 } fro
 import { jsx as jsx10 } from "react/jsx-runtime";
 function LaunchLaunchScreen({
   children,
-  duration = 2e3
+  duration = 3e3
 }) {
   const startTime = useRef3(Date.now());
   const { status } = useTMAStore();
