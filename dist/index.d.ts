@@ -140,7 +140,7 @@ declare function TMASDKProvider({ env, background, children, }: TMASDKProviderPr
 declare function useTMASDK(): TMASDKContextState;
 
 interface TMAClientContextState {
-    query: (path: string | string[]) => Promise<unknown>;
+    query: (path: string | string[], params: Record<string, string | number | boolean>) => Promise<unknown>;
     mutate: <TPayload>(action: string, payload: TPayload) => Promise<unknown>;
 }
 declare const TMAClientContext: react.Context<TMAClientContextState>;
@@ -158,7 +158,7 @@ declare enum Status {
 }
 
 interface TMAStoreContextState {
-    query: (path: string | string[]) => Promise<unknown>;
+    query: (path: string | string[], params: Record<string, string | number | boolean>) => Promise<unknown>;
     mutate: (action: string, payload: unknown) => Promise<unknown>;
     loadingRef: RefObject<string[]>;
 }
@@ -167,6 +167,7 @@ interface TMAStoreProviderProps extends PropsWithChildren {
 }
 interface ResponseDataCommand {
     update?: string[];
+    merge?: string[];
     action?: string;
     payload: unknown;
 }
@@ -182,7 +183,7 @@ type Store = {
 declare const useTMAStore: zustand.UseBoundStore<zustand.StoreApi<Store>>;
 declare function TMAStoreProvider({ children }: TMAStoreProviderProps): react_jsx_runtime.JSX.Element;
 declare function useTMAStoreQuery(): {
-    query: (path: string | string[]) => Promise<unknown>;
+    query: (path: string | string[], params: Record<string, string | number | boolean>) => Promise<unknown>;
     loadingRef: RefObject<string[]>;
 };
 declare function useTMAStoreMutate(): (action: string, payload: unknown) => Promise<unknown>;
@@ -203,12 +204,13 @@ interface TMAProviderProps extends React.PropsWithChildren, Omit<TMASDKProviderP
 }
 declare function TMAProvider({ env, background, url, locales, children }: TMAProviderProps): react_jsx_runtime.JSX.Element;
 
+type UseQueryParams = Record<string, string | number | boolean>;
 interface UseQueryOptions {
     gcTime?: number;
 }
-declare function useQuery<T = unknown>(path: string | string[], options?: UseQueryOptions): {
+declare function useQuery<T = unknown>(path: string | string[], params?: UseQueryParams, options?: UseQueryOptions): {
     isLoading: boolean;
-    data: T;
+    data: T | undefined;
 };
 
 declare function useMutation<T = unknown>(): {

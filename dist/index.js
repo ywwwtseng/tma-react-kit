@@ -145,29 +145,46 @@ function useTMASDK() {
 }
 
 // src/store/TMAClientContext.tsx
-import { useMemo as useMemo3, useCallback, createContext as createContext2, use as use2 } from "react";
+import {
+  useMemo as useMemo3,
+  useCallback,
+  createContext as createContext2,
+  use as use2
+} from "react";
 import { Request } from "@ywwwtseng/request";
 import { jsx as jsx2 } from "react/jsx-runtime";
 var TMAClientContext = createContext2(void 0);
 function TMAClientProvider({ url, children }) {
   const { initDataRaw } = useTMASDK();
-  const request = useMemo3(() => new Request({
-    transformRequest(headers) {
-      headers.set("Authorization", `tma ${initDataRaw}`);
-      return headers;
-    }
-  }), [url, initDataRaw]);
-  const query = useCallback((path) => {
-    path = Array.isArray(path) ? path : [path];
-    return request.post(url, { type: "query", path });
-  }, [request]);
-  const mutate = useCallback((action, payload) => {
-    return request.post(url, { type: "mutate", action, payload });
-  }, [request]);
-  const value = useMemo3(() => ({
-    query,
-    mutate
-  }), [query, mutate]);
+  const request = useMemo3(
+    () => new Request({
+      transformRequest(headers) {
+        headers.set("Authorization", `tma ${initDataRaw}`);
+        return headers;
+      }
+    }),
+    [url, initDataRaw]
+  );
+  const query = useCallback(
+    (path, params) => {
+      path = Array.isArray(path) ? path : [path];
+      return request.post(url, { type: "query", path, params });
+    },
+    [request]
+  );
+  const mutate = useCallback(
+    (action, payload) => {
+      return request.post(url, { type: "mutate", action, payload });
+    },
+    [request]
+  );
+  const value = useMemo3(
+    () => ({
+      query,
+      mutate
+    }),
+    [query, mutate]
+  );
   return /* @__PURE__ */ jsx2(TMAClientContext.Provider, { value, children });
 }
 function useTMAClient() {
@@ -179,11 +196,20 @@ function useTMAClient() {
 }
 
 // src/store/TMAStoreContext.tsx
-import { createContext as createContext3, useRef, useCallback as useCallback2, useEffect as useEffect2, useMemo as useMemo4, use as use3 } from "react";
+import {
+  createContext as createContext3,
+  useRef,
+  useCallback as useCallback2,
+  useEffect as useEffect2,
+  useMemo as useMemo4,
+  use as use3
+} from "react";
 import { create } from "zustand";
-import { update } from "@ywwwtseng/utils";
+import { update, merge, get } from "@ywwwtseng/utils";
 import { jsx as jsx3 } from "react/jsx-runtime";
-var TMAStoreContext = createContext3(void 0);
+var TMAStoreContext = createContext3(
+  void 0
+);
 var useTMAStore = create((set) => ({
   status: 0 /* Loading */,
   state: {},
@@ -195,10 +221,21 @@ var useTMAStore = create((set) => ({
         if (typeof command.payload === "function") {
           store = command.payload(store);
         } else {
-          store = {
-            ...store,
-            state: update(store.state, command.update, command.payload)
-          };
+          if ("update" in command) {
+            store = {
+              ...store,
+              state: update(store.state, command.update, command.payload)
+            };
+          } else if ("merge" in command) {
+            store = {
+              ...store,
+              state: update(
+                store.state,
+                command.merge,
+                merge({}, get(store.state, command.merge), command.payload)
+              )
+            };
+          }
         }
       }
       return store;
@@ -209,56 +246,66 @@ function TMAStoreProvider({ children }) {
   const client = useTMAClient();
   const { update: update2 } = useTMAStore();
   const loadingRef = useRef([]);
-  const query = useCallback2((path) => {
-    const key = JSON.stringify(path);
-    loadingRef.current.push(key);
-    update2({
-      update: ["loading"],
-      payload: (store) => ({
-        ...store,
-        loading: [...store.loading, key]
-      })
-    });
-    return client.query(path).then((res) => {
-      loadingRef.current = loadingRef.current.filter((k) => k !== key);
-      update2([
-        ...res.commands,
-        {
+  const query = useCallback2(
+    (path, params = {}) => {
+      const key = JSON.stringify(path);
+      loadingRef.current.push(key);
+      update2({
+        update: ["loading"],
+        payload: (store) => ({
+          ...store,
+          loading: [...store.loading, key]
+        })
+      });
+      return client.query(path, params).then((res) => {
+        loadingRef.current = loadingRef.current.filter((k) => k !== key);
+        update2([
+          ...res.commands,
+          {
+            update: ["loading"],
+            payload: (store) => ({
+              ...store,
+              loading: store.loading.filter((k) => k !== key)
+            })
+          }
+        ]);
+        return res;
+      }).catch(() => {
+        loadingRef.current = loadingRef.current.filter((k) => k !== key);
+        update2({
           update: ["loading"],
           payload: (store) => ({
             ...store,
             loading: store.loading.filter((k) => k !== key)
           })
-        }
-      ]);
-      return res;
-    }).catch(() => {
-      loadingRef.current = loadingRef.current.filter((k) => k !== key);
+        });
+      });
+    },
+    [client.query]
+  );
+  const mutate = useCallback2(
+    (action, payload) => {
+      const key = JSON.stringify({ action, payload });
       update2({
         update: ["loading"],
         payload: (store) => ({
           ...store,
-          loading: store.loading.filter((k) => k !== key)
+          loading: [...store.loading, key]
         })
       });
-    });
-  }, [client.query]);
-  const mutate = useCallback2((action, payload) => {
-    const key = JSON.stringify({ action, payload });
-    update2({
-      update: ["loading"],
-      payload: (store) => ({
-        ...store,
-        loading: [...store.loading, key]
-      })
-    });
-    return client.mutate(action, payload).then((res) => {
-      update2(res.commands);
-      return res;
-    });
-  }, [client.mutate]);
+      return client.mutate(action, payload).then((res) => {
+        update2(res.commands);
+        return res;
+      });
+    },
+    [client.mutate]
+  );
   useEffect2(() => {
-    mutate("init").then(() => {
+    const resolvedOptions = Intl.DateTimeFormat().resolvedOptions();
+    mutate("init", {
+      timezone: resolvedOptions.timeZone,
+      language_code: resolvedOptions.locale
+    }).then(() => {
       update2({
         update: ["status"],
         payload: (store) => ({
@@ -277,11 +324,14 @@ function TMAStoreProvider({ children }) {
       });
     });
   }, [mutate]);
-  const value = useMemo4(() => ({
-    query,
-    mutate,
-    loadingRef
-  }), [query, mutate, loadingRef]);
+  const value = useMemo4(
+    () => ({
+      query,
+      mutate,
+      loadingRef
+    }),
+    [query, mutate, loadingRef]
+  );
   return /* @__PURE__ */ jsx3(TMAStoreContext.Provider, { value, children });
 }
 function useTMAStoreQuery() {
@@ -304,12 +354,12 @@ function useTMAStoreMutate() {
 
 // src/store/TMAI18nContext.tsx
 import { useCallback as useCallback3, useMemo as useMemo5, createContext as createContext4, use as use4 } from "react";
-import { get as get2 } from "@ywwwtseng/utils";
+import { get as get3 } from "@ywwwtseng/utils";
 
 // src/hooks/useStore.ts
-import { get } from "@ywwwtseng/utils";
+import { get as get2 } from "@ywwwtseng/utils";
 function useStore(path) {
-  return useTMAStore((store) => get(store.state, path));
+  return useTMAStore((store) => get2(store.state, path));
 }
 
 // src/store/TMAI18nContext.tsx
@@ -321,7 +371,7 @@ function TMAI18nProvider({ locales, children }) {
     if (!locales) return key;
     const locale = locales?.[settings?.language_code?.toLowerCase()?.slice(0, 2)] || locales[localStorage.getItem("language_code") || "en"];
     if (!locale || typeof key !== "string") return key;
-    const template = get2(locale, key, key);
+    const template = get3(locale, key, key);
     if (!params) return template;
     return template.replace(/\{(\w+)\}/g, (_, key2) => String(params[key2]) || "");
   }, [settings]);
@@ -345,15 +395,15 @@ function TMAProvider({ env, background, url, locales, children }) {
 }
 
 // src/hooks/useQuery.ts
-import React from "react";
-import { get as get3 } from "@ywwwtseng/utils";
-function useQuery(path, options = {}) {
-  const gcTimeRef = React.useRef(options.gcTime || Infinity);
+import { useEffect as useEffect3, useRef as useRef2 } from "react";
+import { get as get4 } from "@ywwwtseng/utils";
+function useQuery(path, params = {}, options = {}) {
+  const gcTimeRef = useRef2(options.gcTime || Infinity);
   const key = JSON.stringify(path);
   const { query, loadingRef } = useTMAStoreQuery();
   const isLoading = useTMAStore((store) => store.loading).includes(key);
-  const data = useTMAStore((store) => get3(store.state, path));
-  React.useEffect(() => {
+  const data = useTMAStore((store) => get4(store.state, path));
+  useEffect3(() => {
     if (loadingRef.current.includes(key)) {
       return;
     }
@@ -365,8 +415,8 @@ function useQuery(path, options = {}) {
     if (data !== void 0 && gcTimeRef.current > 0) {
       return;
     }
-    query(path);
-  }, [JSON.stringify(path)]);
+    query(path, params);
+  }, [JSON.stringify(path), JSON.stringify(params)]);
   return {
     isLoading,
     data
@@ -374,11 +424,11 @@ function useQuery(path, options = {}) {
 }
 
 // src/hooks/useMutation.ts
-import React2 from "react";
+import React from "react";
 import { useRefValue } from "@ywwwtseng/react-kit";
 function useMutation() {
   const mutate = useTMAStoreMutate();
-  const [isLoading, setIsLoading] = React2.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
   const isLoadingRef = useRefValue(isLoading);
   return {
     mutate: (action, payload) => {
@@ -630,16 +680,19 @@ var Account = {
 // src/TMA.tsx
 import { useCallback as useCallback4 } from "react";
 import { StackNavigatorProvider, useNavigate as useNavigate2, useRoute as useRoute2, ScreenType } from "@ywwwtseng/react-kit";
-import { merge } from "@ywwwtseng/utils";
+import { merge as merge2 } from "@ywwwtseng/utils";
 
 // src/components/LaunchLaunchScreen.tsx
-import { useEffect as useEffect3, useState as useState4, useRef as useRef2 } from "react";
+import { useEffect as useEffect4, useState as useState4, useRef as useRef3 } from "react";
 import { jsx as jsx10 } from "react/jsx-runtime";
-function LaunchLaunchScreen({ children, duration = 2e3 }) {
-  const startTime = useRef2(Date.now());
+function LaunchLaunchScreen({
+  children,
+  duration = 2e3
+}) {
+  const startTime = useRef3(Date.now());
   const { status } = useTMAStore();
   const [hide, setHide] = useState4(false);
-  useEffect3(() => {
+  useEffect4(() => {
     if (status === 0 /* Loading */) {
       return;
     }
@@ -674,7 +727,6 @@ function LaunchLaunchScreen({ children, duration = 2e3 }) {
       children: /* @__PURE__ */ jsx10(
         "div",
         {
-          className: "animate-fade-in",
           style: {
             transform: "translateY(-27px)",
             display: "flex",
@@ -708,7 +760,7 @@ function TMA({
       {
         ...props,
         ...layoutProps,
-        styles: merge(props.styles || {}, layoutProps.styles || {}),
+        styles: merge2(props.styles || {}, layoutProps.styles || {}),
         headerHeight,
         tabBarHeight
       }

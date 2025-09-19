@@ -1,19 +1,25 @@
-import React from 'react';
+import { useEffect, useRef } from 'react';
 import { get } from '@ywwwtseng/utils';
 import { useTMAStore, useTMAStoreQuery } from '../store/TMAStoreContext';
+
+type UseQueryParams = Record<string, string | number | boolean>;
 
 interface UseQueryOptions {
   gcTime?: number;
 }
 
-export function useQuery<T = unknown>(path: string | string[], options: UseQueryOptions = {}) {
-  const gcTimeRef = React.useRef(options.gcTime || Infinity);
+export function useQuery<T = unknown>(
+  path: string | string[],
+  params: UseQueryParams = {},
+  options: UseQueryOptions = {}
+) {
+  const gcTimeRef = useRef(options.gcTime || Infinity);
   const key = JSON.stringify(path);
   const { query, loadingRef } = useTMAStoreQuery();
   const isLoading = useTMAStore((store) => store.loading).includes(key);
-  const data = useTMAStore((store) => get(store.state, path)) as T;
+  const data = useTMAStore((store) => get(store.state, path));
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (loadingRef.current.includes(key)) {
       return;
     }
@@ -28,11 +34,11 @@ export function useQuery<T = unknown>(path: string | string[], options: UseQuery
       return;
     }
 
-    query(path);
-  }, [JSON.stringify(path)]);
+    query(path, params);
+  }, [JSON.stringify(path), JSON.stringify(params)]);
 
   return {
     isLoading,
-    data,
+    data: data as T | undefined,
   };
 }

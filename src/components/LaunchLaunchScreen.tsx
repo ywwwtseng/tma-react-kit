@@ -6,7 +6,10 @@ export interface LaunchLaunchScreenProps extends PropsWithChildren {
   duration?: number;
 }
 
-export function LaunchLaunchScreen({ children, duration = 2000 }: LaunchLaunchScreenProps) {
+export function LaunchLaunchScreen({
+  children,
+  duration = 2000,
+}: LaunchLaunchScreenProps) {
   const startTime = useRef(Date.now());
   const { status } = useTMAStore();
   const [hide, setHide] = useState(false);
@@ -44,9 +47,9 @@ export function LaunchLaunchScreen({ children, duration = 2000 }: LaunchLaunchSc
         opacity: hide ? 0 : 1,
         pointerEvents: hide ? 'none' : 'auto',
         transition: 'opacity 0.3s ease-in-out',
-      }}>
+      }}
+    >
       <div
-        className="animate-fade-in"
         style={{
           transform: 'translateY(-27px)',
           display: 'flex',
