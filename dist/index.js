@@ -206,7 +206,7 @@ import {
   use as use3
 } from "react";
 import { create } from "zustand";
-import { update, merge, get } from "@ywwwtseng/utils";
+import { update, merge, get } from "@ywwwtseng/ywjs";
 import { jsx as jsx3 } from "react/jsx-runtime";
 var TMAStoreContext = createContext3(
   void 0
@@ -354,31 +354,47 @@ function useTMAStoreMutate() {
 }
 
 // src/store/TMAI18nContext.tsx
-import { useCallback as useCallback3, useMemo as useMemo5, createContext as createContext4, use as use4 } from "react";
-import { get as get3 } from "@ywwwtseng/utils";
+import {
+  useCallback as useCallback3,
+  useMemo as useMemo5,
+  createContext as createContext4,
+  use as use4
+} from "react";
+import { get as get3 } from "@ywwwtseng/ywjs";
 
 // src/hooks/useStore.ts
-import { get as get2 } from "@ywwwtseng/utils";
+import { get as get2 } from "@ywwwtseng/ywjs";
 function useStore(path) {
   return useTMAStore((store) => get2(store.state, path));
 }
 
 // src/store/TMAI18nContext.tsx
 import { jsx as jsx4 } from "react/jsx-runtime";
-var TMAI18nContext = createContext4(void 0);
+var TMAI18nContext = createContext4(
+  void 0
+);
 function TMAI18nProvider({ locales, children }) {
   const settings = useStore("settings");
-  const t = useCallback3((key, params) => {
-    if (!locales) return key;
-    const locale = locales?.[settings?.language_code?.toLowerCase()?.slice(0, 2)] || locales[localStorage.getItem("language_code") || "en"];
-    if (!locale || typeof key !== "string") return key;
-    const template = get3(locale, key, key);
-    if (!params) return template;
-    return template.replace(/\{(\w+)\}/g, (_, key2) => String(params[key2]) || "");
-  }, [settings]);
-  const value = useMemo5(() => ({
-    t
-  }), [t]);
+  const t = useCallback3(
+    (key, params) => {
+      if (!locales) return key;
+      const locale = locales?.[settings?.language_code?.toLowerCase()?.slice(0, 2)] || locales[localStorage.getItem("language_code") || "en"];
+      if (!locale || typeof key !== "string") return key;
+      const template = get3(locale, key, key);
+      if (!params) return template;
+      return template.replace(
+        /\{(\w+)\}/g,
+        (_, key2) => String(params[key2]) || ""
+      );
+    },
+    [settings]
+  );
+  const value = useMemo5(
+    () => ({
+      t
+    }),
+    [t]
+  );
   return /* @__PURE__ */ jsx4(TMAI18nContext.Provider, { value, children });
 }
 function useTMAI18n() {
@@ -397,7 +413,7 @@ function TMAProvider({ env, background, url, locales, children }) {
 
 // src/hooks/useQuery.ts
 import { useEffect as useEffect3, useRef as useRef2 } from "react";
-import { get as get4 } from "@ywwwtseng/utils";
+import { get as get4 } from "@ywwwtseng/ywjs";
 function useQuery(path, params = {}, options = {}) {
   const gcTimeRef = useRef2(options.gcTime || Infinity);
   const key = JSON.stringify(path);
@@ -680,15 +696,21 @@ var Account = {
 
 // src/TMA.tsx
 import { useCallback as useCallback4 } from "react";
-import { StackNavigatorProvider, useNavigate as useNavigate2, useRoute as useRoute2, ScreenType } from "@ywwwtseng/react-kit";
-import { merge as merge2 } from "@ywwwtseng/utils";
+import {
+  StackNavigatorProvider,
+  useNavigate as useNavigate2,
+  useRoute as useRoute2,
+  ScreenType
+} from "@ywwwtseng/react-kit";
+import { merge as merge2 } from "@ywwwtseng/ywjs";
 
 // src/components/LaunchLaunchScreen.tsx
 import { useEffect as useEffect4, useState as useState4, useRef as useRef3 } from "react";
 import { jsx as jsx10 } from "react/jsx-runtime";
 function LaunchLaunchScreen({
   children,
-  duration = 3e3
+  duration = 2e3,
+  onHide
 }) {
   const startTime = useRef3(Date.now());
   const { status } = useTMAStore();
@@ -701,9 +723,11 @@ function LaunchLaunchScreen({
     if (delay > 0) {
       setTimeout(() => {
         setHide(true);
+        onHide?.();
       }, delay);
     } else {
       setHide(true);
+      onHide?.();
     }
   }, [status]);
   return /* @__PURE__ */ jsx10(
@@ -781,7 +805,15 @@ function TMA({
         }
       }
     ),
-    launchScreen && /* @__PURE__ */ jsx11(LaunchLaunchScreen, { children: launchScreen })
+    launchScreen && /* @__PURE__ */ jsx11(
+      LaunchLaunchScreen,
+      {
+        onHide: () => {
+          document.body.classList.add("loaded");
+        },
+        children: launchScreen
+      }
+    )
   ] }) });
 }
 export {

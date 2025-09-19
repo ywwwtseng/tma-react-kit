@@ -1,6 +1,12 @@
 import { type ReactElement, useCallback } from 'react';
-import { StackNavigatorProvider, StackNavigatorProviderProps, useNavigate, useRoute, ScreenType } from '@ywwwtseng/react-kit';
-import { merge } from '@ywwwtseng/utils';
+import {
+  StackNavigatorProvider,
+  StackNavigatorProviderProps,
+  useNavigate,
+  useRoute,
+  ScreenType,
+} from '@ywwwtseng/react-kit';
+import { merge } from '@ywwwtseng/ywjs';
 import { TMAProvider, TMAProviderProps } from './store/TMAContext';
 import { TMALayout, TMALayoutProps } from './components/TMALayout';
 import { LaunchLaunchScreen } from './components/LaunchLaunchScreen';
@@ -50,7 +56,13 @@ export function TMA({
           }}
         />
         {launchScreen && (
-          <LaunchLaunchScreen>{launchScreen}</LaunchLaunchScreen>
+          <LaunchLaunchScreen
+            onHide={() => {
+              document.body.classList.add('loaded');
+            }}
+          >
+            {launchScreen}
+          </LaunchLaunchScreen>
         )}
       </>
     </TMAProvider>

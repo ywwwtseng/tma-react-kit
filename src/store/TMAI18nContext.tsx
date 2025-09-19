@@ -1,12 +1,20 @@
-import { useCallback, useMemo, createContext, use, type PropsWithChildren } from 'react';
-import { get } from '@ywwwtseng/utils';
+import {
+  useCallback,
+  useMemo,
+  createContext,
+  use,
+  type PropsWithChildren,
+} from 'react';
+import { get } from '@ywwwtseng/ywjs';
 import { useStore } from '../hooks/useStore';
 
 export interface TMAI18nContextState {
   t: (key: string, params?: Record<string, string | number>) => string;
 }
 
-export const TMAI18nContext = createContext<TMAI18nContextState | undefined>(undefined);
+export const TMAI18nContext = createContext<TMAI18nContextState | undefined>(
+  undefined
+);
 
 export type Locale = Record<string, Record<string, string>>;
 
@@ -19,23 +27,32 @@ export interface TMAI18nProviderProps extends PropsWithChildren {
 export function TMAI18nProvider({ locales, children }: TMAI18nProviderProps) {
   const settings = useStore<{ language_code: string }>('settings');
 
-  const t = useCallback((key: string, params?: Record<string, string | number>) => {
-    if (!locales) return key;
-    const locale = locales?.[settings?.language_code?.toLowerCase()?.slice(0, 2)] || locales[localStorage.getItem('language_code') || 'en'];
-    if (!locale || typeof key !== 'string') return key;
-    const template = get(locale, key, key);
-    if (!params) return template;
-    return template.replace(/\{(\w+)\}/g, (_: string, key: string) => String(params[key]) || '');
-  }, [settings]);
+  const t = useCallback(
+    (key: string, params?: Record<string, string | number>) => {
+      if (!locales) return key;
+      const locale =
+        locales?.[settings?.language_code?.toLowerCase()?.slice(0, 2)] ||
+        locales[localStorage.getItem('language_code') || 'en'];
+      if (!locale || typeof key !== 'string') return key;
+      const template = get(locale, key, key);
+      if (!params) return template;
+      return template.replace(
+        /\{(\w+)\}/g,
+        (_: string, key: string) => String(params[key]) || ''
+      );
+    },
+    [settings]
+  );
 
-  const value = useMemo(() => ({
-    t,
-  }), [t]);
+  const value = useMemo(
+    () => ({
+      t,
+    }),
+    [t]
+  );
 
   return (
-    <TMAI18nContext.Provider value={value}>
-      {children}
-    </TMAI18nContext.Provider>
+    <TMAI18nContext.Provider value={value}>{children}</TMAI18nContext.Provider>
   );
 }
 

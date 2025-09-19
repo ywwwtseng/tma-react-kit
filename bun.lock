@@ -7,7 +7,7 @@
         "@tma.js/bridge": "^2.0.0",
         "@tma.js/transformers": "^1.0.0",
         "@ywwwtseng/request": "github:ywwwtseng/request",
-        "@ywwwtseng/utils": "^1.0.0",
+        "@ywwwtseng/ywjs": "^0.1.0",
         "fp-ts": "^2.16.11",
         "zustand": "^5.0.8",
       },
@@ -287,11 +287,13 @@
 
     "@types/react-dom": ["@types/react-dom@19.1.9", "", { "peerDependencies": { "@types/react": "^19.0.0" } }, "sha512-qXRuZaOsAdXKFyOhRBg6Lqqc0yay13vN7KrIg4L7N4aaHN68ma9OK3NE1BoDFgFOTfM7zg+3/8+2n8rLUH3OKQ=="],
 
-    "@ywwwtseng/react-kit": ["@ywwwtseng/react-kit@github:ywwwtseng/react-kit#7db1233", { "dependencies": { "@heroui/dropdown": "^2.3.25", "@ywwwtseng/utils": "^1.0.0", "class-variance-authority": "^0.7.1", "clsx": "^2.1.1", "vaul": "^1.1.2" }, "peerDependencies": { "@types/react": ">=18.0.0", "react": ">=18.0.0" } }, "ywwwtseng-react-kit-7db1233"],
+    "@ywwwtseng/react-kit": ["@ywwwtseng/react-kit@github:ywwwtseng/react-kit#7db1233", { "dependencies": { "@heroui/dropdown": "^2.3.25", "@ywwwtseng/ywjs": "^1.0.0", "class-variance-authority": "^0.7.1", "clsx": "^2.1.1", "vaul": "^1.1.2" }, "peerDependencies": { "@types/react": ">=18.0.0", "react": ">=18.0.0" } }, "ywwwtseng-react-kit-7db1233"],
 
     "@ywwwtseng/request": ["@ywwwtseng/request@github:ywwwtseng/request#435495b", {}, "ywwwtseng-request-435495b"],
 
-    "@ywwwtseng/utils": ["@ywwwtseng/utils@1.0.0", "", {}, "sha512-kUW6LKtcZG9mGJd5rrGIiGvXseKqBu/pzTFdzgNiHpePRRGnqqNZA5BPfrBRQdXx5uONVxtR+41y5R/TxbaO2A=="],
+    "@ywwwtseng/ywjs": ["@ywwwtseng/ywjs@1.0.0", "", {}, "sha512-kUW6LKtcZG9mGJd5rrGIiGvXseKqBu/pzTFdzgNiHpePRRGnqqNZA5BPfrBRQdXx5uONVxtR+41y5R/TxbaO2A=="],
+
+    "@ywwwtseng/ywjs": ["@ywwwtseng/ywjs@0.1.0", "", {}, "sha512-6JcJSrd66pnwT0oLC/g5BQaCXFTO+oE9O5mRgud/KtQ5lejkY38QkIsMmJ7oC3H2L35ycH5PLiHcbOfhNGQELw=="],
 
     "acorn": ["acorn@8.15.0", "", { "bin": { "acorn": "bin/acorn" } }, "sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg=="],
 

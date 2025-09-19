@@ -9,7 +9,7 @@ import {
   type PropsWithChildren,
 } from 'react';
 import { create } from 'zustand';
-import { update, merge, get } from '@ywwwtseng/utils';
+import { update, merge, get } from '@ywwwtseng/ywjs';
 import { useTMAClient } from './TMAClientContext';
 import { Status } from '../constants';
 

@@ -4,11 +4,13 @@ import { Status } from '../constants';
 
 export interface LaunchLaunchScreenProps extends PropsWithChildren {
   duration?: number;
+  onHide?: () => void;
 }
 
 export function LaunchLaunchScreen({
   children,
-  duration = 3000,
+  duration = 2000,
+  onHide,
 }: LaunchLaunchScreenProps) {
   const startTime = useRef(Date.now());
   const { status } = useTMAStore();
@@ -24,9 +26,11 @@ export function LaunchLaunchScreen({
     if (delay > 0) {
       setTimeout(() => {
         setHide(true);
+        onHide?.();
       }, delay);
     } else {
       setHide(true);
+      onHide?.();
     }
   }, [status]);
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { get } from '@ywwwtseng/utils';
+import { get } from '@ywwwtseng/ywjs';
 import { useTMAStore, useTMAStoreQuery } from '../store/TMAStoreContext';
 
 type UseQueryParams = Record<string, string | number | boolean>;

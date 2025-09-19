@@ -24,7 +24,7 @@
     "@tma.js/bridge": "^2.0.0",
     "@tma.js/transformers": "^1.0.0",
     "@ywwwtseng/request": "github:ywwwtseng/request",
-    "@ywwwtseng/utils": "^1.0.0",
+    "@ywwwtseng/ywjs": "^0.1.0",
     "fp-ts": "^2.16.11",
     "zustand": "^5.0.8"
   }
