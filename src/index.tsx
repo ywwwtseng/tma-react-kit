@@ -5,9 +5,9 @@ export * from './store/TMAI18nContext';
 export * from './store/TMAContext';
 
 export * from './hooks/useTelegramSDK';
+export * from './hooks/useStoreState';
 export * from './hooks/useQuery';
 export * from './hooks/useMutation';
-export * from './hooks/useStore';
 
 export * from './components/Typography';
 export * from './components/TMALayout';

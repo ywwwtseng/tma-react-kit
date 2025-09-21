@@ -202,8 +202,7 @@ import {
   useRef,
   useCallback as useCallback2,
   useEffect as useEffect2,
-  useMemo as useMemo4,
-  use as use3
+  useMemo as useMemo4
 } from "react";
 import { create } from "zustand";
 import { update, merge, get } from "@ywwwtseng/ywjs";
@@ -271,7 +270,7 @@ function TMAStoreProvider({ children }) {
           }
         ]);
         return res;
-      }).catch(() => {
+      }).catch((error) => {
         loadingRef.current = loadingRef.current.filter((k) => k !== key);
         update2({
           update: ["loading"],
@@ -280,12 +279,13 @@ function TMAStoreProvider({ children }) {
             loading: store.loading.filter((k) => k !== key)
           })
         });
+        throw error;
       });
     },
     [client.query]
   );
   const mutate = useCallback2(
-    (action, payload) => {
+    (action, payload, options) => {
       const key = JSON.stringify({ action, payload });
       update2({
         update: ["loading"],
@@ -294,9 +294,22 @@ function TMAStoreProvider({ children }) {
           loading: [...store.loading, key]
         })
       });
+      const optimistic = options?.optimistic;
+      const execute = optimistic?.execute;
+      if (execute) {
+        update2(execute);
+      }
       return client.mutate(action, payload).then((res) => {
-        update2(res.commands);
+        if (res.commands) {
+          update2(res.commands);
+        }
         return res;
+      }).catch((error) => {
+        const undo = optimistic?.undo;
+        if (undo) {
+          update2(undo);
+        }
+        throw error;
       });
     },
     [client.mutate]
@@ -335,23 +348,6 @@ function TMAStoreProvider({ children }) {
   );
   return /* @__PURE__ */ jsx3(TMAStoreContext.Provider, { value, children });
 }
-function useTMAStoreQuery() {
-  const context = use3(TMAStoreContext);
-  if (!context) {
-    throw new Error("useTMA must be used within a TMAStoreProvider");
-  }
-  return {
-    query: context.query,
-    loadingRef: context.loadingRef
-  };
-}
-function useTMAStoreMutate() {
-  const context = use3(TMAStoreContext);
-  if (!context) {
-    throw new Error("useTMA must be used within a TMAStoreProvider");
-  }
-  return context.mutate;
-}
 
 // src/store/TMAI18nContext.tsx
 import {
@@ -362,9 +358,9 @@ import {
 } from "react";
 import { get as get3 } from "@ywwwtseng/ywjs";
 
-// src/hooks/useStore.ts
+// src/hooks/useStoreState.ts
 import { get as get2 } from "@ywwwtseng/ywjs";
-function useStore(path) {
+function useStoreState(path) {
   return useTMAStore((store) => get2(store.state, path));
 }
 
@@ -374,7 +370,7 @@ var TMAI18nContext = createContext4(
   void 0
 );
 function TMAI18nProvider({ locales, children }) {
-  const me = useStore("me");
+  const me = useStoreState("me");
   const t = useCallback3(
     (key, params) => {
       if (!locales) return key;
@@ -412,12 +408,16 @@ function TMAProvider({ env, background, url, locales, children }) {
 }
 
 // src/hooks/useQuery.ts
-import { useEffect as useEffect3, useRef as useRef2 } from "react";
+import { use as use5, useEffect as useEffect3, useRef as useRef2 } from "react";
 import { get as get4 } from "@ywwwtseng/ywjs";
 function useQuery(path, params = {}, options = {}) {
+  const context = use5(TMAStoreContext);
+  if (!context) {
+    throw new Error("useQuery must be used within a TMA");
+  }
+  const { query, loadingRef } = context;
   const gcTimeRef = useRef2(options.gcTime || Infinity);
   const key = JSON.stringify(path);
-  const { query, loadingRef } = useTMAStoreQuery();
   const isLoading = useTMAStore((store) => store.loading).includes(key);
   const data = useTMAStore((store) => get4(store.state, path));
   useEffect3(() => {
@@ -441,22 +441,29 @@ function useQuery(path, params = {}, options = {}) {
 }
 
 // src/hooks/useMutation.ts
-import React from "react";
+import { use as use6, useState as useState2, useCallback as useCallback4 } from "react";
 import { useRefValue } from "@ywwwtseng/react-kit";
 function useMutation() {
-  const mutate = useTMAStoreMutate();
-  const [isLoading, setIsLoading] = React.useState(false);
+  const context = use6(TMAStoreContext);
+  if (!context) {
+    throw new Error("useMutation must be used within a TMA");
+  }
+  const [isLoading, setIsLoading] = useState2(false);
   const isLoadingRef = useRefValue(isLoading);
-  return {
-    mutate: (action, payload) => {
+  const mutate = useCallback4(
+    (action, payload, options) => {
       if (isLoadingRef.current) {
         return;
       }
       setIsLoading(true);
-      mutate(action, payload).finally(() => {
+      return context.mutate(action, payload, options).finally(() => {
         setIsLoading(false);
       });
     },
+    [context.mutate]
+  );
+  return {
+    mutate,
     isLoading
   };
 }
@@ -471,7 +478,7 @@ function Typography({ i18n, params, children, ...props }) {
 
 // src/components/TMALayout.tsx
 import {
-  useState as useState3
+  useState as useState4
 } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -482,7 +489,7 @@ import {
 } from "@ywwwtseng/react-kit";
 
 // src/components/TabBarItem.tsx
-import { useState as useState2 } from "react";
+import { useState as useState3 } from "react";
 import { isTMA as isTMA3, postEvent as postEvent2 } from "@tma.js/bridge";
 import { jsx as jsx7, jsxs } from "react/jsx-runtime";
 function TabBarItem({
@@ -493,7 +500,7 @@ function TabBarItem({
   style
 }) {
   const { t } = useTMAI18n();
-  const [isActivating, setIsActivating] = useState2(false);
+  const [isActivating, setIsActivating] = useState3(false);
   return /* @__PURE__ */ jsxs(
     "button",
     {
@@ -559,7 +566,7 @@ function TMALayout({
   const navigate = useNavigate();
   const { status } = useTMAStore();
   const { platform } = useTMASDK();
-  const [modal, setModal] = useState3(null);
+  const [modal, setModal] = useState4(null);
   const safeAreaBottom = platform === "ios" ? 20 : 12;
   return /* @__PURE__ */ jsxs2(
     Layout.Root,
@@ -695,7 +702,7 @@ var Account = {
 };
 
 // src/TMA.tsx
-import { useCallback as useCallback4 } from "react";
+import { useCallback as useCallback5 } from "react";
 import {
   StackNavigatorProvider,
   useNavigate as useNavigate2,
@@ -705,7 +712,7 @@ import {
 import { merge as merge2 } from "@ywwwtseng/ywjs";
 
 // src/components/LaunchLaunchScreen.tsx
-import { useEffect as useEffect4, useState as useState4, useRef as useRef3 } from "react";
+import { useEffect as useEffect4, useState as useState5, useRef as useRef3 } from "react";
 import { jsx as jsx10 } from "react/jsx-runtime";
 function LaunchLaunchScreen({
   children,
@@ -714,7 +721,7 @@ function LaunchLaunchScreen({
 }) {
   const startTime = useRef3(Date.now());
   const { status } = useTMAStore();
-  const [hide, setHide] = useState4(false);
+  const [hide, setHide] = useState5(false);
   useEffect4(() => {
     if (status === 0 /* Loading */) {
       return;
@@ -779,7 +786,7 @@ function TMA({
   tabBarHeight = 60,
   ...layoutProps
 }) {
-  const Layout2 = useCallback4(
+  const Layout2 = useCallback5(
     (props) => /* @__PURE__ */ jsx11(
       TMALayout,
       {
@@ -837,12 +844,10 @@ export {
   useNavigate2 as useNavigate,
   useQuery,
   useRoute2 as useRoute,
-  useStore,
+  useStoreState,
   useTMAClient,
   useTMAI18n,
   useTMASDK,
   useTMAStore,
-  useTMAStoreMutate,
-  useTMAStoreQuery,
   useTelegramSDK
 };

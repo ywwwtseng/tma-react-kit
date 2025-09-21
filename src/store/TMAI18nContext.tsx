@@ -6,7 +6,7 @@ import {
   type PropsWithChildren,
 } from 'react';
 import { get } from '@ywwwtseng/ywjs';
-import { useStore } from '../hooks/useStore';
+import { useStoreState } from '../hooks/useStoreState';
 
 export interface TMAI18nContextState {
   t: (key: string, params?: Record<string, string | number>) => string;
@@ -25,7 +25,7 @@ export interface TMAI18nProviderProps extends PropsWithChildren {
 }
 
 export function TMAI18nProvider({ locales, children }: TMAI18nProviderProps) {
-  const me = useStore<{ language_code: string }>('me');
+  const me = useStoreState<{ language_code: string }>('me');
 
   const t = useCallback(
     (key: string, params?: Record<string, string | number>) => {

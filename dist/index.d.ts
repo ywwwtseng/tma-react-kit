@@ -159,34 +159,36 @@ declare enum Status {
 
 interface TMAStoreContextState {
     query: (path: string | string[], params: Record<string, string | number | boolean>) => Promise<unknown>;
-    mutate: (action: string, payload: unknown) => Promise<unknown>;
+    mutate: (action: string, payload: unknown, options?: MutateOptions) => Promise<unknown>;
     loadingRef: RefObject<string[]>;
 }
 declare const TMAStoreContext: react.Context<TMAStoreContextState>;
 interface TMAStoreProviderProps extends PropsWithChildren {
 }
-interface ResponseDataCommand {
-    update?: string[];
-    merge?: string[];
-    action?: string;
+interface Command {
+    update?: string | string[];
+    merge?: string | string[];
     payload: unknown;
 }
+interface MutateOptions {
+    optimistic?: {
+        execute: Command[];
+        undo?: Command[];
+    };
+}
 interface ResponseData {
-    commands: ResponseDataCommand[];
+    commands?: Command[];
+    error?: string;
+    ok?: boolean;
 }
 type Store = {
     status: Status;
     state: Record<string, unknown>;
     loading: string[];
-    update: (commands: ResponseDataCommand | ResponseDataCommand[]) => void;
+    update: (commands: Command | Command[]) => void;
 };
 declare const useTMAStore: zustand.UseBoundStore<zustand.StoreApi<Store>>;
 declare function TMAStoreProvider({ children }: TMAStoreProviderProps): react_jsx_runtime.JSX.Element;
-declare function useTMAStoreQuery(): {
-    query: (path: string | string[], params: Record<string, string | number | boolean>) => Promise<unknown>;
-    loadingRef: RefObject<string[]>;
-};
-declare function useTMAStoreMutate(): (action: string, payload: unknown) => Promise<unknown>;
 
 interface TMAI18nContextState {
     t: (key: string, params?: Record<string, string | number>) => string;
@@ -204,6 +206,8 @@ interface TMAProviderProps extends React.PropsWithChildren, Omit<TMASDKProviderP
 }
 declare function TMAProvider({ env, background, url, locales, children }: TMAProviderProps): react_jsx_runtime.JSX.Element;
 
+declare function useStoreState<T = unknown>(path: string | string[]): T | undefined;
+
 type UseQueryParams = Record<string, string | number | boolean>;
 interface UseQueryOptions {
     gcTime?: number;
@@ -213,12 +217,10 @@ declare function useQuery<T = unknown>(path: string | string[], params?: UseQuer
     data: T | undefined;
 };
 
-declare function useMutation<T = unknown>(): {
-    mutate: (action: string, payload: T) => void;
+declare function useMutation(): {
+    mutate: <T = unknown>(action: string, payload?: T, options?: MutateOptions) => Promise<ResponseData>;
     isLoading: boolean;
 };
-
-declare function useStore<T = unknown>(path: string | string[]): T | undefined;
 
 interface TypographyProps extends TypographyProps$1 {
     i18n?: string;
@@ -261,4 +263,4 @@ interface TMAProps extends TMAProviderProps, TMALayoutProps, Omit<StackNavigator
 }
 declare function TMA({ env, url, locales, launchScreen, screens, headerHeight, tabBarHeight, ...layoutProps }: TMAProps): react_jsx_runtime.JSX.Element;
 
-export { Account, Avatar, type Locale, type Locales, type ResponseData, type ResponseDataCommand, type Store, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, type User, useMutation, useQuery, useStore, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTMAStoreMutate, useTMAStoreQuery, useTelegramSDK };
+export { Account, Avatar, type Command, type Locale, type Locales, type MutateOptions, type ResponseData, type Store, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, type User, useMutation, useQuery, useStoreState, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTelegramSDK };

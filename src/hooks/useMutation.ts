@@ -1,25 +1,42 @@
-import React from 'react';
+import { use, useState, useCallback } from 'react';
 import { useRefValue } from '@ywwwtseng/react-kit';
-import { useTMAStoreMutate } from '../store/TMAStoreContext';
+import {
+  MutateOptions,
+  TMAStoreContext,
+  ResponseData,
+} from '../store/TMAStoreContext';
 
-export function useMutation<T = unknown>() {
-  const mutate = useTMAStoreMutate();
-  const [isLoading, setIsLoading] = React.useState(false);
+export function useMutation() {
+  const context = use(TMAStoreContext);
+
+  if (!context) {
+    throw new Error('useMutation must be used within a TMA');
+  }
+
+  const [isLoading, setIsLoading] = useState(false);
   const isLoadingRef = useRefValue(isLoading);
 
-  return {
-    mutate: (action: string, payload: T) => {
+  const mutate = useCallback(
+    <T = unknown>(
+      action: string,
+      payload?: T,
+      options?: MutateOptions
+    ): Promise<ResponseData> => {
       if (isLoadingRef.current) {
         return;
       }
 
       setIsLoading(true);
 
-      mutate(action, payload)
-       .finally(() => {
+      return context.mutate(action, payload, options).finally(() => {
         setIsLoading(false);
-       });
+      });
     },
+    [context.mutate]
+  );
+
+  return {
+    mutate,
     isLoading,
   };
 }

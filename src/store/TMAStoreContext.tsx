@@ -18,7 +18,11 @@ export interface TMAStoreContextState {
     path: string | string[],
     params: Record<string, string | number | boolean>
   ) => Promise<unknown>;
-  mutate: (action: string, payload: unknown) => Promise<unknown>;
+  mutate: (
+    action: string,
+    payload: unknown,
+    options?: MutateOptions
+  ) => Promise<unknown>;
   loadingRef: RefObject<string[]>;
 }
 
@@ -28,29 +32,37 @@ export const TMAStoreContext = createContext<TMAStoreContextState | undefined>(
 
 export interface TMAStoreProviderProps extends PropsWithChildren {}
 
-export interface ResponseDataCommand {
-  update?: string[];
-  merge?: string[];
-  action?: string;
+export interface Command {
+  update?: string | string[];
+  merge?: string | string[];
   payload: unknown;
 }
 
+export interface MutateOptions {
+  optimistic?: {
+    execute: Command[];
+    undo?: Command[];
+  };
+}
+
 export interface ResponseData {
-  commands: ResponseDataCommand[];
+  commands?: Command[];
+  error?: string;
+  ok?: boolean;
 }
 
 export type Store = {
   status: Status;
   state: Record<string, unknown>;
   loading: string[];
-  update: (commands: ResponseDataCommand | ResponseDataCommand[]) => void;
+  update: (commands: Command | Command[]) => void;
 };
 
 export const useTMAStore = create<Store>((set) => ({
   status: Status.Loading,
   state: {},
   loading: [],
-  update: (commands: ResponseDataCommand | ResponseDataCommand[]) => {
+  update: (commands: Command | Command[]) => {
     set((store) => {
       commands = Array.isArray(commands) ? commands : [commands];
 
@@ -121,7 +133,7 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
 
           return res;
         })
-        .catch(() => {
+        .catch((error) => {
           loadingRef.current = loadingRef.current.filter((k) => k !== key);
 
           update({
@@ -131,13 +143,15 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
               loading: store.loading.filter((k) => k !== key),
             }),
           });
+
+          throw error;
         });
     },
     [client.query]
   );
 
   const mutate = useCallback(
-    (action: string, payload?: unknown) => {
+    (action: string, payload?: unknown, options?: MutateOptions) => {
       const key = JSON.stringify({ action, payload });
 
       update({
@@ -148,11 +162,31 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
         }),
       });
 
-      return client.mutate(action, payload).then((res: ResponseData) => {
-        update(res.commands);
+      const optimistic = options?.optimistic;
+      const execute = optimistic?.execute;
 
-        return res;
-      });
+      if (execute) {
+        update(execute);
+      }
+
+      return client
+        .mutate(action, payload)
+        .then((res: ResponseData) => {
+          if (res.commands) {
+            update(res.commands);
+          }
+
+          return res;
+        })
+        .catch((error) => {
+          const undo = optimistic?.undo;
+
+          if (undo) {
+            update(undo);
+          }
+
+          throw error;
+        });
     },
     [client.mutate]
   );
@@ -199,27 +233,4 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
       {children}
     </TMAStoreContext.Provider>
   );
-}
-
-export function useTMAStoreQuery() {
-  const context = use(TMAStoreContext);
-
-  if (!context) {
-    throw new Error('useTMA must be used within a TMAStoreProvider');
-  }
-
-  return {
-    query: context.query,
-    loadingRef: context.loadingRef,
-  };
-}
-
-export function useTMAStoreMutate() {
-  const context = use(TMAStoreContext);
-
-  if (!context) {
-    throw new Error('useTMA must be used within a TMAStoreProvider');
-  }
-
-  return context.mutate;
 }
