@@ -25,13 +25,13 @@ export interface TMAI18nProviderProps extends PropsWithChildren {
 }
 
 export function TMAI18nProvider({ locales, children }: TMAI18nProviderProps) {
-  const settings = useStore<{ language_code: string }>('settings');
+  const me = useStore<{ language_code: string }>('me');
 
   const t = useCallback(
     (key: string, params?: Record<string, string | number>) => {
       if (!locales) return key;
       const locale =
-        locales?.[settings?.language_code?.toLowerCase()?.slice(0, 2)] ||
+        locales?.[me?.language_code?.toLowerCase()?.slice(0, 2)] ||
         locales[localStorage.getItem('language_code') || 'en'];
       if (!locale || typeof key !== 'string') return key;
       const template = get(locale, key, key);
@@ -41,7 +41,7 @@ export function TMAI18nProvider({ locales, children }: TMAI18nProviderProps) {
         (_: string, key: string) => String(params[key]) || ''
       );
     },
-    [settings]
+    [me]
   );
 
   const value = useMemo(

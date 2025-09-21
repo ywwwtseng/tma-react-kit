@@ -374,11 +374,11 @@ var TMAI18nContext = createContext4(
   void 0
 );
 function TMAI18nProvider({ locales, children }) {
-  const settings = useStore("settings");
+  const me = useStore("me");
   const t = useCallback3(
     (key, params) => {
       if (!locales) return key;
-      const locale = locales?.[settings?.language_code?.toLowerCase()?.slice(0, 2)] || locales[localStorage.getItem("language_code") || "en"];
+      const locale = locales?.[me?.language_code?.toLowerCase()?.slice(0, 2)] || locales[localStorage.getItem("language_code") || "en"];
       if (!locale || typeof key !== "string") return key;
       const template = get3(locale, key, key);
       if (!params) return template;
@@ -387,7 +387,7 @@ function TMAI18nProvider({ locales, children }) {
         (_, key2) => String(params[key2]) || ""
       );
     },
-    [settings]
+    [me]
   );
   const value = useMemo5(
     () => ({
