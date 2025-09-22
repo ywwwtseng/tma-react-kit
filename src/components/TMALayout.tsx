@@ -12,6 +12,7 @@ import {
   Route,
   useNavigate,
   useRoute,
+  ScreenType,
   type Tab,
 } from '@ywwwtseng/react-kit';
 import { useTMASDK } from '../store/TMASDKContext';
@@ -21,8 +22,8 @@ import { TabBarItem } from './TabBarItem';
 import { Typography } from './Typography';
 
 export interface TMALayoutProps extends PropsWithChildren {
-  headerLeft: ReactNode | ((route: Route) => ReactNode);
-  headerRight: ReactNode | ((route: Route) => ReactNode);
+  headerLeft?: ReactNode | ((route: Route) => ReactNode);
+  headerRight?: ReactNode | ((route: Route) => ReactNode);
   backIcon?: ReactNode;
   backText?: string;
   tabs?: (Tab & { modal?: ElementType })[];
@@ -40,7 +41,10 @@ export interface TMALayoutProps extends PropsWithChildren {
 }
 
 export function TMALayout({
-  headerLeft,
+  headerLeft = (route: Route) =>
+    route.type === ScreenType.PAGE ? (
+      <Typography size="6" weight={500} i18n={route.title} />
+    ) : undefined,
   headerRight,
   backIcon,
   backText = 'Back',
@@ -71,7 +75,7 @@ export function TMALayout({
         >
           <Layout.HeaderLeft style={styles?.headerLeft}>
             <div
-              className='animate-fade-in'
+              className="animate-fade-in"
               style={{
                 display: route.type === 'page' ? 'block' : 'none',
               }}
@@ -83,7 +87,7 @@ export function TMALayout({
                 : null}
             </div>
             <button
-              className='animate-fade-in'
+              className="animate-fade-in"
               style={{
                 display: route.type === 'page' ? 'none' : 'flex',
                 alignItems: 'center',
@@ -95,9 +99,14 @@ export function TMALayout({
               onClick={() => navigate(-1)}
             >
               {backIcon && backIcon}
-              <Typography size='4' i18n={backText} />
+              <Typography size="2" i18n={backText} />
             </button>
           </Layout.HeaderLeft>
+          {route.title && route.type === ScreenType.DRAWER && (
+            <Layout.HeaderTitle>
+              <Typography size="3" i18n={route.title} noWrap />
+            </Layout.HeaderTitle>
+          )}
           <Layout.HeaderRight style={styles?.headerRight}>
             {headerRight
               ? typeof headerRight === 'function'

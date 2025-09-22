@@ -200,6 +200,7 @@ declare function TMAStoreProvider({ children }: TMAStoreProviderProps): react_js
 
 interface TMAI18nContextState {
     t: (key: string, params?: Record<string, string | number>) => string;
+    locale: string;
 }
 declare const TMAI18nContext: react.Context<TMAI18nContextState>;
 type Locale = Record<string, Record<string, string>>;
@@ -235,6 +236,8 @@ declare function useShare(): ({ url, text }: {
     text: string;
 }) => void;
 
+declare function useSetLocale(): (locale: string) => void;
+
 interface TypographyProps extends TypographyProps$1 {
     i18n?: string;
     params?: Record<string, string | number>;
@@ -242,8 +245,8 @@ interface TypographyProps extends TypographyProps$1 {
 declare function Typography({ i18n, params, children, ...props }: TypographyProps): react_jsx_runtime.JSX.Element;
 
 interface TMALayoutProps extends PropsWithChildren {
-    headerLeft: ReactNode | ((route: Route) => ReactNode);
-    headerRight: ReactNode | ((route: Route) => ReactNode);
+    headerLeft?: ReactNode | ((route: Route) => ReactNode);
+    headerRight?: ReactNode | ((route: Route) => ReactNode);
     backIcon?: ReactNode;
     backText?: string;
     tabs?: (Tab & {
@@ -276,4 +279,4 @@ interface TMAProps extends TMAProviderProps, TMALayoutProps, Omit<StackNavigator
 }
 declare function TMA({ env, url, locales, launchScreen, screens, headerHeight, tabBarHeight, ...layoutProps }: TMAProps): react_jsx_runtime.JSX.Element;
 
-export { Account, Avatar, type Command, type Locale, type Locales, type MutateOptions, type ResponseData, type ResponseError, type Store, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, type User, useMutation, useQuery, useShare, useStoreState, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTelegramSDK };
+export { Account, Avatar, type Command, type Locale, type Locales, type MutateOptions, type ResponseData, type ResponseError, type Store, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, type User, useMutation, useQuery, useSetLocale, useShare, useStoreState, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTelegramSDK };

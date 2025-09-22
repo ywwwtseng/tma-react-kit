@@ -52,6 +52,7 @@ export function TMA({
           drawer={{
             style: {
               paddingTop: headerHeight,
+              paddingBottom: 20,
             },
           }}
         />

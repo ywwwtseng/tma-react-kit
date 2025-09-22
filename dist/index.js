@@ -387,12 +387,14 @@ var TMAI18nContext = createContext4(
 );
 function TMAI18nProvider({ locales, children }) {
   const me = useStoreState("me");
+  const locale = useMemo5(() => {
+    return me?.language_code?.toLowerCase()?.slice(0, 2) || localStorage.getItem("language_code") || "en";
+  }, [me]);
   const t = useCallback3(
     (key, params) => {
       if (!locales) return key;
-      const locale = locales?.[me?.language_code?.toLowerCase()?.slice(0, 2)] || locales[localStorage.getItem("language_code") || "en"];
-      if (!locale || typeof key !== "string") return key;
-      const template = get3(locale, key, key);
+      if (!locales[locale] || typeof key !== "string") return key;
+      const template = get3(locales[locale], key, key);
       if (!params) return template;
       return template.replace(
         /\{(\w+)\}/g,
@@ -403,16 +405,17 @@ function TMAI18nProvider({ locales, children }) {
   );
   const value = useMemo5(
     () => ({
+      locale,
       t
     }),
-    [t]
+    [locale, t]
   );
   return /* @__PURE__ */ jsx4(TMAI18nContext.Provider, { value, children });
 }
 function useTMAI18n() {
   const context = use3(TMAI18nContext);
   if (!context) {
-    throw new Error("useTMA must be used within a TMAI18nProvider");
+    throw new Error("useTMAI18n must be used within a TMAI18nProvider");
   }
   return context;
 }
@@ -506,6 +509,41 @@ ${text}` : text);
   }, []);
 }
 
+// src/hooks/useSetLocale.ts
+import { useCallback as useCallback6 } from "react";
+function useSetLocale() {
+  const { mutate } = useMutation("update:me");
+  const setLocale = useCallback6(
+    (locale) => {
+      const prev = localStorage.getItem("language_code") || "en";
+      localStorage.setItem("language_code", locale);
+      void mutate(
+        {
+          language_code: locale
+        },
+        {
+          optimistic: {
+            execute: [
+              {
+                merge: ["me"],
+                payload: { language_code: locale }
+              }
+            ],
+            undo: [
+              {
+                merge: ["me"],
+                payload: { language_code: prev }
+              }
+            ]
+          }
+        }
+      );
+    },
+    [mutate]
+  );
+  return setLocale;
+}
+
 // src/components/Typography.tsx
 import { Typography as ReactKitTypography } from "@ywwwtseng/react-kit";
 import { jsx as jsx6 } from "react/jsx-runtime";
@@ -523,7 +561,8 @@ import {
   Layout,
   TabBar,
   useNavigate,
-  useRoute
+  useRoute,
+  ScreenType
 } from "@ywwwtseng/react-kit";
 
 // src/components/TabBarItem.tsx
@@ -590,7 +629,7 @@ function TabBarItem({
 // src/components/TMALayout.tsx
 import { jsx as jsx8, jsxs as jsxs3 } from "react/jsx-runtime";
 function TMALayout({
-  headerLeft,
+  headerLeft = (route) => route.type === ScreenType.PAGE ? /* @__PURE__ */ jsx8(Typography, { size: "6", weight: 500, i18n: route.title }) : void 0,
   headerRight,
   backIcon,
   backText = "Back",
@@ -647,11 +686,12 @@ function TMALayout({
                       onClick: () => navigate(-1),
                       children: [
                         backIcon && backIcon,
-                        /* @__PURE__ */ jsx8(Typography, { size: "4", i18n: backText })
+                        /* @__PURE__ */ jsx8(Typography, { size: "2", i18n: backText })
                       ]
                     }
                   )
                 ] }),
+                route.title && route.type === ScreenType.DRAWER && /* @__PURE__ */ jsx8(Layout.HeaderTitle, { children: /* @__PURE__ */ jsx8(Typography, { size: "3", i18n: route.title, noWrap: true }) }),
                 /* @__PURE__ */ jsx8(Layout.HeaderRight, { style: styles?.headerRight, children: headerRight ? typeof headerRight === "function" ? headerRight(route) : headerRight : null })
               ]
             }
@@ -740,12 +780,12 @@ var Account = {
 };
 
 // src/TMA.tsx
-import { useCallback as useCallback6 } from "react";
+import { useCallback as useCallback7 } from "react";
 import {
   StackNavigatorProvider,
   useNavigate as useNavigate2,
   useRoute as useRoute2,
-  ScreenType
+  ScreenType as ScreenType2
 } from "@ywwwtseng/react-kit";
 import { merge as merge2 } from "@ywwwtseng/ywjs";
 
@@ -824,7 +864,7 @@ function TMA({
   tabBarHeight = 60,
   ...layoutProps
 }) {
-  const Layout2 = useCallback6(
+  const Layout2 = useCallback7(
     (props) => /* @__PURE__ */ jsx11(
       TMALayout,
       {
@@ -845,7 +885,8 @@ function TMA({
         screens,
         drawer: {
           style: {
-            paddingTop: headerHeight
+            paddingTop: headerHeight,
+            paddingBottom: 20
           }
         }
       }
@@ -864,7 +905,7 @@ function TMA({
 export {
   Account,
   Avatar,
-  ScreenType,
+  ScreenType2 as ScreenType,
   TELEGRAM_ENV,
   TMA,
   TMAClientContext,
@@ -882,6 +923,7 @@ export {
   useNavigate2 as useNavigate,
   useQuery,
   useRoute2 as useRoute,
+  useSetLocale,
   useShare,
   useStoreState,
   useTMAClient,
