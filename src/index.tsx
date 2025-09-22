@@ -8,6 +8,7 @@ export * from './hooks/useTelegramSDK';
 export * from './hooks/useStoreState';
 export * from './hooks/useQuery';
 export * from './hooks/useMutation';
+export * from './hooks/useShare';
 
 export * from './components/Typography';
 export * from './components/TMALayout';

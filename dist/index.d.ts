@@ -230,6 +230,11 @@ declare function useMutation(action: string): {
     isLoading: boolean;
 };
 
+declare function useShare(): ({ url, text }: {
+    url: string;
+    text: string;
+}) => void;
+
 interface TypographyProps extends TypographyProps$1 {
     i18n?: string;
     params?: Record<string, string | number>;
@@ -271,4 +276,4 @@ interface TMAProps extends TMAProviderProps, TMALayoutProps, Omit<StackNavigator
 }
 declare function TMA({ env, url, locales, launchScreen, screens, headerHeight, tabBarHeight, ...layoutProps }: TMAProps): react_jsx_runtime.JSX.Element;
 
-export { Account, Avatar, type Command, type Locale, type Locales, type MutateOptions, type ResponseData, type ResponseError, type Store, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, type User, useMutation, useQuery, useStoreState, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTelegramSDK };
+export { Account, Avatar, type Command, type Locale, type Locales, type MutateOptions, type ResponseData, type ResponseError, type Store, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, type User, useMutation, useQuery, useShare, useStoreState, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTelegramSDK };

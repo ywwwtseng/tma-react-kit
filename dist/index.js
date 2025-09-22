@@ -6,6 +6,7 @@ import {
   useState,
   use
 } from "react";
+import { init } from "@telegram-apps/sdk";
 import { postEvent, isTMA as isTMA2 } from "@tma.js/bridge";
 import { useClientOnce } from "@ywwwtseng/react-kit";
 
@@ -120,6 +121,7 @@ function TMASDKProvider({
   );
   useClientOnce(() => {
     if (env === TELEGRAM_ENV.DEFAULT && isTMA2()) {
+      init();
       postEvent("web_app_set_header_color", { color: background });
       postEvent("web_app_set_bottom_bar_color", { color: background });
       postEvent("web_app_set_background_color", { color: background });
@@ -492,6 +494,18 @@ function useMutation(action) {
   };
 }
 
+// src/hooks/useShare.ts
+import { useCallback as useCallback5 } from "react";
+import { shareURL } from "@telegram-apps/sdk";
+function useShare() {
+  const { platform } = useTMASDK();
+  return useCallback5(({ url, text }) => {
+    const isWebOrDesktop = platform?.includes("web") || platform === "macos" || platform === "tdesktop";
+    shareURL(url, isWebOrDesktop ? `
+${text}` : text);
+  }, []);
+}
+
 // src/components/Typography.tsx
 import { Typography as ReactKitTypography } from "@ywwwtseng/react-kit";
 import { jsx as jsx6 } from "react/jsx-runtime";
@@ -726,7 +740,7 @@ var Account = {
 };
 
 // src/TMA.tsx
-import { useCallback as useCallback5 } from "react";
+import { useCallback as useCallback6 } from "react";
 import {
   StackNavigatorProvider,
   useNavigate as useNavigate2,
@@ -810,7 +824,7 @@ function TMA({
   tabBarHeight = 60,
   ...layoutProps
 }) {
-  const Layout2 = useCallback5(
+  const Layout2 = useCallback6(
     (props) => /* @__PURE__ */ jsx11(
       TMALayout,
       {
@@ -868,6 +882,7 @@ export {
   useNavigate2 as useNavigate,
   useQuery,
   useRoute2 as useRoute,
+  useShare,
   useStoreState,
   useTMAClient,
   useTMAI18n,
