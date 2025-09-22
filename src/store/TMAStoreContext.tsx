@@ -5,11 +5,11 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  use,
   type PropsWithChildren,
 } from 'react';
 import { create } from 'zustand';
 import { update, merge, get } from '@ywwwtseng/ywjs';
+import { ToastContainer } from 'react-toastify';
 import { useTMAClient } from './TMAClientContext';
 import { Status } from '../constants';
 
@@ -47,8 +47,17 @@ export interface MutateOptions {
 
 export interface ResponseData {
   commands?: Command[];
-  error?: string;
+  notify?: {
+    type?: 'info' | 'success' | 'warning' | 'error' | 'default';
+    message: string;
+  };
   ok?: boolean;
+}
+
+export interface ResponseError {
+  data?: {
+    error: string;
+  };
 }
 
 export type Store = {
@@ -229,8 +238,18 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
   );
 
   return (
-    <TMAStoreContext.Provider value={value}>
-      {children}
-    </TMAStoreContext.Provider>
+    <>
+      <TMAStoreContext.Provider value={value}>
+        {children}
+      </TMAStoreContext.Provider>
+      <ToastContainer
+        closeOnClick
+        theme="dark"
+        closeButton={false}
+        autoClose={2400}
+        hideProgressBar
+        position="top-center"
+      />
+    </>
   );
 }

@@ -206,7 +206,8 @@ import {
 } from "react";
 import { create } from "zustand";
 import { update, merge, get } from "@ywwwtseng/ywjs";
-import { jsx as jsx3 } from "react/jsx-runtime";
+import { ToastContainer } from "react-toastify";
+import { Fragment, jsx as jsx3, jsxs } from "react/jsx-runtime";
 var TMAStoreContext = createContext3(
   void 0
 );
@@ -346,7 +347,20 @@ function TMAStoreProvider({ children }) {
     }),
     [query, mutate, loadingRef]
   );
-  return /* @__PURE__ */ jsx3(TMAStoreContext.Provider, { value, children });
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx3(TMAStoreContext.Provider, { value, children }),
+    /* @__PURE__ */ jsx3(
+      ToastContainer,
+      {
+        closeOnClick: true,
+        theme: "dark",
+        closeButton: false,
+        autoClose: 2400,
+        hideProgressBar: true,
+        position: "top-center"
+      }
+    )
+  ] });
 }
 
 // src/store/TMAI18nContext.tsx
@@ -354,7 +368,7 @@ import {
   useCallback as useCallback3,
   useMemo as useMemo5,
   createContext as createContext4,
-  use as use4
+  use as use3
 } from "react";
 import { get as get3 } from "@ywwwtseng/ywjs";
 
@@ -394,7 +408,7 @@ function TMAI18nProvider({ locales, children }) {
   return /* @__PURE__ */ jsx4(TMAI18nContext.Provider, { value, children });
 }
 function useTMAI18n() {
-  const context = use4(TMAI18nContext);
+  const context = use3(TMAI18nContext);
   if (!context) {
     throw new Error("useTMA must be used within a TMAI18nProvider");
   }
@@ -408,10 +422,10 @@ function TMAProvider({ env, background, url, locales, children }) {
 }
 
 // src/hooks/useQuery.ts
-import { use as use5, useEffect as useEffect3, useRef as useRef2 } from "react";
+import { use as use4, useEffect as useEffect3, useRef as useRef2 } from "react";
 import { get as get4 } from "@ywwwtseng/ywjs";
 function useQuery(path, params = {}, options = {}) {
-  const context = use5(TMAStoreContext);
+  const context = use4(TMAStoreContext);
   if (!context) {
     throw new Error("useQuery must be used within a TMA");
   }
@@ -441,26 +455,36 @@ function useQuery(path, params = {}, options = {}) {
 }
 
 // src/hooks/useMutation.ts
-import { use as use6, useState as useState2, useCallback as useCallback4 } from "react";
+import { use as use5, useState as useState2, useCallback as useCallback4 } from "react";
 import { useRefValue } from "@ywwwtseng/react-kit";
-function useMutation() {
-  const context = use6(TMAStoreContext);
+import { toast } from "react-toastify";
+function useMutation(action) {
+  const context = use5(TMAStoreContext);
+  const { t } = useTMAI18n();
   if (!context) {
     throw new Error("useMutation must be used within a TMA");
   }
   const [isLoading, setIsLoading] = useState2(false);
   const isLoadingRef = useRefValue(isLoading);
   const mutate = useCallback4(
-    (action, payload, options) => {
+    (payload, options) => {
       if (isLoadingRef.current) {
         return;
       }
       setIsLoading(true);
-      return context.mutate(action, payload, options).finally(() => {
+      return context.mutate(action, payload, options).then((res) => {
+        if (res.notify) {
+          toast[res.notify.type || "default"]?.(t(res.notify.message));
+        }
+        return res;
+      }).catch((res) => {
+        toast.error(t(res?.data?.error));
+        throw res;
+      }).finally(() => {
         setIsLoading(false);
       });
     },
-    [context.mutate]
+    [context.mutate, action]
   );
   return {
     mutate,
@@ -491,7 +515,7 @@ import {
 // src/components/TabBarItem.tsx
 import { useState as useState3 } from "react";
 import { isTMA as isTMA3, postEvent as postEvent2 } from "@tma.js/bridge";
-import { jsx as jsx7, jsxs } from "react/jsx-runtime";
+import { jsx as jsx7, jsxs as jsxs2 } from "react/jsx-runtime";
 function TabBarItem({
   icon,
   text,
@@ -501,7 +525,7 @@ function TabBarItem({
 }) {
   const { t } = useTMAI18n();
   const [isActivating, setIsActivating] = useState3(false);
-  return /* @__PURE__ */ jsxs(
+  return /* @__PURE__ */ jsxs2(
     "button",
     {
       style: {
@@ -550,7 +574,7 @@ function TabBarItem({
 }
 
 // src/components/TMALayout.tsx
-import { jsx as jsx8, jsxs as jsxs2 } from "react/jsx-runtime";
+import { jsx as jsx8, jsxs as jsxs3 } from "react/jsx-runtime";
 function TMALayout({
   headerLeft,
   headerRight,
@@ -568,14 +592,14 @@ function TMALayout({
   const { platform } = useTMASDK();
   const [modal, setModal] = useState4(null);
   const safeAreaBottom = platform === "ios" ? 20 : 12;
-  return /* @__PURE__ */ jsxs2(
+  return /* @__PURE__ */ jsxs3(
     Layout.Root,
     {
       className: status !== 0 /* Loading */ ? "animate-fade-in" : "",
       style: styles?.root,
       children: [
         createPortal(
-          /* @__PURE__ */ jsxs2(
+          /* @__PURE__ */ jsxs3(
             Layout.Header,
             {
               style: {
@@ -583,7 +607,7 @@ function TMALayout({
                 height: headerHeight
               },
               children: [
-                /* @__PURE__ */ jsxs2(Layout.HeaderLeft, { style: styles?.headerLeft, children: [
+                /* @__PURE__ */ jsxs3(Layout.HeaderLeft, { style: styles?.headerLeft, children: [
                   /* @__PURE__ */ jsx8(
                     "div",
                     {
@@ -594,7 +618,7 @@ function TMALayout({
                       children: headerLeft ? typeof headerLeft === "function" ? headerLeft(route) : headerLeft : null
                     }
                   ),
-                  /* @__PURE__ */ jsxs2(
+                  /* @__PURE__ */ jsxs3(
                     "button",
                     {
                       className: "animate-fade-in",
@@ -775,7 +799,7 @@ function LaunchLaunchScreen({
 }
 
 // src/TMA.tsx
-import { Fragment, jsx as jsx11, jsxs as jsxs3 } from "react/jsx-runtime";
+import { Fragment as Fragment2, jsx as jsx11, jsxs as jsxs4 } from "react/jsx-runtime";
 function TMA({
   env,
   url,
@@ -799,7 +823,7 @@ function TMA({
     ),
     [layoutProps]
   );
-  return /* @__PURE__ */ jsx11(TMAProvider, { env, url, locales, children: /* @__PURE__ */ jsxs3(Fragment, { children: [
+  return /* @__PURE__ */ jsx11(TMAProvider, { env, url, locales, children: /* @__PURE__ */ jsxs4(Fragment2, { children: [
     /* @__PURE__ */ jsx11(
       StackNavigatorProvider,
       {

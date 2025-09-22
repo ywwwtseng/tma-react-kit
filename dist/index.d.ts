@@ -178,8 +178,16 @@ interface MutateOptions {
 }
 interface ResponseData {
     commands?: Command[];
-    error?: string;
+    notify?: {
+        type?: 'info' | 'success' | 'warning' | 'error' | 'default';
+        message: string;
+    };
     ok?: boolean;
+}
+interface ResponseError {
+    data?: {
+        error: string;
+    };
 }
 type Store = {
     status: Status;
@@ -217,8 +225,8 @@ declare function useQuery<T = unknown>(path: string | string[], params?: UseQuer
     data: T | undefined;
 };
 
-declare function useMutation(): {
-    mutate: <T = unknown>(action: string, payload?: T, options?: MutateOptions) => Promise<ResponseData>;
+declare function useMutation(action: string): {
+    mutate: <T = unknown>(payload?: T, options?: MutateOptions) => Promise<ResponseData>;
     isLoading: boolean;
 };
 
@@ -263,4 +271,4 @@ interface TMAProps extends TMAProviderProps, TMALayoutProps, Omit<StackNavigator
 }
 declare function TMA({ env, url, locales, launchScreen, screens, headerHeight, tabBarHeight, ...layoutProps }: TMAProps): react_jsx_runtime.JSX.Element;
 
-export { Account, Avatar, type Command, type Locale, type Locales, type MutateOptions, type ResponseData, type Store, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, type User, useMutation, useQuery, useStoreState, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTelegramSDK };
+export { Account, Avatar, type Command, type Locale, type Locales, type MutateOptions, type ResponseData, type ResponseError, type Store, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, type User, useMutation, useQuery, useStoreState, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTelegramSDK };
