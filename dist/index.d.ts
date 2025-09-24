@@ -166,8 +166,10 @@ declare const TMAStoreContext: react.Context<TMAStoreContextState>;
 interface TMAStoreProviderProps extends PropsWithChildren {
 }
 interface Command {
-    update?: string | string[];
-    merge?: string | string[];
+    update?: string;
+    merge?: string;
+    replace?: string;
+    remove?: string;
     payload: unknown;
 }
 interface MutateOptions {
@@ -193,7 +195,7 @@ type Store = {
     status: Status;
     state: Record<string, unknown>;
     loading: string[];
-    update: (commands: Command | Command[]) => void;
+    update: (commands: Command[]) => void;
 };
 declare const useTMAStore: zustand.UseBoundStore<zustand.StoreApi<Store>>;
 declare function TMAStoreProvider({ children }: TMAStoreProviderProps): react_jsx_runtime.JSX.Element;

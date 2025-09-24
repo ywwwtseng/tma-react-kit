@@ -17,13 +17,13 @@ export function useSetLocale() {
           optimistic: {
             execute: [
               {
-                merge: ['me'],
+                merge: 'me',
                 payload: { language_code: locale },
               },
             ],
             undo: [
               {
-                merge: ['me'],
+                merge: 'me',
                 payload: { language_code: prev },
               },
             ],

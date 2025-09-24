@@ -207,7 +207,8 @@ import {
   useMemo as useMemo4
 } from "react";
 import { create } from "zustand";
-import { update, merge, get } from "@ywwwtseng/ywjs";
+import { produce } from "immer";
+import { merge } from "@ywwwtseng/ywjs";
 import { ToastContainer } from "react-toastify";
 import { Fragment, jsx as jsx3, jsxs } from "react/jsx-runtime";
 var TMAStoreContext = createContext3(
@@ -219,69 +220,78 @@ var useTMAStore = create((set) => ({
   loading: [],
   update: (commands) => {
     set((store) => {
-      commands = Array.isArray(commands) ? commands : [commands];
-      for (const command of commands) {
-        if (typeof command.payload === "function") {
-          store = command.payload(store);
-        } else {
-          if ("update" in command) {
-            store = {
-              ...store,
-              state: update(store.state, command.update, command.payload)
-            };
-          } else if ("merge" in command) {
-            store = {
-              ...store,
-              state: update(
-                store.state,
-                command.merge,
-                merge({}, get(store.state, command.merge), command.payload)
-              )
-            };
+      return produce(store, (draft) => {
+        for (const command of commands) {
+          if (typeof command.payload === "function") {
+            return command.payload(draft);
+          } else {
+            if ("update" in command) {
+              draft.state[command.update] = command.payload;
+            } else if ("merge" in command) {
+              draft.state[command.merge] = merge(
+                draft.state[command.merge],
+                command.payload
+              );
+            } else if ("replace" in command && typeof command.payload === "object" && "target" in command.payload && "data" in command.payload) {
+              const { target, data } = command.payload;
+              if (typeof target === "string" && typeof data === "object") {
+                const state = draft.state[command.replace];
+                if (Array.isArray(state)) {
+                  const index = state.findIndex(
+                    (item) => item[target] === data[target]
+                  );
+                  if (index !== -1) {
+                    state[index] = data;
+                  } else {
+                    state.push(data);
+                  }
+                }
+              }
+            }
           }
         }
-      }
-      return store;
+      });
     });
   }
 }));
 function TMAStoreProvider({ children }) {
   const client = useTMAClient();
-  const { update: update2 } = useTMAStore();
+  const { update } = useTMAStore();
   const loadingRef = useRef([]);
   const query = useCallback2(
     (path, params = {}) => {
       const key = JSON.stringify(path);
       loadingRef.current.push(key);
-      update2({
-        update: ["loading"],
-        payload: (store) => ({
-          ...store,
-          loading: [...store.loading, key]
-        })
-      });
+      update([
+        {
+          update: "loading",
+          payload: (draft) => {
+            draft.loading.push(key);
+          }
+        }
+      ]);
       return client.query(path, params).then((res) => {
         loadingRef.current = loadingRef.current.filter((k) => k !== key);
-        update2([
+        update([
           ...res.commands,
           {
-            update: ["loading"],
-            payload: (store) => ({
-              ...store,
-              loading: store.loading.filter((k) => k !== key)
-            })
+            update: "loading",
+            payload: (draft) => {
+              draft.loading = draft.loading.filter((k) => k !== key);
+            }
           }
         ]);
         return res;
       }).catch((error) => {
         loadingRef.current = loadingRef.current.filter((k) => k !== key);
-        update2({
-          update: ["loading"],
-          payload: (store) => ({
-            ...store,
-            loading: store.loading.filter((k) => k !== key)
-          })
-        });
+        update([
+          {
+            update: "loading",
+            payload: (draft) => {
+              draft.loading = draft.loading.filter((k) => k !== key);
+            }
+          }
+        ]);
         throw error;
       });
     },
@@ -290,27 +300,28 @@ function TMAStoreProvider({ children }) {
   const mutate = useCallback2(
     (action, payload, options) => {
       const key = JSON.stringify({ action, payload });
-      update2({
-        update: ["loading"],
-        payload: (store) => ({
-          ...store,
-          loading: [...store.loading, key]
-        })
-      });
+      update([
+        {
+          update: "loading",
+          payload: (draft) => {
+            draft.loading.push(key);
+          }
+        }
+      ]);
       const optimistic = options?.optimistic;
       const execute = optimistic?.execute;
       if (execute) {
-        update2(execute);
+        update(execute);
       }
       return client.mutate(action, payload).then((res) => {
         if (res.commands) {
-          update2(res.commands);
+          update(res.commands);
         }
         return res;
       }).catch((error) => {
         const undo = optimistic?.undo;
         if (undo) {
-          update2(undo);
+          update(undo);
         }
         throw error;
       });
@@ -323,22 +334,24 @@ function TMAStoreProvider({ children }) {
       timezone: resolvedOptions.timeZone,
       language_code: resolvedOptions.locale
     }).then(() => {
-      update2({
-        update: ["status"],
-        payload: (store) => ({
-          ...store,
-          status: 1 /* Authenticated */
-        })
-      });
+      update([
+        {
+          update: "status",
+          payload: (draft) => {
+            draft.status = 1 /* Authenticated */;
+          }
+        }
+      ]);
     }).catch((error) => {
       console.error(error);
-      update2({
-        update: ["status"],
-        payload: (store) => ({
-          ...store,
-          status: 3 /* Forbidden */
-        })
-      });
+      update([
+        {
+          update: "status",
+          payload: (draft) => {
+            draft.status = 3 /* Forbidden */;
+          }
+        }
+      ]);
     });
   }, [mutate]);
   const value = useMemo4(
@@ -372,12 +385,12 @@ import {
   createContext as createContext4,
   use as use3
 } from "react";
-import { get as get3 } from "@ywwwtseng/ywjs";
+import { get as get2 } from "@ywwwtseng/ywjs";
 
 // src/hooks/useStoreState.ts
-import { get as get2 } from "@ywwwtseng/ywjs";
+import { get } from "@ywwwtseng/ywjs";
 function useStoreState(path) {
-  return useTMAStore((store) => get2(store.state, path));
+  return useTMAStore((store) => get(store.state, path));
 }
 
 // src/store/TMAI18nContext.tsx
@@ -394,7 +407,7 @@ function TMAI18nProvider({ locales, children }) {
     (key, params) => {
       if (!locales) return key;
       if (!locales[locale] || typeof key !== "string") return key;
-      const template = get3(locales[locale], key, key);
+      const template = get2(locales[locale], key, key);
       if (!params) return template;
       return template.replace(
         /\{(\w+)\}/g,
@@ -428,7 +441,7 @@ function TMAProvider({ env, background, url, locales, children }) {
 
 // src/hooks/useQuery.ts
 import { use as use4, useEffect as useEffect3, useRef as useRef2 } from "react";
-import { get as get4 } from "@ywwwtseng/ywjs";
+import { get as get3 } from "@ywwwtseng/ywjs";
 function useQuery(path, params = {}, options = {}) {
   const context = use4(TMAStoreContext);
   if (!context) {
@@ -438,7 +451,7 @@ function useQuery(path, params = {}, options = {}) {
   const gcTimeRef = useRef2(options.gcTime || Infinity);
   const key = JSON.stringify(path);
   const isLoading = useTMAStore((store) => store.loading).includes(key);
-  const data = useTMAStore((store) => get4(store.state, path));
+  const data = useTMAStore((store) => get3(store.state, path));
   useEffect3(() => {
     if (loadingRef.current.includes(key)) {
       return;
@@ -528,13 +541,13 @@ function useSetLocale() {
           optimistic: {
             execute: [
               {
-                merge: ["me"],
+                merge: "me",
                 payload: { language_code: locale }
               }
             ],
             undo: [
               {
-                merge: ["me"],
+                merge: "me",
                 payload: { language_code: prev }
               }
             ]

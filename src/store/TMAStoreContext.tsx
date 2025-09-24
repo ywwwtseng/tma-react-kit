@@ -8,7 +8,8 @@ import {
   type PropsWithChildren,
 } from 'react';
 import { create } from 'zustand';
-import { update, merge, get } from '@ywwwtseng/ywjs';
+import { produce } from 'immer';
+import { merge } from '@ywwwtseng/ywjs';
 import { ToastContainer } from 'react-toastify';
 import { useTMAClient } from './TMAClientContext';
 import { Status } from '../constants';
@@ -33,8 +34,10 @@ export const TMAStoreContext = createContext<TMAStoreContextState | undefined>(
 export interface TMAStoreProviderProps extends PropsWithChildren {}
 
 export interface Command {
-  update?: string | string[];
-  merge?: string | string[];
+  update?: string;
+  merge?: string;
+  replace?: string;
+  remove?: string;
   payload: unknown;
 }
 
@@ -64,40 +67,133 @@ export type Store = {
   status: Status;
   state: Record<string, unknown>;
   loading: string[];
-  update: (commands: Command | Command[]) => void;
+  update: (commands: Command[]) => void;
 };
 
 export const useTMAStore = create<Store>((set) => ({
   status: Status.Loading,
   state: {},
   loading: [],
-  update: (commands: Command | Command[]) => {
+  update: (commands: Command[]) => {
     set((store) => {
-      commands = Array.isArray(commands) ? commands : [commands];
+      // commands = Array.isArray(commands) ? commands : [commands];
+      // for (const command of commands) {
+      //   if (typeof command.payload === 'function') {
+      //     return command.payload(store);
+      //   } else {
+      //     if ('update' in command) {
+      //       // store = {
+      //       //   ...store,
+      //       //   state: update(store.state, command.update, command.payload),
+      //       // };
+      //       return produce(store, (draft) => {
+      //         draft.state[command.update] = command.payload;
+      //       });
+      //     } else if ('merge' in command) {
+      //       // store = {
+      //       //   ...store,
+      //       //   state: update(
+      //       //     store.state,
+      //       //     command.merge,
+      //       //     merge({}, get(store.state, command.merge), command.payload)
+      //       //   ),
+      //       // };
+      //       return produce(store, (draft) => {
+      //         draft.state[command.merge] = merge(
+      //           draft.state[command.merge],
+      //           command.payload
+      //         );
+      //       });
+      //     } else if (
+      //       'replace' in command &&
+      //       typeof command.payload === 'object' &&
+      //       'target' in command.payload &&
+      //       'data' in command.payload
+      //     ) {
+      //       const { target, data } = command.payload;
+      //       if (typeof target === 'string' && typeof data === 'object') {
+      //         // const prev = [...get(store.state, command.replace)];
+      //         // const index = get(store.state, command.replace).findIndex(
+      //         //   (item: Record<string, unknown>) => item[target] === data[target]
+      //         // );
+      //         // if (index !== -1) {
+      //         //   prev.push(data);
+      //         // } else {
+      //         //   prev[index] = data;
+      //         // }
+      //         // store = {
+      //         //   ...store,
+      //         //   state: update(
+      //         //     store.state,
+      //         //     command.replace,
+      //         //     get(store.state, command.replace).map(
+      //         //       (item: Record<string, unknown>) =>
+      //         //         item[target] === data[target] ? data : item
+      //         //     )
+      //         //   ),
+      //         // };
+      //         return produce(store, (draft) => {
+      //           const state = draft.state[command.replace];
 
-      for (const command of commands) {
-        if (typeof command.payload === 'function') {
-          store = command.payload(store);
-        } else {
-          if ('update' in command) {
-            store = {
-              ...store,
-              state: update(store.state, command.update, command.payload),
-            };
-          } else if ('merge' in command) {
-            store = {
-              ...store,
-              state: update(
-                store.state,
-                command.merge,
-                merge({}, get(store.state, command.merge), command.payload)
-              ),
-            };
+      //           if (Array.isArray(state)) {
+      //             const index = state.findIndex(
+      //               (item: Record<string, unknown>) =>
+      //                 item[target] === data[target]
+      //             );
+
+      //             if (index !== -1) {
+      //               state[index] = data;
+      //             } else {
+      //               state.push(data);
+      //             }
+      //           }
+      //         });
+      //       }
+      //     }
+      //   }
+      // }
+
+      // return store;
+
+      return produce(store, (draft) => {
+        for (const command of commands) {
+          if (typeof command.payload === 'function') {
+            return command.payload(draft);
+          } else {
+            if ('update' in command) {
+              draft.state[command.update] = command.payload;
+            } else if ('merge' in command) {
+              draft.state[command.merge] = merge(
+                draft.state[command.merge],
+                command.payload
+              );
+            } else if (
+              'replace' in command &&
+              typeof command.payload === 'object' &&
+              'target' in command.payload &&
+              'data' in command.payload
+            ) {
+              const { target, data } = command.payload;
+              if (typeof target === 'string' && typeof data === 'object') {
+                const state = draft.state[command.replace];
+
+                if (Array.isArray(state)) {
+                  const index = state.findIndex(
+                    (item: Record<string, unknown>) =>
+                      item[target] === data[target]
+                  );
+
+                  if (index !== -1) {
+                    state[index] = data;
+                  } else {
+                    state.push(data);
+                  }
+                }
+              }
+            }
           }
         }
-      }
-
-      return store;
+      });
     });
   },
 }));
@@ -116,13 +212,14 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
 
       loadingRef.current.push(key);
 
-      update({
-        update: ['loading'],
-        payload: (store: Store) => ({
-          ...store,
-          loading: [...store.loading, key],
-        }),
-      });
+      update([
+        {
+          update: 'loading',
+          payload: (draft: Store) => {
+            draft.loading.push(key);
+          },
+        },
+      ]);
 
       return client
         .query(path, params)
@@ -132,11 +229,10 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
           update([
             ...res.commands,
             {
-              update: ['loading'],
-              payload: (store: Store) => ({
-                ...store,
-                loading: store.loading.filter((k) => k !== key),
-              }),
+              update: 'loading',
+              payload: (draft: Store) => {
+                draft.loading = draft.loading.filter((k) => k !== key);
+              },
             },
           ]);
 
@@ -145,13 +241,14 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
         .catch((error) => {
           loadingRef.current = loadingRef.current.filter((k) => k !== key);
 
-          update({
-            update: ['loading'],
-            payload: (store: Store) => ({
-              ...store,
-              loading: store.loading.filter((k) => k !== key),
-            }),
-          });
+          update([
+            {
+              update: 'loading',
+              payload: (draft: Store) => {
+                draft.loading = draft.loading.filter((k) => k !== key);
+              },
+            },
+          ]);
 
           throw error;
         });
@@ -163,13 +260,14 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
     (action: string, payload?: unknown, options?: MutateOptions) => {
       const key = JSON.stringify({ action, payload });
 
-      update({
-        update: ['loading'],
-        payload: (store: Store) => ({
-          ...store,
-          loading: [...store.loading, key],
-        }),
-      });
+      update([
+        {
+          update: 'loading',
+          payload: (draft: Store) => {
+            draft.loading.push(key);
+          },
+        },
+      ]);
 
       const optimistic = options?.optimistic;
       const execute = optimistic?.execute;
@@ -208,23 +306,25 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
       language_code: resolvedOptions.locale,
     })
       .then(() => {
-        update({
-          update: ['status'],
-          payload: (store: Store) => ({
-            ...store,
-            status: Status.Authenticated,
-          }),
-        });
+        update([
+          {
+            update: 'status',
+            payload: (draft: Store) => {
+              draft.status = Status.Authenticated;
+            },
+          },
+        ]);
       })
       .catch((error) => {
         console.error(error);
-        update({
-          update: ['status'],
-          payload: (store: Store) => ({
-            ...store,
-            status: Status.Forbidden,
-          }),
-        });
+        update([
+          {
+            update: 'status',
+            payload: (draft: Store) => {
+              draft.status = Status.Forbidden;
+            },
+          },
+        ]);
       });
   }, [mutate]);
 
