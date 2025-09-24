@@ -463,7 +463,7 @@ function useQuery(path, params = {}, options = {}) {
 import { use as use5, useState as useState2, useCallback as useCallback4 } from "react";
 import { useRefValue } from "@ywwwtseng/react-kit";
 import { toast } from "react-toastify";
-function useMutation(action) {
+function useMutation(action, { onError } = {}) {
   const context = use5(TMAStoreContext);
   const { t } = useTMAI18n();
   if (!context) {
@@ -484,7 +484,10 @@ function useMutation(action) {
         return res;
       }).catch((res) => {
         toast.error(t(res?.data?.error));
-        throw res;
+        onError?.(res);
+        return {
+          ok: false
+        };
       }).finally(() => {
         setIsLoading(false);
       });

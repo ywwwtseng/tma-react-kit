@@ -9,7 +9,14 @@ import {
 } from '../store/TMAStoreContext';
 import { useTMAI18n } from '../store/TMAI18nContext';
 
-export function useMutation(action: string) {
+export interface UseMutationOptions {
+  onError?: (error: ResponseError) => void;
+}
+
+export function useMutation(
+  action: string,
+  { onError }: UseMutationOptions = {}
+) {
   const context = use(TMAStoreContext);
   const { t } = useTMAI18n();
 
@@ -42,8 +49,10 @@ export function useMutation(action: string) {
         })
         .catch((res: ResponseError) => {
           toast.error(t(res?.data?.error));
-
-          throw res;
+          onError?.(res);
+          return {
+            ok: false,
+          };
         })
         .finally(() => {
           setIsLoading(false);
