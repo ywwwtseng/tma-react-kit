@@ -794,7 +794,7 @@ var Account = {
 };
 
 // src/TMA.tsx
-import { useCallback as useCallback7 } from "react";
+import { useCallback as useCallback7, useState as useState6 } from "react";
 import {
   StackNavigatorProvider,
   useNavigate as useNavigate2,
@@ -803,17 +803,16 @@ import {
 } from "@ywwwtseng/react-kit";
 import { merge as merge2 } from "@ywwwtseng/ywjs";
 
-// src/components/LaunchLaunchScreen.tsx
-import { useEffect as useEffect4, useState as useState5, useRef as useRef3 } from "react";
+// src/components/LaunchScreen.tsx
+import { useEffect as useEffect4, useRef as useRef3 } from "react";
 import { jsx as jsx10 } from "react/jsx-runtime";
-function LaunchLaunchScreen({
+function LaunchScreen({
   children,
   duration = 2e3,
   onHide
 }) {
   const startTime = useRef3(Date.now());
   const { status } = useTMAStore();
-  const [hide, setHide] = useState5(false);
   useEffect4(() => {
     if (status === 0 /* Loading */) {
       return;
@@ -821,11 +820,9 @@ function LaunchLaunchScreen({
     const delay = duration - (Date.now() - startTime.current);
     if (delay > 0) {
       setTimeout(() => {
-        setHide(true);
         onHide?.();
       }, delay);
     } else {
-      setHide(true);
       onHide?.();
     }
   }, [status]);
@@ -841,11 +838,11 @@ function LaunchLaunchScreen({
         right: 0,
         bottom: 0,
         top: 0,
+        width: "100vw",
+        height: "100vh",
         justifyContent: "center",
         alignItems: "center",
         flexDirection: "column",
-        opacity: hide ? 0 : 1,
-        pointerEvents: hide ? "none" : "auto",
         transition: "opacity 0.3s ease-in-out"
       },
       children: /* @__PURE__ */ jsx10(
@@ -878,6 +875,7 @@ function TMA({
   tabBarHeight = 60,
   ...layoutProps
 }) {
+  const [loaded, setLoaded] = useState6(false);
   const Layout2 = useCallback7(
     (props) => /* @__PURE__ */ jsx11(
       TMALayout,
@@ -905,11 +903,12 @@ function TMA({
         }
       }
     ),
-    launchScreen && /* @__PURE__ */ jsx11(
-      LaunchLaunchScreen,
+    launchScreen && !loaded && /* @__PURE__ */ jsx11(
+      LaunchScreen,
       {
         onHide: () => {
           document.body.classList.add("loaded");
+          setLoaded(true);
         },
         children: launchScreen
       }

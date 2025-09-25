@@ -1,4 +1,4 @@
-import { type ReactElement, useCallback } from 'react';
+import { type ReactElement, useCallback, useState } from 'react';
 import {
   StackNavigatorProvider,
   StackNavigatorProviderProps,
@@ -9,7 +9,7 @@ import {
 import { merge } from '@ywwwtseng/ywjs';
 import { TMAProvider, TMAProviderProps } from './store/TMAContext';
 import { TMALayout, TMALayoutProps } from './components/TMALayout';
-import { LaunchLaunchScreen } from './components/LaunchLaunchScreen';
+import { LaunchScreen } from './components/LaunchScreen';
 
 export { useNavigate, useRoute, ScreenType };
 
@@ -30,6 +30,7 @@ export function TMA({
   tabBarHeight = 60,
   ...layoutProps
 }: TMAProps) {
+  const [loaded, setLoaded] = useState(false);
   const Layout = useCallback(
     (props: TMALayoutProps) => (
       <TMALayout
@@ -56,14 +57,15 @@ export function TMA({
             },
           }}
         />
-        {launchScreen && (
-          <LaunchLaunchScreen
+        {launchScreen && !loaded && (
+          <LaunchScreen
             onHide={() => {
               document.body.classList.add('loaded');
+              setLoaded(true);
             }}
           >
             {launchScreen}
-          </LaunchLaunchScreen>
+          </LaunchScreen>
         )}
       </>
     </TMAProvider>

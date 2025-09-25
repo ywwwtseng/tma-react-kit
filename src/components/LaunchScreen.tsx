@@ -2,19 +2,18 @@ import { type PropsWithChildren, useEffect, useState, useRef } from 'react';
 import { useTMAStore } from '../store/TMAStoreContext';
 import { Status } from '../constants';
 
-export interface LaunchLaunchScreenProps extends PropsWithChildren {
+export interface LaunchScreenProps extends PropsWithChildren {
   duration?: number;
   onHide?: () => void;
 }
 
-export function LaunchLaunchScreen({
+export function LaunchScreen({
   children,
   duration = 2000,
   onHide,
-}: LaunchLaunchScreenProps) {
+}: LaunchScreenProps) {
   const startTime = useRef(Date.now());
   const { status } = useTMAStore();
-  const [hide, setHide] = useState(false);
 
   useEffect(() => {
     if (status === Status.Loading) {
@@ -25,11 +24,9 @@ export function LaunchLaunchScreen({
 
     if (delay > 0) {
       setTimeout(() => {
-        setHide(true);
         onHide?.();
       }, delay);
     } else {
-      setHide(true);
       onHide?.();
     }
   }, [status]);
@@ -45,11 +42,11 @@ export function LaunchLaunchScreen({
         right: 0,
         bottom: 0,
         top: 0,
+        width: '100vw',
+        height: '100vh',
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'column',
-        opacity: hide ? 0 : 1,
-        pointerEvents: hide ? 'none' : 'auto',
         transition: 'opacity 0.3s ease-in-out',
       }}
     >
