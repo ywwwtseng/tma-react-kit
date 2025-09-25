@@ -9,7 +9,7 @@ interface UseQueryOptions {
 }
 
 export function useQuery<T = unknown>(
-  path: string | string[],
+  path: string,
   params: UseQueryParams = {},
   options: UseQueryOptions = {}
 ) {
@@ -22,9 +22,9 @@ export function useQuery<T = unknown>(
   const { query, loadingRef } = context;
 
   const gcTimeRef = useRef(options.gcTime || Infinity);
-  const key = JSON.stringify(path);
+  const key = JSON.stringify({ path, params });
   const isLoading = useTMAStore((store) => store.loading).includes(key);
-  const data = useTMAStore((store) => get(store.state, path));
+  const data = useTMAStore((store) => store.state[key]);
 
   useEffect(() => {
     if (loadingRef.current.includes(key)) {
@@ -42,7 +42,7 @@ export function useQuery<T = unknown>(
     }
 
     query(path, params);
-  }, [JSON.stringify(path), JSON.stringify(params)]);
+  }, [key]);
 
   return {
     isLoading,

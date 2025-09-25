@@ -16,7 +16,7 @@ import { Status } from '../constants';
 
 export interface TMAStoreContextState {
   query: (
-    path: string | string[],
+    path: string,
     params: Record<string, string | number | boolean>
   ) => Promise<unknown>;
   mutate: (
@@ -204,10 +204,7 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
   const loadingRef = useRef([]);
 
   const query = useCallback(
-    (
-      path: string | string[],
-      params: Record<string, string | number | boolean> = {}
-    ) => {
+    (path: string, params: Record<string, string | number | boolean> = {}) => {
       const key = JSON.stringify(path);
 
       loadingRef.current.push(key);

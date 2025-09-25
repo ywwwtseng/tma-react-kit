@@ -170,7 +170,6 @@ function TMAClientProvider({ url, children }) {
   );
   const query = useCallback(
     (path, params) => {
-      path = Array.isArray(path) ? path : [path];
       return request.post(url, { type: "query", path, params });
     },
     [request]
@@ -441,7 +440,6 @@ function TMAProvider({ env, background, url, locales, children }) {
 
 // src/hooks/useQuery.ts
 import { use as use4, useEffect as useEffect3, useRef as useRef2 } from "react";
-import { get as get3 } from "@ywwwtseng/ywjs";
 function useQuery(path, params = {}, options = {}) {
   const context = use4(TMAStoreContext);
   if (!context) {
@@ -449,9 +447,9 @@ function useQuery(path, params = {}, options = {}) {
   }
   const { query, loadingRef } = context;
   const gcTimeRef = useRef2(options.gcTime || Infinity);
-  const key = JSON.stringify(path);
+  const key = JSON.stringify({ path, params });
   const isLoading = useTMAStore((store) => store.loading).includes(key);
-  const data = useTMAStore((store) => get3(store.state, path));
+  const data = useTMAStore((store) => store.state[key]);
   useEffect3(() => {
     if (loadingRef.current.includes(key)) {
       return;
@@ -465,7 +463,7 @@ function useQuery(path, params = {}, options = {}) {
       return;
     }
     query(path, params);
-  }, [JSON.stringify(path), JSON.stringify(params)]);
+  }, [key]);
   return {
     isLoading,
     data

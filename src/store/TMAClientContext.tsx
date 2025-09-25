@@ -10,7 +10,7 @@ import { useTMASDK } from './TMASDKContext';
 
 export interface TMAClientContextState {
   query: (
-    path: string | string[],
+    path: string,
     params: Record<string, string | number | boolean>
   ) => Promise<unknown>;
   mutate: <TPayload>(action: string, payload: TPayload) => Promise<unknown>;
@@ -39,11 +39,7 @@ export function TMAClientProvider({ url, children }: TMAClientProviderProps) {
   );
 
   const query = useCallback(
-    (
-      path: string | string[],
-      params: Record<string, string | number | boolean>
-    ) => {
-      path = Array.isArray(path) ? path : [path];
+    (path: string, params: Record<string, string | number | boolean>) => {
       return request.post(url, { type: 'query', path, params });
     },
     [request]

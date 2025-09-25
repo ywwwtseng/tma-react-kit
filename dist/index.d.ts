@@ -140,7 +140,7 @@ declare function TMASDKProvider({ env, background, children, }: TMASDKProviderPr
 declare function useTMASDK(): TMASDKContextState;
 
 interface TMAClientContextState {
-    query: (path: string | string[], params: Record<string, string | number | boolean>) => Promise<unknown>;
+    query: (path: string, params: Record<string, string | number | boolean>) => Promise<unknown>;
     mutate: <TPayload>(action: string, payload: TPayload) => Promise<unknown>;
 }
 declare const TMAClientContext: react.Context<TMAClientContextState>;
@@ -158,7 +158,7 @@ declare enum Status {
 }
 
 interface TMAStoreContextState {
-    query: (path: string | string[], params: Record<string, string | number | boolean>) => Promise<unknown>;
+    query: (path: string, params: Record<string, string | number | boolean>) => Promise<unknown>;
     mutate: (action: string, payload: unknown, options?: MutateOptions) => Promise<unknown>;
     loadingRef: RefObject<string[]>;
 }
@@ -223,7 +223,7 @@ type UseQueryParams = Record<string, string | number | boolean>;
 interface UseQueryOptions {
     gcTime?: number;
 }
-declare function useQuery<T = unknown>(path: string | string[], params?: UseQueryParams, options?: UseQueryOptions): {
+declare function useQuery<T = unknown>(path: string, params?: UseQueryParams, options?: UseQueryOptions): {
     isLoading: boolean;
     data: T | undefined;
 };
