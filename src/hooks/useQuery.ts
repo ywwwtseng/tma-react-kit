@@ -1,6 +1,9 @@
 import { use, useEffect, useRef } from 'react';
-import { get } from '@ywwwtseng/ywjs';
-import { useTMAStore, TMAStoreContext } from '../store/TMAStoreContext';
+import {
+  useTMAStore,
+  TMAStoreContext,
+  getQueryKey,
+} from '../store/TMAStoreContext';
 
 type UseQueryParams = Record<string, string | number | boolean>;
 
@@ -22,7 +25,7 @@ export function useQuery<T = unknown>(
   const { query, loadingRef } = context;
 
   const gcTimeRef = useRef(options.gcTime || Infinity);
-  const key = JSON.stringify({ path, params });
+  const key = getQueryKey(path, params);
   const isLoading = useTMAStore((store) => store.loading).includes(key);
   const data = useTMAStore((store) => store.state[key]);
 

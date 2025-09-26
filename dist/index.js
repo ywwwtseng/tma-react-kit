@@ -213,6 +213,9 @@ import { Fragment, jsx as jsx3, jsxs } from "react/jsx-runtime";
 var TMAStoreContext = createContext3(
   void 0
 );
+var getQueryKey = (path, params) => {
+  return Object.keys(params).length > 0 ? JSON.stringify({ path, params }) : path;
+};
 var useTMAStore = create((set) => ({
   status: 0 /* Loading */,
   state: {},
@@ -246,6 +249,14 @@ var useTMAStore = create((set) => ({
                   }
                 }
               }
+            } else if ("unshift" in command) {
+              if (Array.isArray(draft.state[command.unshift])) {
+                draft.state[command.unshift].unshift(
+                  command.payload
+                );
+              } else if (!draft.state[command.unshift]) {
+                draft.state[command.unshift] = [command.payload];
+              }
             }
           }
         }
@@ -259,7 +270,7 @@ function TMAStoreProvider({ children }) {
   const loadingRef = useRef([]);
   const query = useCallback2(
     (path, params = {}) => {
-      const key = JSON.stringify(path);
+      const key = getQueryKey(path, params);
       loadingRef.current.push(key);
       update([
         {
@@ -447,7 +458,7 @@ function useQuery(path, params = {}, options = {}) {
   }
   const { query, loadingRef } = context;
   const gcTimeRef = useRef2(options.gcTime || Infinity);
-  const key = JSON.stringify({ path, params });
+  const key = getQueryKey(path, params);
   const isLoading = useTMAStore((store) => store.loading).includes(key);
   const data = useTMAStore((store) => store.state[key]);
   useEffect3(() => {
@@ -526,7 +537,7 @@ ${text}` : text);
 // src/hooks/useSetLocale.ts
 import { useCallback as useCallback6 } from "react";
 function useSetLocale() {
-  const { mutate } = useMutation("update:me");
+  const { mutate } = useMutation("me:update");
   const setLocale = useCallback6(
     (locale) => {
       const prev = localStorage.getItem("language_code") || "en";
@@ -932,6 +943,7 @@ export {
   TMAStoreContext,
   TMAStoreProvider,
   Typography,
+  getQueryKey,
   useMutation,
   useNavigate2 as useNavigate,
   useQuery,

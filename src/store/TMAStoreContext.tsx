@@ -37,6 +37,7 @@ export interface Command {
   update?: string;
   merge?: string;
   replace?: string;
+  unshift?: string;
   remove?: string;
   payload: unknown;
 }
@@ -70,91 +71,21 @@ export type Store = {
   update: (commands: Command[]) => void;
 };
 
+export const getQueryKey = (
+  path: string,
+  params: Record<string, string | number | boolean>
+) => {
+  return Object.keys(params).length > 0
+    ? JSON.stringify({ path, params })
+    : path;
+};
+
 export const useTMAStore = create<Store>((set) => ({
   status: Status.Loading,
   state: {},
   loading: [],
   update: (commands: Command[]) => {
     set((store) => {
-      // commands = Array.isArray(commands) ? commands : [commands];
-      // for (const command of commands) {
-      //   if (typeof command.payload === 'function') {
-      //     return command.payload(store);
-      //   } else {
-      //     if ('update' in command) {
-      //       // store = {
-      //       //   ...store,
-      //       //   state: update(store.state, command.update, command.payload),
-      //       // };
-      //       return produce(store, (draft) => {
-      //         draft.state[command.update] = command.payload;
-      //       });
-      //     } else if ('merge' in command) {
-      //       // store = {
-      //       //   ...store,
-      //       //   state: update(
-      //       //     store.state,
-      //       //     command.merge,
-      //       //     merge({}, get(store.state, command.merge), command.payload)
-      //       //   ),
-      //       // };
-      //       return produce(store, (draft) => {
-      //         draft.state[command.merge] = merge(
-      //           draft.state[command.merge],
-      //           command.payload
-      //         );
-      //       });
-      //     } else if (
-      //       'replace' in command &&
-      //       typeof command.payload === 'object' &&
-      //       'target' in command.payload &&
-      //       'data' in command.payload
-      //     ) {
-      //       const { target, data } = command.payload;
-      //       if (typeof target === 'string' && typeof data === 'object') {
-      //         // const prev = [...get(store.state, command.replace)];
-      //         // const index = get(store.state, command.replace).findIndex(
-      //         //   (item: Record<string, unknown>) => item[target] === data[target]
-      //         // );
-      //         // if (index !== -1) {
-      //         //   prev.push(data);
-      //         // } else {
-      //         //   prev[index] = data;
-      //         // }
-      //         // store = {
-      //         //   ...store,
-      //         //   state: update(
-      //         //     store.state,
-      //         //     command.replace,
-      //         //     get(store.state, command.replace).map(
-      //         //       (item: Record<string, unknown>) =>
-      //         //         item[target] === data[target] ? data : item
-      //         //     )
-      //         //   ),
-      //         // };
-      //         return produce(store, (draft) => {
-      //           const state = draft.state[command.replace];
-
-      //           if (Array.isArray(state)) {
-      //             const index = state.findIndex(
-      //               (item: Record<string, unknown>) =>
-      //                 item[target] === data[target]
-      //             );
-
-      //             if (index !== -1) {
-      //               state[index] = data;
-      //             } else {
-      //               state.push(data);
-      //             }
-      //           }
-      //         });
-      //       }
-      //     }
-      //   }
-      // }
-
-      // return store;
-
       return produce(store, (draft) => {
         for (const command of commands) {
           if (typeof command.payload === 'function') {
@@ -190,6 +121,14 @@ export const useTMAStore = create<Store>((set) => ({
                   }
                 }
               }
+            } else if ('unshift' in command) {
+              if (Array.isArray(draft.state[command.unshift])) {
+                (draft.state[command.unshift] as unknown[]).unshift(
+                  command.payload
+                );
+              } else if (!draft.state[command.unshift]) {
+                draft.state[command.unshift] = [command.payload];
+              }
             }
           }
         }
@@ -205,7 +144,7 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
 
   const query = useCallback(
     (path: string, params: Record<string, string | number | boolean> = {}) => {
-      const key = JSON.stringify(path);
+      const key = getQueryKey(path, params);
 
       loadingRef.current.push(key);
 

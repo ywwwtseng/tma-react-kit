@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useMutation } from './useMutation';
 
 export function useSetLocale() {
-  const { mutate } = useMutation('update:me');
+  const { mutate } = useMutation('me:update');
 
   const setLocale = useCallback(
     (locale: string) => {
