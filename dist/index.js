@@ -176,6 +176,11 @@ function TMAClientProvider({ url, children }) {
   );
   const mutate = useCallback(
     (action, payload) => {
+      if (payload instanceof FormData) {
+        payload.append("mutation:type", "mutate");
+        payload.append("mutation:action", action);
+        return request.post(url, payload);
+      }
       return request.post(url, { type: "mutate", action, payload });
     },
     [request]
@@ -247,6 +252,8 @@ var useTMAStore = create((set) => ({
                   } else {
                     state.push(data);
                   }
+                } else {
+                  draft.state[command.replace] = [data];
                 }
               }
             } else if ("unshift" in command) {
@@ -309,15 +316,6 @@ function TMAStoreProvider({ children }) {
   );
   const mutate = useCallback2(
     (action, payload, options) => {
-      const key = JSON.stringify({ action, payload });
-      update([
-        {
-          update: "loading",
-          payload: (draft) => {
-            draft.loading.push(key);
-          }
-        }
-      ]);
       const optimistic = options?.optimistic;
       const execute = optimistic?.execute;
       if (execute) {
@@ -498,6 +496,7 @@ function useMutation(action, { onError } = {}) {
       if (isLoadingRef.current) {
         return;
       }
+      isLoadingRef.current = true;
       setIsLoading(true);
       return context.mutate(action, payload, options).then((res) => {
         if (res.notify) {
@@ -511,6 +510,7 @@ function useMutation(action, { onError } = {}) {
           ok: false
         };
       }).finally(() => {
+        isLoadingRef.current = false;
         setIsLoading(false);
       });
     },
@@ -691,7 +691,7 @@ function TMALayout({
                     {
                       className: "animate-fade-in",
                       style: {
-                        display: route.type === "page" ? "block" : "none"
+                        display: route.type === ScreenType.PAGE ? "block" : "none"
                       },
                       children: headerLeft ? typeof headerLeft === "function" ? headerLeft(route) : headerLeft : null
                     }
@@ -701,7 +701,7 @@ function TMALayout({
                     {
                       className: "animate-fade-in",
                       style: {
-                        display: route.type === "page" ? "none" : "flex",
+                        display: route.type === ScreenType.DRAWER ? "flex" : "none",
                         alignItems: "center",
                         gap: "8px",
                         outline: "none",
@@ -716,7 +716,7 @@ function TMALayout({
                     }
                   )
                 ] }),
-                route.title && route.type === ScreenType.DRAWER && /* @__PURE__ */ jsx8(Layout.HeaderTitle, { children: /* @__PURE__ */ jsx8(Typography, { size: "3", i18n: route.title, noWrap: true }) }),
+                route.title && route.type !== ScreenType.PAGE && /* @__PURE__ */ jsx8(Layout.HeaderTitle, { children: /* @__PURE__ */ jsx8(Typography, { size: "3", i18n: route.title, noWrap: true }) }),
                 /* @__PURE__ */ jsx8(Layout.HeaderRight, { style: styles?.headerRight, children: headerRight ? typeof headerRight === "function" ? headerRight(route) : headerRight : null })
               ]
             }

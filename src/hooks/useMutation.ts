@@ -36,6 +36,7 @@ export function useMutation(
         return;
       }
 
+      isLoadingRef.current = true;
       setIsLoading(true);
 
       return context
@@ -55,6 +56,7 @@ export function useMutation(
           };
         })
         .finally(() => {
+          isLoadingRef.current = false;
           setIsLoading(false);
         });
     },

@@ -77,7 +77,7 @@ export function TMALayout({
             <div
               className="animate-fade-in"
               style={{
-                display: route.type === 'page' ? 'block' : 'none',
+                display: route.type === ScreenType.PAGE ? 'block' : 'none',
               }}
             >
               {headerLeft
@@ -89,7 +89,7 @@ export function TMALayout({
             <button
               className="animate-fade-in"
               style={{
-                display: route.type === 'page' ? 'none' : 'flex',
+                display: route.type === ScreenType.DRAWER ? 'flex' : 'none',
                 alignItems: 'center',
                 gap: '8px',
                 outline: 'none',
@@ -102,7 +102,7 @@ export function TMALayout({
               <Typography size="2" i18n={backText} />
             </button>
           </Layout.HeaderLeft>
-          {route.title && route.type === ScreenType.DRAWER && (
+          {route.title && route.type !== ScreenType.PAGE && (
             <Layout.HeaderTitle>
               <Typography size="3" i18n={route.title} noWrap />
             </Layout.HeaderTitle>

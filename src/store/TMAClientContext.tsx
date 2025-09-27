@@ -47,6 +47,12 @@ export function TMAClientProvider({ url, children }: TMAClientProviderProps) {
 
   const mutate = useCallback(
     (action: string, payload: unknown) => {
+      if (payload instanceof FormData) {
+        payload.append('mutation:type', 'mutate');
+        payload.append('mutation:action', action);
+        return request.post(url, payload);
+      }
+
       return request.post(url, { type: 'mutate', action, payload });
     },
     [request]

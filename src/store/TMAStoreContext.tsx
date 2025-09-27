@@ -119,6 +119,8 @@ export const useTMAStore = create<Store>((set) => ({
                   } else {
                     state.push(data);
                   }
+                } else {
+                  draft.state[command.replace] = [data];
                 }
               }
             } else if ('unshift' in command) {
@@ -194,17 +196,6 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
 
   const mutate = useCallback(
     (action: string, payload?: unknown, options?: MutateOptions) => {
-      const key = JSON.stringify({ action, payload });
-
-      update([
-        {
-          update: 'loading',
-          payload: (draft: Store) => {
-            draft.loading.push(key);
-          },
-        },
-      ]);
-
       const optimistic = options?.optimistic;
       const execute = optimistic?.execute;
 
