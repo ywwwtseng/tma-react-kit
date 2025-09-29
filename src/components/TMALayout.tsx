@@ -62,10 +62,7 @@ export function TMALayout({
   const safeAreaBottom = platform === 'ios' ? 20 : 12;
 
   return (
-    <Layout.Root
-      className={status !== Status.Loading ? 'animate-fade-in' : ''}
-      style={styles?.root}
-    >
+    <Layout.Root style={styles?.root}>
       {createPortal(
         <Layout.Header
           style={{

@@ -58,12 +58,6 @@ export interface ResponseData {
   ok?: boolean;
 }
 
-export interface ResponseError {
-  data?: {
-    error: string;
-  };
-}
-
 export type Store = {
   status: Status;
   state: Record<string, unknown>;
@@ -120,7 +114,7 @@ export const useTMAStore = create<Store>((set) => ({
                     state.push(data);
                   }
                 } else {
-                  draft.state[command.replace] = [data];
+                  // draft.state[command.replace] = [data];
                 }
               }
             } else if ('unshift' in command) {
@@ -129,7 +123,7 @@ export const useTMAStore = create<Store>((set) => ({
                   command.payload
                 );
               } else if (!draft.state[command.unshift]) {
-                draft.state[command.unshift] = [command.payload];
+                // draft.state[command.unshift] = [command.payload];
               }
             }
           }

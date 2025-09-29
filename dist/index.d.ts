@@ -3,8 +3,10 @@ import * as react from 'react';
 import { PropsWithChildren, RefObject, ReactNode, ElementType, CSSProperties, ReactElement } from 'react';
 import { LaunchParamsLike } from '@tma.js/transformers';
 import * as zustand from 'zustand';
+import { ErrorResponse } from '@ywwwtseng/ywjs';
 import { TypographyProps as TypographyProps$1, Route, Tab, StackNavigatorProviderProps } from '@ywwwtseng/react-kit';
 export { ScreenType, useNavigate, useRoute } from '@ywwwtseng/react-kit';
+export { toast } from 'react-toastify';
 
 declare const TELEGRAM_ENV: {
     MOCK: {
@@ -187,11 +189,6 @@ interface ResponseData {
     };
     ok?: boolean;
 }
-interface ResponseError {
-    data?: {
-        error: string;
-    };
-}
 type Store = {
     status: Status;
     state: Record<string, unknown>;
@@ -204,15 +201,16 @@ declare function TMAStoreProvider({ children }: TMAStoreProviderProps): react_js
 
 interface TMAI18nContextState {
     t: (key: string, params?: Record<string, string | number>) => string;
-    locale: string;
+    languagec_ode: string;
 }
 declare const TMAI18nContext: react.Context<TMAI18nContextState>;
 type Locale = Record<string, Record<string, string>>;
 type Locales = Record<string, Locale>;
 interface TMAI18nProviderProps extends PropsWithChildren {
     locales?: Locales;
+    callback?: string;
 }
-declare function TMAI18nProvider({ locales, children }: TMAI18nProviderProps): react_jsx_runtime.JSX.Element;
+declare function TMAI18nProvider({ locales, callback, children, }: TMAI18nProviderProps): react_jsx_runtime.JSX.Element;
 declare function useTMAI18n(): TMAI18nContextState;
 
 interface TMAProviderProps extends React.PropsWithChildren, Omit<TMASDKProviderProps, 'children'>, Omit<TMAClientProviderProps, 'children'>, Omit<TMAStoreProviderProps, 'children'>, Omit<TMAI18nProviderProps, 'children'> {
@@ -231,7 +229,9 @@ declare function useQuery<T = unknown>(path: string, params?: UseQueryParams, op
 };
 
 interface UseMutationOptions {
-    onError?: (error: ResponseError) => void;
+    onError?: (error: {
+        data: ErrorResponse;
+    }) => void;
 }
 declare function useMutation(action: string, { onError }?: UseMutationOptions): {
     mutate: <T = unknown>(payload?: T, options?: MutateOptions) => Promise<ResponseData>;
@@ -286,4 +286,4 @@ interface TMAProps extends TMAProviderProps, TMALayoutProps, Omit<StackNavigator
 }
 declare function TMA({ env, url, locales, launchScreen, screens, headerHeight, tabBarHeight, ...layoutProps }: TMAProps): react_jsx_runtime.JSX.Element;
 
-export { Account, Avatar, type Command, type Locale, type Locales, type MutateOptions, type ResponseData, type ResponseError, type Store, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, type UseMutationOptions, type User, getQueryKey, useMutation, useQuery, useSetLocale, useShare, useStoreState, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTelegramSDK };
+export { Account, Avatar, type Command, type Locale, type Locales, type MutateOptions, type ResponseData, type Store, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, type UseMutationOptions, type User, getQueryKey, useMutation, useQuery, useSetLocale, useShare, useStoreState, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTelegramSDK };

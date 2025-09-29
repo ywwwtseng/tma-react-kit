@@ -1,16 +1,16 @@
 import { use, useState, useCallback } from 'react';
+import type { ErrorResponse } from '@ywwwtseng/ywjs';
 import { useRefValue } from '@ywwwtseng/react-kit';
 import { toast } from 'react-toastify';
 import {
   type ResponseData,
-  type ResponseError,
   MutateOptions,
   TMAStoreContext,
 } from '../store/TMAStoreContext';
 import { useTMAI18n } from '../store/TMAI18nContext';
 
 export interface UseMutationOptions {
-  onError?: (error: ResponseError) => void;
+  onError?: (error: { data: ErrorResponse }) => void;
 }
 
 export function useMutation(
@@ -48,8 +48,8 @@ export function useMutation(
 
           return res;
         })
-        .catch((res: ResponseError) => {
-          toast.error(t(res?.data?.error));
+        .catch((res: { data: ErrorResponse }) => {
+          toast.error(t(res?.data?.message));
           onError?.(res);
           return {
             ok: false,

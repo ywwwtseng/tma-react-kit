@@ -15,4 +15,6 @@ export * from './components/Typography';
 export * from './components/TMALayout';
 export * from './components/Account';
 
+export * from './lib';
+
 export * from './TMA';

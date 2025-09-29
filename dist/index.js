@@ -253,7 +253,6 @@ var useTMAStore = create((set) => ({
                     state.push(data);
                   }
                 } else {
-                  draft.state[command.replace] = [data];
                 }
               }
             } else if ("unshift" in command) {
@@ -262,7 +261,6 @@ var useTMAStore = create((set) => ({
                   command.payload
                 );
               } else if (!draft.state[command.unshift]) {
-                draft.state[command.unshift] = [command.payload];
               }
             }
           }
@@ -393,7 +391,7 @@ import {
   createContext as createContext4,
   use as use3
 } from "react";
-import { get as get2 } from "@ywwwtseng/ywjs";
+import { getLocale, translate } from "@ywwwtseng/ywjs";
 
 // src/hooks/useStoreState.ts
 import { get } from "@ywwwtseng/ywjs";
@@ -406,27 +404,28 @@ import { jsx as jsx4 } from "react/jsx-runtime";
 var TMAI18nContext = createContext4(
   void 0
 );
-function TMAI18nProvider({ locales, children }) {
+function TMAI18nProvider({
+  locales,
+  callback = "en",
+  children
+}) {
   const me = useStoreState("me");
+  const languagec_ode = useMemo5(() => {
+    return me?.language_code || localStorage.getItem("language_code") || callback;
+  }, [me, callback]);
   const locale = useMemo5(() => {
-    return me?.language_code?.toLowerCase()?.slice(0, 2) || localStorage.getItem("language_code") || "en";
-  }, [me]);
+    return getLocale(locales, languagec_ode, locales[callback]);
+  }, [languagec_ode, callback]);
   const t = useCallback3(
     (key, params) => {
       if (!locales) return key;
-      if (!locales[locale] || typeof key !== "string") return key;
-      const template = get2(locales[locale], key, key);
-      if (!params) return template;
-      return template.replace(
-        /\{(\w+)\}/g,
-        (_, key2) => String(params[key2]) || ""
-      );
+      return translate(locale, key, params);
     },
-    [me]
+    [locale]
   );
   const value = useMemo5(
     () => ({
-      locale,
+      languagec_ode,
       t
     }),
     [locale, t]
@@ -504,7 +503,7 @@ function useMutation(action, { onError } = {}) {
         }
         return res;
       }).catch((res) => {
-        toast.error(t(res?.data?.error));
+        toast.error(t(res?.data?.message));
         onError?.(res);
         return {
           ok: false
@@ -670,102 +669,95 @@ function TMALayout({
   const { platform } = useTMASDK();
   const [modal, setModal] = useState4(null);
   const safeAreaBottom = platform === "ios" ? 20 : 12;
-  return /* @__PURE__ */ jsxs3(
-    Layout.Root,
-    {
-      className: status !== 0 /* Loading */ ? "animate-fade-in" : "",
-      style: styles?.root,
-      children: [
-        createPortal(
-          /* @__PURE__ */ jsxs3(
-            Layout.Header,
-            {
-              style: {
-                ...styles?.header,
-                height: headerHeight
-              },
-              children: [
-                /* @__PURE__ */ jsxs3(Layout.HeaderLeft, { style: styles?.headerLeft, children: [
-                  /* @__PURE__ */ jsx8(
-                    "div",
-                    {
-                      className: "animate-fade-in",
-                      style: {
-                        display: route.type === ScreenType.PAGE ? "block" : "none"
-                      },
-                      children: headerLeft ? typeof headerLeft === "function" ? headerLeft(route) : headerLeft : null
-                    }
-                  ),
-                  /* @__PURE__ */ jsxs3(
-                    "button",
-                    {
-                      className: "animate-fade-in",
-                      style: {
-                        display: route.type === ScreenType.DRAWER ? "flex" : "none",
-                        alignItems: "center",
-                        gap: "8px",
-                        outline: "none",
-                        background: "none",
-                        border: "none"
-                      },
-                      onClick: () => navigate(-1),
-                      children: [
-                        backIcon && backIcon,
-                        /* @__PURE__ */ jsx8(Typography, { size: "2", i18n: backText })
-                      ]
-                    }
-                  )
-                ] }),
-                route.title && route.type !== ScreenType.PAGE && /* @__PURE__ */ jsx8(Layout.HeaderTitle, { children: /* @__PURE__ */ jsx8(Typography, { size: "3", i18n: route.title, noWrap: true }) }),
-                /* @__PURE__ */ jsx8(Layout.HeaderRight, { style: styles?.headerRight, children: headerRight ? typeof headerRight === "function" ? headerRight(route) : headerRight : null })
-              ]
-            }
-          ),
-          document.body
-        ),
-        /* @__PURE__ */ jsx8(
-          Layout.Main,
-          {
-            style: {
-              ...styles?.main,
-              paddingTop: headerHeight,
-              paddingBottom: tabBarHeight + safeAreaBottom
-            },
-            children
-          }
-        ),
-        /* @__PURE__ */ jsx8(
-          TabBar,
-          {
-            style: {
-              ...styles?.tabBar,
-              height: tabBarHeight + safeAreaBottom
-            },
-            items: tabs,
-            renderItem: (tab) => /* @__PURE__ */ jsx8(
-              TabBarItem,
-              {
-                style: styles?.tabBarItem,
-                icon: tab.icon,
-                text: tab.title,
-                isActive: tab.name === route.name,
-                onClick: () => {
-                  if (tab.modal) {
-                    const Modal = tab.modal;
-                    setModal(/* @__PURE__ */ jsx8(Modal, { open: true, onClose: () => setModal(null) }));
-                  } else {
-                    navigate(tab.name);
-                  }
+  return /* @__PURE__ */ jsxs3(Layout.Root, { style: styles?.root, children: [
+    createPortal(
+      /* @__PURE__ */ jsxs3(
+        Layout.Header,
+        {
+          style: {
+            ...styles?.header,
+            height: headerHeight
+          },
+          children: [
+            /* @__PURE__ */ jsxs3(Layout.HeaderLeft, { style: styles?.headerLeft, children: [
+              /* @__PURE__ */ jsx8(
+                "div",
+                {
+                  className: "animate-fade-in",
+                  style: {
+                    display: route.type === ScreenType.PAGE ? "block" : "none"
+                  },
+                  children: headerLeft ? typeof headerLeft === "function" ? headerLeft(route) : headerLeft : null
                 }
-              },
-              tab.name
-            )
-          }
-        ),
-        modal
-      ]
-    }
-  );
+              ),
+              /* @__PURE__ */ jsxs3(
+                "button",
+                {
+                  className: "animate-fade-in",
+                  style: {
+                    display: route.type === ScreenType.DRAWER ? "flex" : "none",
+                    alignItems: "center",
+                    gap: "8px",
+                    outline: "none",
+                    background: "none",
+                    border: "none"
+                  },
+                  onClick: () => navigate(-1),
+                  children: [
+                    backIcon && backIcon,
+                    /* @__PURE__ */ jsx8(Typography, { size: "2", i18n: backText })
+                  ]
+                }
+              )
+            ] }),
+            route.title && route.type !== ScreenType.PAGE && /* @__PURE__ */ jsx8(Layout.HeaderTitle, { children: /* @__PURE__ */ jsx8(Typography, { size: "3", i18n: route.title, noWrap: true }) }),
+            /* @__PURE__ */ jsx8(Layout.HeaderRight, { style: styles?.headerRight, children: headerRight ? typeof headerRight === "function" ? headerRight(route) : headerRight : null })
+          ]
+        }
+      ),
+      document.body
+    ),
+    /* @__PURE__ */ jsx8(
+      Layout.Main,
+      {
+        style: {
+          ...styles?.main,
+          paddingTop: headerHeight,
+          paddingBottom: tabBarHeight + safeAreaBottom
+        },
+        children
+      }
+    ),
+    /* @__PURE__ */ jsx8(
+      TabBar,
+      {
+        style: {
+          ...styles?.tabBar,
+          height: tabBarHeight + safeAreaBottom
+        },
+        items: tabs,
+        renderItem: (tab) => /* @__PURE__ */ jsx8(
+          TabBarItem,
+          {
+            style: styles?.tabBarItem,
+            icon: tab.icon,
+            text: tab.title,
+            isActive: tab.name === route.name,
+            onClick: () => {
+              if (tab.modal) {
+                const Modal = tab.modal;
+                setModal(/* @__PURE__ */ jsx8(Modal, { open: true, onClose: () => setModal(null) }));
+              } else {
+                navigate(tab.name);
+              }
+            }
+          },
+          tab.name
+        )
+      }
+    ),
+    modal
+  ] });
 }
 
 // src/components/Account.tsx
@@ -803,6 +795,9 @@ function Avatar({
 var Account = {
   Avatar
 };
+
+// src/lib.ts
+import { toast as toast2 } from "react-toastify";
 
 // src/TMA.tsx
 import { useCallback as useCallback7, useState as useState6 } from "react";
@@ -944,6 +939,7 @@ export {
   TMAStoreProvider,
   Typography,
   getQueryKey,
+  toast2 as toast,
   useMutation,
   useNavigate2 as useNavigate,
   useQuery,

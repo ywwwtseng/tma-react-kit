@@ -5,12 +5,12 @@ import {
   use,
   type PropsWithChildren,
 } from 'react';
-import { get } from '@ywwwtseng/ywjs';
+import { get, getLocale, translate } from '@ywwwtseng/ywjs';
 import { useStoreState } from '../hooks/useStoreState';
 
 export interface TMAI18nContextState {
   t: (key: string, params?: Record<string, string | number>) => string;
-  locale: string;
+  languagec_ode: string;
 }
 
 export const TMAI18nContext = createContext<TMAI18nContextState | undefined>(
@@ -23,36 +23,37 @@ export type Locales = Record<string, Locale>;
 
 export interface TMAI18nProviderProps extends PropsWithChildren {
   locales?: Locales;
+  callback?: string;
 }
 
-export function TMAI18nProvider({ locales, children }: TMAI18nProviderProps) {
+export function TMAI18nProvider({
+  locales,
+  callback = 'en',
+  children,
+}: TMAI18nProviderProps) {
   const me = useStoreState<{ language_code: string }>('me');
-  const locale = useMemo(() => {
+  const languagec_ode = useMemo(() => {
     return (
-      me?.language_code?.toLowerCase()?.slice(0, 2) ||
-      localStorage.getItem('language_code') ||
-      'en'
+      me?.language_code || localStorage.getItem('language_code') || callback
     );
-  }, [me]);
+  }, [me, callback]);
+
+  const locale = useMemo(() => {
+    return getLocale(locales, languagec_ode, locales[callback]);
+  }, [languagec_ode, callback]);
 
   const t = useCallback(
     (key: string, params?: Record<string, string | number>) => {
       if (!locales) return key;
 
-      if (!locales[locale] || typeof key !== 'string') return key;
-      const template = get(locales[locale], key, key);
-      if (!params) return template;
-      return template.replace(
-        /\{(\w+)\}/g,
-        (_: string, key: string) => String(params[key]) || ''
-      );
+      return translate(locale, key, params);
     },
-    [me]
+    [locale]
   );
 
   const value = useMemo(
     () => ({
-      locale,
+      languagec_ode,
       t,
     }),
     [locale, t]
