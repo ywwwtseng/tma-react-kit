@@ -16,8 +16,6 @@ import {
   type Tab,
 } from '@ywwwtseng/react-kit';
 import { useTMASDK } from '../store/TMASDKContext';
-import { useTMAStore } from '../store/TMAStoreContext';
-import { Status } from '../constants';
 import { TabBarItem } from './TabBarItem';
 import { Typography } from './Typography';
 
@@ -85,17 +83,33 @@ export function TMALayout({
             <button
               className="animate-fade-in"
               style={{
-                display: route.type === ScreenType.DRAWER ? 'flex' : 'none',
+                display:
+                  route.type === ScreenType.DRAWER || route.back
+                    ? 'flex'
+                    : 'none',
                 alignItems: 'center',
                 gap: '8px',
                 outline: 'none',
                 background: 'none',
                 border: 'none',
               }}
-              onClick={() => navigate(-1)}
+              onClick={() => {
+                if (route.back) {
+                  const push = route.back.push;
+                  const replace = route.back.replace;
+
+                  if (push) {
+                    navigate(push, { type: 'push' });
+                  } else if (replace) {
+                    navigate(replace, { type: 'replace' });
+                  }
+                } else {
+                  navigate(-1);
+                }
+              }}
             >
               {backIcon && backIcon}
-              <Typography size="2" i18n={backText} />
+              <Typography size="2" i18n={route.back?.title ?? backText} />
             </button>
           </Layout.HeaderLeft>
           {route.title && route.type !== ScreenType.PAGE && (

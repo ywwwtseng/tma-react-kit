@@ -704,17 +704,29 @@ function TMALayout({
                 {
                   className: "animate-fade-in",
                   style: {
-                    display: route.type === ScreenType.DRAWER ? "flex" : "none",
+                    display: route.type === ScreenType.DRAWER || route.back ? "flex" : "none",
                     alignItems: "center",
                     gap: "8px",
                     outline: "none",
                     background: "none",
                     border: "none"
                   },
-                  onClick: () => navigate(-1),
+                  onClick: () => {
+                    if (route.back) {
+                      const push = route.back.push;
+                      const replace = route.back.replace;
+                      if (push) {
+                        navigate(push, { type: "push" });
+                      } else if (replace) {
+                        navigate(replace, { type: "replace" });
+                      }
+                    } else {
+                      navigate(-1);
+                    }
+                  },
                   children: [
                     backIcon && backIcon,
-                    /* @__PURE__ */ jsx8(Typography, { size: "2", i18n: backText })
+                    /* @__PURE__ */ jsx8(Typography, { size: "2", i18n: route.back?.title ?? backText })
                   ]
                 }
               )
