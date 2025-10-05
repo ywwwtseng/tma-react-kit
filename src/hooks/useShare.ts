@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import { shareURL } from '@telegram-apps/sdk';
 import { useTMASDK } from '../store/TMASDKContext';
+import { openTelegramLink } from '../utils';
 
 export function useShare() {
   const { platform } = useTMASDK();
@@ -11,6 +11,16 @@ export function useShare() {
       platform === 'macos' ||
       platform === 'tdesktop';
 
-    shareURL(url, isWebOrDesktop ? `\n${text}` : text);
+    text = isWebOrDesktop ? `\n${text}` : text;
+
+    openTelegramLink(
+      `https://t.me/share/url?` +
+        new URLSearchParams({ url, text: text || '' })
+          .toString()
+          // By default, URL search params encode spaces with "+".
+          // We are replacing them with "%20", because plus symbols are working incorrectly
+          // in Telegram.
+          .replace(/\+/g, '%20')
+    );
   }, []);
 }

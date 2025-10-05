@@ -6,7 +6,6 @@ import {
   use,
   type PropsWithChildren,
 } from 'react';
-import { init } from '@telegram-apps/sdk';
 import { postEvent, isTMA } from '@tma.js/bridge';
 import { useClientOnce } from '@ywwwtseng/react-kit';
 import { useTelegramSDK, TELEGRAM_ENV } from '../hooks/useTelegramSDK';
@@ -64,7 +63,6 @@ export function TMASDKProvider({
 
   useClientOnce(() => {
     if (env === TELEGRAM_ENV.DEFAULT && isTMA()) {
-      init();
       postEvent('web_app_set_header_color', { color: background });
       postEvent('web_app_set_bottom_bar_color', { color: background });
       postEvent('web_app_set_background_color', { color: background });

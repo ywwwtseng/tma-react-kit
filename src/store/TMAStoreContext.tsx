@@ -24,6 +24,7 @@ export interface TMAStoreContextState {
     payload: unknown,
     options?: MutateOptions
   ) => Promise<unknown>;
+  update: (commands: Command[]) => void;
   loadingRef: RefObject<string[]>;
 }
 
@@ -253,6 +254,7 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
     () => ({
       query,
       mutate,
+      update,
       loadingRef,
     }),
     [query, mutate, loadingRef]

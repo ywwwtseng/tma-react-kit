@@ -6,7 +6,6 @@ import {
   useState,
   use
 } from "react";
-import { init } from "@telegram-apps/sdk";
 import { postEvent, isTMA as isTMA2 } from "@tma.js/bridge";
 import { useClientOnce } from "@ywwwtseng/react-kit";
 
@@ -121,7 +120,6 @@ function TMASDKProvider({
   );
   useClientOnce(() => {
     if (env === TELEGRAM_ENV.DEFAULT && isTMA2()) {
-      init();
       postEvent("web_app_set_header_color", { color: background });
       postEvent("web_app_set_bottom_bar_color", { color: background });
       postEvent("web_app_set_background_color", { color: background });
@@ -364,6 +362,7 @@ function TMAStoreProvider({ children }) {
     () => ({
       query,
       mutate,
+      update,
       loadingRef
     }),
     [query, mutate, loadingRef]
@@ -523,13 +522,24 @@ function useMutation(action, { onError } = {}) {
 
 // src/hooks/useShare.ts
 import { useCallback as useCallback5 } from "react";
-import { shareURL } from "@telegram-apps/sdk";
+
+// src/utils.ts
+import { postEvent as postEvent2 } from "@tma.js/bridge";
+function openTelegramLink(url) {
+  url = new URL(url);
+  postEvent2("web_app_open_tg_link", { path_full: url.pathname + url.search });
+}
+
+// src/hooks/useShare.ts
 function useShare() {
   const { platform } = useTMASDK();
   return useCallback5(({ url, text }) => {
     const isWebOrDesktop = platform?.includes("web") || platform === "macos" || platform === "tdesktop";
-    shareURL(url, isWebOrDesktop ? `
-${text}` : text);
+    text = isWebOrDesktop ? `
+${text}` : text;
+    openTelegramLink(
+      `https://t.me/share/url?` + new URLSearchParams({ url, text: text || "" }).toString().replace(/\+/g, "%20")
+    );
   }, []);
 }
 
@@ -591,7 +601,7 @@ import {
 
 // src/components/TabBarItem.tsx
 import { useState as useState3 } from "react";
-import { isTMA as isTMA3, postEvent as postEvent2 } from "@tma.js/bridge";
+import { isTMA as isTMA3, postEvent as postEvent3 } from "@tma.js/bridge";
 import { jsx as jsx7, jsxs as jsxs2 } from "react/jsx-runtime";
 function TabBarItem({
   icon,
@@ -622,7 +632,7 @@ function TabBarItem({
       onClick: () => {
         if (isActive || isActivating) return;
         if (isTMA3()) {
-          postEvent2("web_app_trigger_haptic_feedback", {
+          postEvent3("web_app_trigger_haptic_feedback", {
             type: "impact",
             impact_style: "light"
           });
@@ -665,7 +675,6 @@ function TMALayout({
 }) {
   const route = useRoute();
   const navigate = useNavigate();
-  const { status } = useTMAStore();
   const { platform } = useTMASDK();
   const [modal, setModal] = useState4(null);
   const safeAreaBottom = platform === "ios" ? 20 : 12;

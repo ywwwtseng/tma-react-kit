@@ -162,6 +162,7 @@ declare enum Status {
 interface TMAStoreContextState {
     query: (path: string, params: Record<string, string | number | boolean>) => Promise<unknown>;
     mutate: (action: string, payload: unknown, options?: MutateOptions) => Promise<unknown>;
+    update: (commands: Command[]) => void;
     loadingRef: RefObject<string[]>;
 }
 declare const TMAStoreContext: react.Context<TMAStoreContextState>;

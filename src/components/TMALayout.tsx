@@ -56,7 +56,6 @@ export function TMALayout({
 }: TMALayoutProps) {
   const route = useRoute();
   const navigate = useNavigate();
-  const { status } = useTMAStore();
   const { platform } = useTMASDK();
   const [modal, setModal] = useState<ReactNode | null>(null);
   const safeAreaBottom = platform === 'ios' ? 20 : 12;
