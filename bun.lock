@@ -319,7 +319,7 @@
 
     "@types/react-dom": ["@types/react-dom@19.2.0", "", { "peerDependencies": { "@types/react": "^19.2.0" } }, "sha512-brtBs0MnE9SMx7px208g39lRmC5uHZs96caOJfTjFcYSLHNamvaSMfJNagChVNkup2SdtOxKX1FDBkRSJe1ZAg=="],
 
-    "@ywwwtseng/react-kit": ["@ywwwtseng/react-kit@github:ywwwtseng/react-kit#db6b312", { "dependencies": { "@heroui/dropdown": "^2.3.25", "@radix-ui/react-dropdown-menu": "^2.1.16", "@ywwwtseng/ywjs": "^0.1.0", "class-variance-authority": "^0.7.1", "clsx": "^2.1.1", "vaul": "^1.1.2" }, "peerDependencies": { "@types/react": ">=18.0.0", "react": ">=18.0.0" } }, "ywwwtseng-react-kit-db6b312"],
+    "@ywwwtseng/react-kit": ["@ywwwtseng/react-kit@github:ywwwtseng/react-kit#0e1684e", { "dependencies": { "@heroui/dropdown": "^2.3.25", "@radix-ui/react-dropdown-menu": "^2.1.16", "@ywwwtseng/ywjs": "^0.1.0", "class-variance-authority": "^0.7.1", "clsx": "^2.1.1", "vaul": "^1.1.2" }, "peerDependencies": { "@types/react": ">=18.0.0", "react": ">=18.0.0" } }, "ywwwtseng-react-kit-0e1684e"],
 
     "@ywwwtseng/request": ["@ywwwtseng/request@github:ywwwtseng/request#7218125", {}, "ywwwtseng-request-7218125"],
 

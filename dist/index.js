@@ -754,7 +754,8 @@ function TMALayout({
       {
         style: {
           ...styles?.tabBar,
-          height: tabBarHeight + safeAreaBottom
+          height: tabBarHeight + safeAreaBottom,
+          display: route.type === ScreenType.PAGE ? "flex" : "none"
         },
         items: tabs,
         renderItem: (tab) => /* @__PURE__ */ jsx8(
@@ -821,14 +822,14 @@ var Account = {
 import { toast as toast2 } from "react-toastify";
 
 // src/TMA.tsx
-import { useCallback as useCallback7, useState as useState6 } from "react";
+import { useState as useState6 } from "react";
 import {
   StackNavigatorProvider,
+  Navigator,
   useNavigate as useNavigate2,
   useRoute as useRoute2,
   ScreenType as ScreenType2
 } from "@ywwwtseng/react-kit";
-import { merge as merge2 } from "@ywwwtseng/ywjs";
 
 // src/components/LaunchScreen.tsx
 import { useEffect as useEffect4, useRef as useRef3 } from "react";
@@ -903,33 +904,27 @@ function TMA({
   ...layoutProps
 }) {
   const [loaded, setLoaded] = useState6(false);
-  const Layout2 = useCallback7(
-    (props) => /* @__PURE__ */ jsx11(
+  return /* @__PURE__ */ jsxs4(Fragment2, { children: [
+    /* @__PURE__ */ jsx11(StackNavigatorProvider, { screens, children: /* @__PURE__ */ jsx11(TMAProvider, { env, url, locales, children: /* @__PURE__ */ jsx11(
       TMALayout,
       {
-        ...props,
         ...layoutProps,
-        styles: merge2(props.styles || {}, layoutProps.styles || {}),
+        styles: layoutProps.styles,
         headerHeight,
-        tabBarHeight
-      }
-    ),
-    [layoutProps]
-  );
-  return /* @__PURE__ */ jsx11(TMAProvider, { env, url, locales, children: /* @__PURE__ */ jsxs4(Fragment2, { children: [
-    /* @__PURE__ */ jsx11(
-      StackNavigatorProvider,
-      {
-        layout: Layout2,
-        screens,
-        drawer: {
-          style: {
-            paddingTop: headerHeight,
-            paddingBottom: 20
+        tabBarHeight,
+        children: /* @__PURE__ */ jsx11(
+          Navigator,
+          {
+            drawer: {
+              style: {
+                paddingTop: headerHeight,
+                paddingBottom: 20
+              }
+            }
           }
-        }
+        )
       }
-    ),
+    ) }) }),
     launchScreen && !loaded && /* @__PURE__ */ jsx11(
       LaunchScreen,
       {
@@ -940,7 +935,7 @@ function TMA({
         children: launchScreen
       }
     )
-  ] }) });
+  ] });
 }
 export {
   Account,

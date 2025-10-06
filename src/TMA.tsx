@@ -1,12 +1,12 @@
-import { type ReactElement, useCallback, useState } from 'react';
+import { type ReactElement, useState } from 'react';
 import {
   StackNavigatorProvider,
   StackNavigatorProviderProps,
+  Navigator,
   useNavigate,
   useRoute,
   ScreenType,
 } from '@ywwwtseng/react-kit';
-import { merge } from '@ywwwtseng/ywjs';
 import { TMAProvider, TMAProviderProps } from './store/TMAContext';
 import { TMALayout, TMALayoutProps } from './components/TMALayout';
 import { LaunchScreen } from './components/LaunchScreen';
@@ -31,43 +31,38 @@ export function TMA({
   ...layoutProps
 }: TMAProps) {
   const [loaded, setLoaded] = useState(false);
-  const Layout = useCallback(
-    (props: TMALayoutProps) => (
-      <TMALayout
-        {...props}
-        {...layoutProps}
-        styles={merge(props.styles || {}, layoutProps.styles || {})}
-        headerHeight={headerHeight}
-        tabBarHeight={tabBarHeight}
-      />
-    ),
-    [layoutProps]
-  );
 
   return (
-    <TMAProvider env={env} url={url} locales={locales}>
-      <>
-        <StackNavigatorProvider
-          layout={Layout}
-          screens={screens}
-          drawer={{
-            style: {
-              paddingTop: headerHeight,
-              paddingBottom: 20,
-            },
-          }}
-        />
-        {launchScreen && !loaded && (
-          <LaunchScreen
-            onHide={() => {
-              document.body.classList.add('loaded');
-              setLoaded(true);
-            }}
+    <>
+      <StackNavigatorProvider screens={screens}>
+        <TMAProvider env={env} url={url} locales={locales}>
+          <TMALayout
+            {...layoutProps}
+            styles={layoutProps.styles}
+            headerHeight={headerHeight}
+            tabBarHeight={tabBarHeight}
           >
-            {launchScreen}
-          </LaunchScreen>
-        )}
-      </>
-    </TMAProvider>
+            <Navigator
+              drawer={{
+                style: {
+                  paddingTop: headerHeight,
+                  paddingBottom: 20,
+                },
+              }}
+            />
+          </TMALayout>
+        </TMAProvider>
+      </StackNavigatorProvider>
+      {launchScreen && !loaded && (
+        <LaunchScreen
+          onHide={() => {
+            document.body.classList.add('loaded');
+            setLoaded(true);
+          }}
+        >
+          {launchScreen}
+        </LaunchScreen>
+      )}
+    </>
   );
 }

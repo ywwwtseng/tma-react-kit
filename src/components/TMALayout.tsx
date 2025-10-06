@@ -140,6 +140,7 @@ export function TMALayout({
         style={{
           ...styles?.tabBar,
           height: tabBarHeight + safeAreaBottom,
+          display: route.type === ScreenType.PAGE ? 'flex' : 'none',
         }}
         items={tabs}
         renderItem={(tab: Tab & { modal?: ElementType }) => (
