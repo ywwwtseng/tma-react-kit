@@ -28,7 +28,7 @@ export const TELEGRAM_ENV: {
         [
           'user',
           JSON.stringify({
-            id: 6666666666,
+            id: 5699547696,
             first_name: 'T',
             last_name: 'yw',
             username: 'ywwwtseng',

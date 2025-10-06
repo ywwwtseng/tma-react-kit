@@ -179,7 +179,7 @@ interface Command {
 interface MutateOptions {
     optimistic?: {
         execute: Command[];
-        undo?: Command[];
+        undo: Command[];
     };
 }
 interface ResponseData {
@@ -188,7 +188,11 @@ interface ResponseData {
         type?: 'info' | 'success' | 'warning' | 'error' | 'default';
         message: string;
     };
-    ok?: boolean;
+    navigate?: {
+        screen: string;
+        params: Record<string, string | number | boolean>;
+    };
+    ok: boolean;
 }
 type Store = {
     status: Status;

@@ -7,11 +7,13 @@ import {
   useMemo,
   type PropsWithChildren,
 } from 'react';
+import { useNavigate } from '@ywwwtseng/react-kit';
 import { create } from 'zustand';
 import { produce } from 'immer';
 import { merge } from '@ywwwtseng/ywjs';
 import { ToastContainer } from 'react-toastify';
 import { useTMAClient } from './TMAClientContext';
+
 import { Status } from '../constants';
 
 export interface TMAStoreContextState {
@@ -46,7 +48,7 @@ export interface Command {
 export interface MutateOptions {
   optimistic?: {
     execute: Command[];
-    undo?: Command[];
+    undo: Command[];
   };
 }
 
@@ -56,7 +58,11 @@ export interface ResponseData {
     type?: 'info' | 'success' | 'warning' | 'error' | 'default';
     message: string;
   };
-  ok?: boolean;
+  navigate?: {
+    screen: string;
+    params: Record<string, string | number | boolean>;
+  };
+  ok: boolean;
 }
 
 export type Store = {
@@ -135,6 +141,7 @@ export const useTMAStore = create<Store>((set) => ({
 }));
 
 export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
+  const navigate = useNavigate();
   const client = useTMAClient();
   const { update } = useTMAStore();
   const loadingRef = useRef([]);
@@ -168,6 +175,13 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
               },
             },
           ]);
+
+          if (res.navigate) {
+            navigate(res.navigate.screen, {
+              type: 'replace',
+              params: res.navigate.params,
+            });
+          }
 
           return res;
         })
@@ -203,6 +217,13 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
         .then((res: ResponseData) => {
           if (res.commands) {
             update(res.commands);
+          }
+
+          if (res.navigate) {
+            navigate(res.navigate.screen, {
+              type: 'replace',
+              params: res.navigate.params,
+            });
           }
 
           return res;

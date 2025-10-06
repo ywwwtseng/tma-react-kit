@@ -25,7 +25,7 @@ var TELEGRAM_ENV = {
         [
           "user",
           JSON.stringify({
-            id: 6666666666,
+            id: 5699547696,
             first_name: "T",
             last_name: "yw",
             username: "ywwwtseng",
@@ -208,6 +208,7 @@ import {
   useEffect as useEffect2,
   useMemo as useMemo4
 } from "react";
+import { useNavigate } from "@ywwwtseng/react-kit";
 import { create } from "zustand";
 import { produce } from "immer";
 import { merge } from "@ywwwtseng/ywjs";
@@ -268,6 +269,7 @@ var useTMAStore = create((set) => ({
   }
 }));
 function TMAStoreProvider({ children }) {
+  const navigate = useNavigate();
   const client = useTMAClient();
   const { update } = useTMAStore();
   const loadingRef = useRef([]);
@@ -294,6 +296,12 @@ function TMAStoreProvider({ children }) {
             }
           }
         ]);
+        if (res.navigate) {
+          navigate(res.navigate.screen, {
+            type: "replace",
+            params: res.navigate.params
+          });
+        }
         return res;
       }).catch((error) => {
         loadingRef.current = loadingRef.current.filter((k) => k !== key);
@@ -320,6 +328,12 @@ function TMAStoreProvider({ children }) {
       return client.mutate(action, payload).then((res) => {
         if (res.commands) {
           update(res.commands);
+        }
+        if (res.navigate) {
+          navigate(res.navigate.screen, {
+            type: "replace",
+            params: res.navigate.params
+          });
         }
         return res;
       }).catch((error) => {
@@ -594,7 +608,7 @@ import { createPortal } from "react-dom";
 import {
   Layout,
   TabBar,
-  useNavigate,
+  useNavigate as useNavigate2,
   useRoute,
   ScreenType
 } from "@ywwwtseng/react-kit";
@@ -674,7 +688,7 @@ function TMALayout({
   children
 }) {
   const route = useRoute();
-  const navigate = useNavigate();
+  const navigate = useNavigate2();
   const { platform } = useTMASDK();
   const [modal, setModal] = useState4(null);
   const safeAreaBottom = platform === "ios" ? 20 : 12;
@@ -826,7 +840,7 @@ import { useState as useState6 } from "react";
 import {
   StackNavigatorProvider,
   Navigator,
-  useNavigate as useNavigate2,
+  useNavigate as useNavigate3,
   useRoute as useRoute2,
   ScreenType as ScreenType2
 } from "@ywwwtseng/react-kit";
@@ -957,7 +971,7 @@ export {
   getQueryKey,
   toast2 as toast,
   useMutation,
-  useNavigate2 as useNavigate,
+  useNavigate3 as useNavigate,
   useQuery,
   useRoute2 as useRoute,
   useSetLocale,
