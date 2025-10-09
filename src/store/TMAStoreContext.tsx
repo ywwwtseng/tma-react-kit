@@ -45,6 +45,11 @@ export interface Command {
   payload: unknown;
 }
 
+export type QueryParams = Record<
+  string,
+  string | number | boolean | null | undefined
+>;
+
 export interface MutateOptions {
   optimistic?: {
     execute: Command[];

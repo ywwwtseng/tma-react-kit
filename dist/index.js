@@ -468,10 +468,14 @@ function useQuery(path, params = {}, options = {}) {
   }
   const { query, loadingRef } = context;
   const gcTimeRef = useRef2(options.gcTime || Infinity);
+  const enabled = options.enabled ?? true;
   const key = getQueryKey(path, params);
   const isLoading = useTMAStore((store) => store.loading).includes(key);
   const data = useTMAStore((store) => store.state[key]);
   useEffect3(() => {
+    if (!enabled) {
+      return;
+    }
     if (loadingRef.current.includes(key)) {
       return;
     }
@@ -484,7 +488,7 @@ function useQuery(path, params = {}, options = {}) {
       return;
     }
     query(path, params);
-  }, [key]);
+  }, [key, enabled]);
   return {
     isLoading,
     data
@@ -969,6 +973,7 @@ export {
   TMAStoreProvider,
   Typography,
   getQueryKey,
+  openTelegramLink,
   toast2 as toast,
   useMutation,
   useNavigate3 as useNavigate,
