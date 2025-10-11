@@ -544,8 +544,22 @@ import { useCallback as useCallback5 } from "react";
 // src/utils.ts
 import { postEvent as postEvent2 } from "@tma.js/bridge";
 function openTelegramLink(url) {
-  url = new URL(url);
-  postEvent2("web_app_open_tg_link", { path_full: url.pathname + url.search });
+  try {
+    url = new URL(url);
+    void postEvent2("web_app_open_tg_link", {
+      path_full: url.pathname + url.search
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
+function openWebLink(url) {
+  try {
+    url = new URL(url);
+    void postEvent2("web_app_open_link", { url: url.toString() });
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 // src/hooks/useShare.ts
@@ -974,6 +988,7 @@ export {
   Typography,
   getQueryKey,
   openTelegramLink,
+  openWebLink,
   toast2 as toast,
   useMutation,
   useNavigate3 as useNavigate,
