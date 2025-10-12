@@ -461,14 +461,15 @@ function TMAProvider({ env, background, url, locales, children }) {
 
 // src/hooks/useQuery.ts
 import { use as use4, useEffect as useEffect3, useRef as useRef2 } from "react";
-function useQuery(path, params = {}, options = {}) {
+function useQuery(path, options) {
   const context = use4(TMAStoreContext);
   if (!context) {
     throw new Error("useQuery must be used within a TMA");
   }
   const { query, loadingRef } = context;
-  const gcTimeRef = useRef2(options.gcTime || Infinity);
-  const enabled = options.enabled ?? true;
+  const params = options?.params;
+  const gcTimeRef = useRef2(options?.gcTime || Infinity);
+  const enabled = options?.enabled ?? true;
   const key = getQueryKey(path, params);
   const isLoading = useTMAStore((store) => store.loading).includes(key);
   const data = useTMAStore((store) => store.state[key]);

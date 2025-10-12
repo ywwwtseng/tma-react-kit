@@ -7,15 +7,12 @@ import {
 } from '../store/TMAStoreContext';
 
 interface UseQueryOptions {
+  params?: QueryParams;
   gcTime?: number;
   enabled?: boolean;
 }
 
-export function useQuery<T = unknown>(
-  path: string,
-  params: QueryParams = {},
-  options: UseQueryOptions = {}
-) {
+export function useQuery<T = unknown>(path: string, options?: UseQueryOptions) {
   const context = use(TMAStoreContext);
 
   if (!context) {
@@ -24,8 +21,9 @@ export function useQuery<T = unknown>(
 
   const { query, loadingRef } = context;
 
-  const gcTimeRef = useRef(options.gcTime || Infinity);
-  const enabled = options.enabled ?? true;
+  const params = options?.params;
+  const gcTimeRef = useRef(options?.gcTime || Infinity);
+  const enabled = options?.enabled ?? true;
   const key = getQueryKey(path, params);
   const isLoading = useTMAStore((store) => store.loading).includes(key);
   const data = useTMAStore((store) => store.state[key]);

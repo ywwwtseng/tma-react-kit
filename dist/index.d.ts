@@ -226,10 +226,11 @@ declare function TMAProvider({ env, background, url, locales, children }: TMAPro
 declare function useStoreState<T = unknown>(path: string | string[]): T | undefined;
 
 interface UseQueryOptions {
+    params?: QueryParams;
     gcTime?: number;
     enabled?: boolean;
 }
-declare function useQuery<T = unknown>(path: string, params?: QueryParams, options?: UseQueryOptions): {
+declare function useQuery<T = unknown>(path: string, options?: UseQueryOptions): {
     isLoading: boolean;
     data: T | undefined;
 };
