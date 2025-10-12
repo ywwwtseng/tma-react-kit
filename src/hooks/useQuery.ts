@@ -8,7 +8,7 @@ import {
 
 interface UseQueryOptions {
   params?: QueryParams;
-  gcTime?: number;
+  refetchOnMount?: boolean;
   enabled?: boolean;
 }
 
@@ -20,9 +20,8 @@ export function useQuery<T = unknown>(path: string, options?: UseQueryOptions) {
   }
 
   const { query, loadingRef } = context;
-
-  const params = options?.params;
-  const gcTimeRef = useRef(options?.gcTime || Infinity);
+  const params = options?.params ?? {};
+  const refetchOnMount = options?.refetchOnMount ?? false;
   const enabled = options?.enabled ?? true;
   const key = getQueryKey(path, params);
   const isLoading = useTMAStore((store) => store.loading).includes(key);
@@ -37,13 +36,7 @@ export function useQuery<T = unknown>(path: string, options?: UseQueryOptions) {
       return;
     }
 
-    if (gcTimeRef.current > 0 && gcTimeRef.current !== Infinity) {
-      setTimeout(() => {
-        gcTimeRef.current = 0;
-      }, gcTimeRef.current);
-    }
-
-    if (data !== undefined && gcTimeRef.current > 0) {
+    if (data !== undefined && refetchOnMount === false) {
       return;
     }
 

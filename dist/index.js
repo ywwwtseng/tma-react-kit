@@ -379,7 +379,7 @@ function TMAStoreProvider({ children }) {
       update,
       loadingRef
     }),
-    [query, mutate, loadingRef]
+    [query, mutate, update, loadingRef]
   );
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsx3(TMAStoreContext.Provider, { value, children }),
@@ -460,15 +460,15 @@ function TMAProvider({ env, background, url, locales, children }) {
 }
 
 // src/hooks/useQuery.ts
-import { use as use4, useEffect as useEffect3, useRef as useRef2 } from "react";
+import { use as use4, useEffect as useEffect3 } from "react";
 function useQuery(path, options) {
   const context = use4(TMAStoreContext);
   if (!context) {
     throw new Error("useQuery must be used within a TMA");
   }
   const { query, loadingRef } = context;
-  const params = options?.params;
-  const gcTimeRef = useRef2(options?.gcTime || Infinity);
+  const params = options?.params ?? {};
+  const refetchOnMount = options?.refetchOnMount ?? false;
   const enabled = options?.enabled ?? true;
   const key = getQueryKey(path, params);
   const isLoading = useTMAStore((store) => store.loading).includes(key);
@@ -480,12 +480,7 @@ function useQuery(path, options) {
     if (loadingRef.current.includes(key)) {
       return;
     }
-    if (gcTimeRef.current > 0 && gcTimeRef.current !== Infinity) {
-      setTimeout(() => {
-        gcTimeRef.current = 0;
-      }, gcTimeRef.current);
-    }
-    if (data !== void 0 && gcTimeRef.current > 0) {
+    if (data !== void 0 && refetchOnMount === false) {
       return;
     }
     query(path, params);
@@ -496,19 +491,114 @@ function useQuery(path, options) {
   };
 }
 
+// src/hooks/useInfiniteQuery.ts
+import { use as use5, useMemo as useMemo6, useState as useState2, useCallback as useCallback4, useEffect as useEffect4 } from "react";
+var getNextPageParam = (lastPage) => {
+  return Array.isArray(lastPage) ? lastPage?.[lastPage.length - 1]?.created_at ?? null : null;
+};
+function useInfiniteQuery(path, options) {
+  const refetchOnMount = options?.refetchOnMount ?? false;
+  const enabled = options?.enabled ?? true;
+  const state = useTMAStore((store) => store.state);
+  const [pageKeys, setPageKeys] = useState2([]);
+  const data = useMemo6(() => {
+    return pageKeys.map((key) => state[key]).filter(Boolean);
+  }, [pageKeys, state]);
+  const context = use5(TMAStoreContext);
+  if (!context) {
+    throw new Error("useInfiniteQuery must be used within a TMA");
+  }
+  const { query, update, loadingRef } = context;
+  const hasNextPage = useMemo6(() => {
+    const page = data[data.length - 1];
+    if (Array.isArray(page)) {
+      const limit = options.params?.limit;
+      if (typeof limit === "number") {
+        return page.length === limit;
+      }
+      if (page.length === 0) {
+        return false;
+      }
+    }
+    return true;
+  }, [data]);
+  const fetchNextPage = useCallback4(() => {
+    if (!hasNextPage) {
+      return;
+    }
+    const params = options?.params ?? {};
+    if (!enabled) {
+      return;
+    }
+    const cursor = getNextPageParam(
+      data ? data[data.length - 1] : void 0
+    );
+    if (cursor) {
+      params.cursor = cursor;
+    }
+    const queryKey = getQueryKey(path, params);
+    if (loadingRef.current.includes(queryKey)) {
+      return;
+    }
+    setPageKeys((pageKeys2) => [...pageKeys2, queryKey]);
+    query(path, params);
+  }, [path, JSON.stringify(options), hasNextPage, enabled, data]);
+  const isLoading = useMemo6(() => {
+    if (!enabled) {
+      return false;
+    }
+    return pageKeys.length > 0 ? state[pageKeys[pageKeys.length - 1]] === void 0 : false;
+  }, [pageKeys, state, enabled]);
+  useEffect4(() => {
+    if (!enabled) {
+      return;
+    }
+    const params = options?.params ?? {};
+    const queryKey = getQueryKey(path, params);
+    if (loadingRef.current.includes(queryKey)) {
+      return;
+    }
+    if (state[queryKey] !== void 0 && refetchOnMount === false) {
+      return;
+    }
+    fetchNextPage();
+    return () => {
+      if (refetchOnMount) {
+        update([
+          {
+            update: "state",
+            payload: (draft) => {
+              pageKeys.forEach((page) => {
+                delete draft.state[page];
+              });
+            }
+          }
+        ]);
+        setPageKeys([]);
+      }
+    };
+  }, [path, JSON.stringify(options), enabled]);
+  return {
+    data: data.length > 0 ? data.flat() : void 0,
+    isLoading,
+    hasNextPage,
+    fetchNextPage
+  };
+}
+
 // src/hooks/useMutation.ts
-import { use as use5, useState as useState2, useCallback as useCallback4 } from "react";
+import { use as use6, useState as useState3, useCallback as useCallback5 } from "react";
 import { useRefValue } from "@ywwwtseng/react-kit";
 import { toast } from "react-toastify";
 function useMutation(action, { onError } = {}) {
-  const context = use5(TMAStoreContext);
+  const context = use6(TMAStoreContext);
   const { t } = useTMAI18n();
   if (!context) {
     throw new Error("useMutation must be used within a TMA");
   }
-  const [isLoading, setIsLoading] = useState2(false);
+  const [isLoading, setIsLoading] = useState3(false);
   const isLoadingRef = useRefValue(isLoading);
-  const mutate = useCallback4(
+  const mutate = useCallback5(
     (payload, options) => {
       if (isLoadingRef.current) {
         return;
@@ -540,7 +630,7 @@ function useMutation(action, { onError } = {}) {
 }
 
 // src/hooks/useShare.ts
-import { useCallback as useCallback5 } from "react";
+import { useCallback as useCallback6 } from "react";
 
 // src/utils.ts
 import { postEvent as postEvent2 } from "@tma.js/bridge";
@@ -566,7 +656,7 @@ function openWebLink(url) {
 // src/hooks/useShare.ts
 function useShare() {
   const { platform } = useTMASDK();
-  return useCallback5(({ url, text }) => {
+  return useCallback6(({ url, text }) => {
     const isWebOrDesktop = platform?.includes("web") || platform === "macos" || platform === "tdesktop";
     text = isWebOrDesktop ? `
 ${text}` : text;
@@ -577,10 +667,10 @@ ${text}` : text;
 }
 
 // src/hooks/useSetLocale.ts
-import { useCallback as useCallback6 } from "react";
+import { useCallback as useCallback7 } from "react";
 function useSetLocale() {
   const { mutate } = useMutation("me:update");
-  const setLocale = useCallback6(
+  const setLocale = useCallback7(
     (locale) => {
       const prev = localStorage.getItem("language_code") || "en";
       localStorage.setItem("language_code", locale);
@@ -621,7 +711,7 @@ function Typography({ i18n, params, children, ...props }) {
 
 // src/components/TMALayout.tsx
 import {
-  useState as useState4
+  useState as useState5
 } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -633,7 +723,7 @@ import {
 } from "@ywwwtseng/react-kit";
 
 // src/components/TabBarItem.tsx
-import { useState as useState3 } from "react";
+import { useState as useState4 } from "react";
 import { isTMA as isTMA3, postEvent as postEvent3 } from "@tma.js/bridge";
 import { jsx as jsx7, jsxs as jsxs2 } from "react/jsx-runtime";
 function TabBarItem({
@@ -644,7 +734,7 @@ function TabBarItem({
   style
 }) {
   const { t } = useTMAI18n();
-  const [isActivating, setIsActivating] = useState3(false);
+  const [isActivating, setIsActivating] = useState4(false);
   return /* @__PURE__ */ jsxs2(
     "button",
     {
@@ -709,7 +799,7 @@ function TMALayout({
   const route = useRoute();
   const navigate = useNavigate2();
   const { platform } = useTMASDK();
-  const [modal, setModal] = useState4(null);
+  const [modal, setModal] = useState5(null);
   const safeAreaBottom = platform === "ios" ? 20 : 12;
   return /* @__PURE__ */ jsxs3(Layout.Root, { style: styles?.root, children: [
     createPortal(
@@ -855,7 +945,7 @@ var Account = {
 import { toast as toast2 } from "react-toastify";
 
 // src/TMA.tsx
-import { useState as useState6 } from "react";
+import { useState as useState7 } from "react";
 import {
   StackNavigatorProvider,
   Navigator,
@@ -865,7 +955,7 @@ import {
 } from "@ywwwtseng/react-kit";
 
 // src/components/LaunchScreen.tsx
-import { useEffect as useEffect4, useRef as useRef3 } from "react";
+import { useEffect as useEffect5, useRef as useRef3 } from "react";
 import { jsx as jsx10 } from "react/jsx-runtime";
 function LaunchScreen({
   children,
@@ -874,7 +964,7 @@ function LaunchScreen({
 }) {
   const startTime = useRef3(Date.now());
   const { status } = useTMAStore();
-  useEffect4(() => {
+  useEffect5(() => {
     if (status === 0 /* Loading */) {
       return;
     }
@@ -936,7 +1026,7 @@ function TMA({
   tabBarHeight = 60,
   ...layoutProps
 }) {
-  const [loaded, setLoaded] = useState6(false);
+  const [loaded, setLoaded] = useState7(false);
   return /* @__PURE__ */ jsxs4(Fragment2, { children: [
     /* @__PURE__ */ jsx11(StackNavigatorProvider, { screens, children: /* @__PURE__ */ jsx11(TMAProvider, { env, url, locales, children: /* @__PURE__ */ jsx11(
       TMALayout,
@@ -991,6 +1081,7 @@ export {
   openTelegramLink,
   openWebLink,
   toast2 as toast,
+  useInfiniteQuery,
   useMutation,
   useNavigate3 as useNavigate,
   useQuery,

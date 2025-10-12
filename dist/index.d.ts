@@ -159,8 +159,9 @@ declare enum Status {
     Forbidden = 3
 }
 
+type QueryParams = Record<string, string | number | boolean | null | undefined>;
 interface TMAStoreContextState {
-    query: (path: string, params: Record<string, string | number | boolean>) => Promise<unknown>;
+    query: (path: string, params: QueryParams) => Promise<unknown>;
     mutate: (action: string, payload: unknown, options?: MutateOptions) => Promise<unknown>;
     update: (commands: Command[]) => void;
     loadingRef: RefObject<string[]>;
@@ -176,7 +177,6 @@ interface Command {
     remove?: string;
     payload: unknown;
 }
-type QueryParams = Record<string, string | number | boolean | null | undefined>;
 interface MutateOptions {
     optimistic?: {
         execute: Command[];
@@ -201,7 +201,7 @@ type Store = {
     loading: string[];
     update: (commands: Command[]) => void;
 };
-declare const getQueryKey: (path: string, params: Record<string, string | number | boolean>) => string;
+declare const getQueryKey: (path: string, params: QueryParams) => string;
 declare const useTMAStore: zustand.UseBoundStore<zustand.StoreApi<Store>>;
 declare function TMAStoreProvider({ children }: TMAStoreProviderProps): react_jsx_runtime.JSX.Element;
 
@@ -225,14 +225,28 @@ declare function TMAProvider({ env, background, url, locales, children }: TMAPro
 
 declare function useStoreState<T = unknown>(path: string | string[]): T | undefined;
 
-interface UseQueryOptions {
+interface UseQueryOptions$1 {
     params?: QueryParams;
-    gcTime?: number;
+    refetchOnMount?: boolean;
     enabled?: boolean;
 }
-declare function useQuery<T = unknown>(path: string, options?: UseQueryOptions): {
+declare function useQuery<T = unknown>(path: string, options?: UseQueryOptions$1): {
     isLoading: boolean;
     data: T | undefined;
+};
+
+interface UseQueryOptions {
+    params: QueryParams & {
+        limit: number;
+    };
+    refetchOnMount?: boolean;
+    enabled?: boolean;
+}
+declare function useInfiniteQuery<T = unknown>(path: string, options: UseQueryOptions): {
+    data: T;
+    isLoading: boolean;
+    hasNextPage: boolean;
+    fetchNextPage: () => void;
 };
 
 interface UseMutationOptions {
@@ -296,4 +310,4 @@ interface TMAProps extends TMAProviderProps, TMALayoutProps, Omit<StackNavigator
 }
 declare function TMA({ env, url, locales, launchScreen, screens, headerHeight, tabBarHeight, ...layoutProps }: TMAProps): react_jsx_runtime.JSX.Element;
 
-export { Account, Avatar, type Command, type Locale, type Locales, type MutateOptions, type QueryParams, type ResponseData, type Store, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, type UseMutationOptions, type User, getQueryKey, openTelegramLink, openWebLink, useMutation, useQuery, useSetLocale, useShare, useStoreState, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTelegramSDK };
+export { Account, Avatar, type Command, type Locale, type Locales, type MutateOptions, type QueryParams, type ResponseData, type Store, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, type UseMutationOptions, type User, getQueryKey, openTelegramLink, openWebLink, useInfiniteQuery, useMutation, useQuery, useSetLocale, useShare, useStoreState, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTelegramSDK };

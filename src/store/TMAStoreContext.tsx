@@ -16,11 +16,13 @@ import { useTMAClient } from './TMAClientContext';
 
 import { Status } from '../constants';
 
+export type QueryParams = Record<
+  string,
+  string | number | boolean | null | undefined
+>;
+
 export interface TMAStoreContextState {
-  query: (
-    path: string,
-    params: Record<string, string | number | boolean>
-  ) => Promise<unknown>;
+  query: (path: string, params: QueryParams) => Promise<unknown>;
   mutate: (
     action: string,
     payload: unknown,
@@ -44,11 +46,6 @@ export interface Command {
   remove?: string;
   payload: unknown;
 }
-
-export type QueryParams = Record<
-  string,
-  string | number | boolean | null | undefined
->;
 
 export interface MutateOptions {
   optimistic?: {
@@ -77,10 +74,7 @@ export type Store = {
   update: (commands: Command[]) => void;
 };
 
-export const getQueryKey = (
-  path: string,
-  params: Record<string, string | number | boolean>
-) => {
+export const getQueryKey = (path: string, params: QueryParams) => {
   return Object.keys(params).length > 0
     ? JSON.stringify({ path, params })
     : path;
@@ -152,7 +146,7 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
   const loadingRef = useRef([]);
 
   const query = useCallback(
-    (path: string, params: Record<string, string | number | boolean> = {}) => {
+    (path: string, params: QueryParams = {}) => {
       const key = getQueryKey(path, params);
 
       loadingRef.current.push(key);
@@ -283,7 +277,7 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
       update,
       loadingRef,
     }),
-    [query, mutate, loadingRef]
+    [query, mutate, update, loadingRef]
   );
 
   return (

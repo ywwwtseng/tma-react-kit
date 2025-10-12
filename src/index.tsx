@@ -7,6 +7,7 @@ export * from './store/TMAContext';
 export * from './hooks/useTelegramSDK';
 export * from './hooks/useStoreState';
 export * from './hooks/useQuery';
+export * from './hooks/useInfiniteQuery';
 export * from './hooks/useMutation';
 export * from './hooks/useShare';
 export * from './hooks/useSetLocale';
