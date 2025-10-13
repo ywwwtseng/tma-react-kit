@@ -39,11 +39,8 @@ export const TMAStoreContext = createContext<TMAStoreContextState | undefined>(
 export interface TMAStoreProviderProps extends PropsWithChildren {}
 
 export interface Command {
-  update?: string;
-  merge?: string;
-  replace?: string;
-  unshift?: string;
-  remove?: string;
+  type: 'update' | 'merge' | 'replace' | 'unshift';
+  target?: string;
   payload: unknown;
 }
 
@@ -88,48 +85,53 @@ export const useTMAStore = create<Store>((set) => ({
     set((store) => {
       return produce(store, (draft) => {
         for (const command of commands) {
-          if (typeof command.payload === 'function') {
+          if (
+            command.type === 'update' &&
+            typeof command.payload === 'function'
+          ) {
             return command.payload(draft);
           } else {
-            if ('update' in command) {
-              draft.state[command.update] = command.payload;
-            } else if ('merge' in command) {
-              draft.state[command.merge] = merge(
-                draft.state[command.merge],
+            if (command.type === 'update' && command.target) {
+              draft.state[command.target] = command.payload;
+            } else if (command.type === 'merge' && command.target) {
+              draft.state[command.target] = merge(
+                draft.state[command.target],
                 command.payload
               );
-            } else if (
-              'replace' in command &&
-              typeof command.payload === 'object' &&
-              'target' in command.payload &&
-              'data' in command.payload
-            ) {
-              const { target, data } = command.payload;
-              if (typeof target === 'string' && typeof data === 'object') {
-                const state = draft.state[command.replace];
+            } else if (command.type === 'replace') {
+              const payload = command.payload;
+              const target = command.target || 'id';
 
-                if (Array.isArray(state)) {
-                  const index = state.findIndex(
-                    (item: Record<string, unknown>) =>
-                      item[target] === data[target]
-                  );
+              if (typeof payload === 'object' && target in payload) {
+                for (const key of Object.keys(draft.state)) {
+                  const value = draft.state[key];
+
+                  if (!Array.isArray(value)) continue;
+
+                  const index = value.findIndex((item) => {
+                    // 先比對 target 鍵值是否相同
+                    if (item[target] !== payload[target]) return false;
+
+                    // 取出兩邊的 key
+                    const itemKeys = Object.keys(item);
+                    const payloadKeys = Object.keys(payload);
+
+                    // 檢查 key 數量與內容是否完全一致
+                    if (itemKeys.length !== payloadKeys.length) return false;
+
+                    return itemKeys.every((key) => payloadKeys.includes(key));
+                  });
 
                   if (index !== -1) {
-                    state[index] = data;
-                  } else {
-                    state.push(data);
+                    value[index] = payload;
                   }
-                } else {
-                  // draft.state[command.replace] = [data];
                 }
               }
-            } else if ('unshift' in command) {
-              if (Array.isArray(draft.state[command.unshift])) {
-                (draft.state[command.unshift] as unknown[]).unshift(
-                  command.payload
-                );
-              } else if (!draft.state[command.unshift]) {
-                // draft.state[command.unshift] = [command.payload];
+            } else if (command.type === 'unshift' && command.target) {
+              const state = draft.state[command.target];
+
+              if (Array.isArray(state)) {
+                state.unshift(command.payload);
               }
             }
           }
@@ -153,7 +155,8 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
 
       update([
         {
-          update: 'loading',
+          type: 'update',
+          target: 'loading',
           payload: (draft: Store) => {
             draft.loading.push(key);
           },
@@ -168,7 +171,8 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
           update([
             ...res.commands,
             {
-              update: 'loading',
+              type: 'update',
+              target: 'loading',
               payload: (draft: Store) => {
                 draft.loading = draft.loading.filter((k) => k !== key);
               },
@@ -189,7 +193,8 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
 
           update([
             {
-              update: 'loading',
+              type: 'update',
+              target: 'loading',
               payload: (draft: Store) => {
                 draft.loading = draft.loading.filter((k) => k !== key);
               },
@@ -250,7 +255,8 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
       .then(() => {
         update([
           {
-            update: 'status',
+            type: 'update',
+            target: 'status',
             payload: (draft: Store) => {
               draft.status = Status.Authenticated;
             },
@@ -261,7 +267,8 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
         console.error(error);
         update([
           {
-            update: 'status',
+            type: 'update',
+            target: 'status',
             payload: (draft: Store) => {
               draft.status = Status.Forbidden;
             },

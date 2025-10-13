@@ -121,7 +121,7 @@ export function useInfiniteQuery<T = unknown>(
       if (refetchOnMount) {
         update([
           {
-            update: 'state',
+            type: 'update',
             payload: (draft: Store) => {
               pageKeys.forEach((page) => {
                 delete draft.state[page];
