@@ -1,4 +1,5 @@
 import { use, useMemo, useState, useCallback, useEffect } from 'react';
+import { useRoute } from '@ywwwtseng/react-kit';
 import {
   useTMAStore,
   TMAStoreContext,
@@ -24,7 +25,13 @@ interface UseQueryOptions {
 export function useInfiniteQuery<T = unknown>(
   path: string,
   options: UseQueryOptions
-) {
+): {
+  data: T | undefined;
+  isLoading: boolean;
+  hasNextPage: boolean;
+  fetchNextPage: () => void;
+} {
+  const route = useRoute();
   const refetchOnMount = options?.refetchOnMount ?? false;
   const enabled = options?.enabled ?? true;
   const state = useTMAStore((store) => store.state);
@@ -115,7 +122,8 @@ export function useInfiniteQuery<T = unknown>(
       return;
     }
 
-    fetchNextPage();
+    setPageKeys((pageKeys) => [...pageKeys, queryKey]);
+    query(path, params);
 
     return () => {
       if (refetchOnMount) {
@@ -133,7 +141,7 @@ export function useInfiniteQuery<T = unknown>(
         setPageKeys([]);
       }
     };
-  }, [path, JSON.stringify(options), enabled]);
+  }, [path, JSON.stringify(options), enabled, route.name]);
 
   return {
     data: data.length > 0 ? (data.flat() as T) : undefined,

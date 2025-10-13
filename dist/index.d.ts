@@ -170,7 +170,7 @@ declare const TMAStoreContext: react.Context<TMAStoreContextState>;
 interface TMAStoreProviderProps extends PropsWithChildren {
 }
 interface Command {
-    type: 'update' | 'merge' | 'replace' | 'unshift';
+    type: 'update' | 'merge' | 'replace' | 'unshift' | 'push';
     target?: string;
     payload: unknown;
 }
@@ -182,6 +182,7 @@ interface MutateOptions {
 }
 interface ResponseData {
     commands?: Command[];
+    data?: unknown;
     notify?: {
         type?: 'info' | 'success' | 'warning' | 'error' | 'default';
         message: string;
@@ -240,7 +241,7 @@ interface UseQueryOptions {
     enabled?: boolean;
 }
 declare function useInfiniteQuery<T = unknown>(path: string, options: UseQueryOptions): {
-    data: T;
+    data: T | undefined;
     isLoading: boolean;
     hasNextPage: boolean;
     fetchNextPage: () => void;
