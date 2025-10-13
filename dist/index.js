@@ -262,6 +262,11 @@ var useTMAStore = create((set) => ({
               if (Array.isArray(state)) {
                 state.unshift(command.payload);
               }
+            } else if (command.type === "push" && command.target) {
+              const state = draft.state[command.target];
+              if (Array.isArray(state)) {
+                state.push(command.payload);
+              }
             }
           }
         }
@@ -429,12 +434,12 @@ function TMAI18nProvider({
   children
 }) {
   const me = useStoreState("me");
-  const languagec_ode = useMemo5(() => {
+  const language_code = useMemo5(() => {
     return me?.language_code || localStorage.getItem("language_code") || callback;
   }, [me, callback]);
   const locale = useMemo5(() => {
-    return getLocale(locales, languagec_ode, locales[callback]);
-  }, [languagec_ode, callback]);
+    return getLocale(locales, language_code, locales[callback]);
+  }, [language_code, callback]);
   const t = useCallback3(
     (key, params) => {
       if (!locales) return key;
@@ -444,7 +449,7 @@ function TMAI18nProvider({
   );
   const value = useMemo5(
     () => ({
-      languagec_ode,
+      language_code,
       t
     }),
     [locale, t]
@@ -461,13 +466,21 @@ function useTMAI18n() {
 
 // src/store/TMAContext.tsx
 import { jsx as jsx5 } from "react/jsx-runtime";
-function TMAProvider({ env, background, url, locales, children }) {
+function TMAProvider({
+  env,
+  background,
+  url,
+  locales,
+  children
+}) {
   return /* @__PURE__ */ jsx5(TMASDKProvider, { env, background, children: /* @__PURE__ */ jsx5(TMAClientProvider, { url, children: /* @__PURE__ */ jsx5(TMAStoreProvider, { children: /* @__PURE__ */ jsx5(TMAI18nProvider, { locales, children }) }) }) });
 }
 
 // src/hooks/useQuery.ts
 import { use as use4, useEffect as useEffect3 } from "react";
+import { useRoute } from "@ywwwtseng/react-kit";
 function useQuery(path, options) {
+  const route = useRoute();
   const context = use4(TMAStoreContext);
   if (!context) {
     throw new Error("useQuery must be used within a TMA");
@@ -490,7 +503,7 @@ function useQuery(path, options) {
       return;
     }
     query(path, params);
-  }, [key, enabled]);
+  }, [key, enabled, route.name]);
   return {
     isLoading,
     data
@@ -499,10 +512,12 @@ function useQuery(path, options) {
 
 // src/hooks/useInfiniteQuery.ts
 import { use as use5, useMemo as useMemo6, useState as useState2, useCallback as useCallback4, useEffect as useEffect4 } from "react";
+import { useRoute as useRoute2 } from "@ywwwtseng/react-kit";
 var getNextPageParam = (lastPage) => {
   return Array.isArray(lastPage) ? lastPage?.[lastPage.length - 1]?.created_at ?? null : null;
 };
 function useInfiniteQuery(path, options) {
+  const route = useRoute2();
   const refetchOnMount = options?.refetchOnMount ?? false;
   const enabled = options?.enabled ?? true;
   const state = useTMAStore((store) => store.state);
@@ -567,7 +582,8 @@ function useInfiniteQuery(path, options) {
     if (state[queryKey] !== void 0 && refetchOnMount === false) {
       return;
     }
-    fetchNextPage();
+    setPageKeys((pageKeys2) => [...pageKeys2, queryKey]);
+    query(path, params);
     return () => {
       if (refetchOnMount) {
         update([
@@ -583,7 +599,7 @@ function useInfiniteQuery(path, options) {
         setPageKeys([]);
       }
     };
-  }, [path, JSON.stringify(options), enabled]);
+  }, [path, JSON.stringify(options), enabled, route.name]);
   return {
     data: data.length > 0 ? data.flat() : void 0,
     isLoading,
@@ -726,7 +742,7 @@ import {
   Layout,
   TabBar,
   useNavigate as useNavigate2,
-  useRoute,
+  useRoute as useRoute3,
   ScreenType
 } from "@ywwwtseng/react-kit";
 
@@ -804,7 +820,7 @@ function TMALayout({
   styles = {},
   children
 }) {
-  const route = useRoute();
+  const route = useRoute3();
   const navigate = useNavigate2();
   const { platform } = useTMASDK();
   const [modal, setModal] = useState5(null);
@@ -958,19 +974,19 @@ import {
   StackNavigatorProvider,
   Navigator,
   useNavigate as useNavigate3,
-  useRoute as useRoute2,
+  useRoute as useRoute4,
   ScreenType as ScreenType2
 } from "@ywwwtseng/react-kit";
 
 // src/components/LaunchScreen.tsx
-import { useEffect as useEffect5, useRef as useRef3 } from "react";
+import { useEffect as useEffect5, useRef as useRef2 } from "react";
 import { jsx as jsx10 } from "react/jsx-runtime";
 function LaunchScreen({
   children,
   duration = 2e3,
   onHide
 }) {
-  const startTime = useRef3(Date.now());
+  const startTime = useRef2(Date.now());
   const { status } = useTMAStore();
   useEffect5(() => {
     if (status === 0 /* Loading */) {
@@ -1093,7 +1109,7 @@ export {
   useMutation,
   useNavigate3 as useNavigate,
   useQuery,
-  useRoute2 as useRoute,
+  useRoute4 as useRoute,
   useSetLocale,
   useShare,
   useStoreState,

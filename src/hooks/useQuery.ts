@@ -1,4 +1,5 @@
-import { use, useEffect, useRef } from 'react';
+import { use, useEffect } from 'react';
+import { useRoute } from '@ywwwtseng/react-kit';
 import {
   useTMAStore,
   TMAStoreContext,
@@ -13,6 +14,7 @@ interface UseQueryOptions {
 }
 
 export function useQuery<T = unknown>(path: string, options?: UseQueryOptions) {
+  const route = useRoute();
   const context = use(TMAStoreContext);
 
   if (!context) {
@@ -41,7 +43,7 @@ export function useQuery<T = unknown>(path: string, options?: UseQueryOptions) {
     }
 
     query(path, params);
-  }, [key, enabled]);
+  }, [key, enabled, route.name]);
 
   return {
     isLoading,

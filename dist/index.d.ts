@@ -170,7 +170,7 @@ declare const TMAStoreContext: react.Context<TMAStoreContextState>;
 interface TMAStoreProviderProps extends PropsWithChildren {
 }
 interface Command {
-    type: 'update' | 'merge' | 'replace' | 'unshift';
+    type: 'update' | 'merge' | 'replace' | 'unshift' | 'push';
     target?: string;
     payload: unknown;
 }
@@ -182,6 +182,7 @@ interface MutateOptions {
 }
 interface ResponseData {
     commands?: Command[];
+    data?: unknown;
     notify?: {
         type?: 'info' | 'success' | 'warning' | 'error' | 'default';
         message: string;
@@ -204,7 +205,7 @@ declare function TMAStoreProvider({ children }: TMAStoreProviderProps): react_js
 
 interface TMAI18nContextState {
     t: (key: string, params?: Record<string, string | number>) => string;
-    languagec_ode: string;
+    language_code: string;
 }
 declare const TMAI18nContext: react.Context<TMAI18nContextState>;
 type Locale = Record<string, Record<string, string>>;
@@ -218,7 +219,7 @@ declare function useTMAI18n(): TMAI18nContextState;
 
 interface TMAProviderProps extends React.PropsWithChildren, Omit<TMASDKProviderProps, 'children'>, Omit<TMAClientProviderProps, 'children'>, Omit<TMAStoreProviderProps, 'children'>, Omit<TMAI18nProviderProps, 'children'> {
 }
-declare function TMAProvider({ env, background, url, locales, children }: TMAProviderProps): react_jsx_runtime.JSX.Element;
+declare function TMAProvider({ env, background, url, locales, children, }: TMAProviderProps): react_jsx_runtime.JSX.Element;
 
 declare function useStoreState<T = unknown>(path: string | string[]): T | undefined;
 
@@ -240,7 +241,7 @@ interface UseQueryOptions {
     enabled?: boolean;
 }
 declare function useInfiniteQuery<T = unknown>(path: string, options: UseQueryOptions): {
-    data: T;
+    data: T | undefined;
     isLoading: boolean;
     hasNextPage: boolean;
     fetchNextPage: () => void;

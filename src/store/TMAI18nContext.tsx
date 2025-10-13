@@ -10,7 +10,7 @@ import { useStoreState } from '../hooks/useStoreState';
 
 export interface TMAI18nContextState {
   t: (key: string, params?: Record<string, string | number>) => string;
-  languagec_ode: string;
+  language_code: string;
 }
 
 export const TMAI18nContext = createContext<TMAI18nContextState | undefined>(
@@ -32,15 +32,15 @@ export function TMAI18nProvider({
   children,
 }: TMAI18nProviderProps) {
   const me = useStoreState<{ language_code: string }>('me');
-  const languagec_ode = useMemo(() => {
+  const language_code = useMemo(() => {
     return (
       me?.language_code || localStorage.getItem('language_code') || callback
     );
   }, [me, callback]);
 
   const locale = useMemo(() => {
-    return getLocale(locales, languagec_ode, locales[callback]);
-  }, [languagec_ode, callback]);
+    return getLocale(locales, language_code, locales[callback]);
+  }, [language_code, callback]);
 
   const t = useCallback(
     (key: string, params?: Record<string, string | number>) => {
@@ -53,7 +53,7 @@ export function TMAI18nProvider({
 
   const value = useMemo(
     () => ({
-      languagec_ode,
+      language_code,
       t,
     }),
     [locale, t]

@@ -39,7 +39,7 @@ export const TMAStoreContext = createContext<TMAStoreContextState | undefined>(
 export interface TMAStoreProviderProps extends PropsWithChildren {}
 
 export interface Command {
-  type: 'update' | 'merge' | 'replace' | 'unshift';
+  type: 'update' | 'merge' | 'replace' | 'unshift' | 'push';
   target?: string;
   payload: unknown;
 }
@@ -53,6 +53,7 @@ export interface MutateOptions {
 
 export interface ResponseData {
   commands?: Command[];
+  data?: unknown;
   notify?: {
     type?: 'info' | 'success' | 'warning' | 'error' | 'default';
     message: string;
@@ -132,6 +133,12 @@ export const useTMAStore = create<Store>((set) => ({
 
               if (Array.isArray(state)) {
                 state.unshift(command.payload);
+              }
+            } else if (command.type === 'push' && command.target) {
+              const state = draft.state[command.target];
+
+              if (Array.isArray(state)) {
+                state.push(command.payload);
               }
             }
           }
