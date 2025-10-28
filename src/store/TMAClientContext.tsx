@@ -20,11 +20,8 @@ export const TMAClientContext = createContext<
   TMAClientContextState | undefined
 >(undefined);
 
-export interface TMAClientProviderProps extends PropsWithChildren {
-  url: string;
-}
-
-export function TMAClientProvider({ url, children }: TMAClientProviderProps) {
+export function TMAClientProvider({ children }: PropsWithChildren) {
+  const url = `${location.origin}/api`;
   const { initDataRaw } = useTMASDK();
 
   const request = useMemo(
@@ -35,7 +32,7 @@ export function TMAClientProvider({ url, children }: TMAClientProviderProps) {
           return headers;
         },
       }),
-    [url, initDataRaw]
+    [initDataRaw]
   );
 
   const query = useCallback(

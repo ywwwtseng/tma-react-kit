@@ -33,9 +33,7 @@ export function TMAI18nProvider({
 }: TMAI18nProviderProps) {
   const me = useStoreState<{ language_code: string }>('me');
   const language_code = useMemo(() => {
-    return (
-      me?.language_code || localStorage.getItem('language_code') || callback
-    );
+    return me?.language_code || callback;
   }, [me, callback]);
 
   const locale = useMemo(() => {

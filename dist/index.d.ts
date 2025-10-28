@@ -146,10 +146,7 @@ interface TMAClientContextState {
     mutate: <TPayload>(action: string, payload: TPayload) => Promise<unknown>;
 }
 declare const TMAClientContext: react.Context<TMAClientContextState>;
-interface TMAClientProviderProps extends PropsWithChildren {
-    url: string;
-}
-declare function TMAClientProvider({ url, children }: TMAClientProviderProps): react_jsx_runtime.JSX.Element;
+declare function TMAClientProvider({ children }: PropsWithChildren): react_jsx_runtime.JSX.Element;
 declare function useTMAClient(): TMAClientContextState;
 
 declare enum Status {
@@ -217,9 +214,9 @@ interface TMAI18nProviderProps extends PropsWithChildren {
 declare function TMAI18nProvider({ locales, callback, children, }: TMAI18nProviderProps): react_jsx_runtime.JSX.Element;
 declare function useTMAI18n(): TMAI18nContextState;
 
-interface TMAProviderProps extends React.PropsWithChildren, Omit<TMASDKProviderProps, 'children'>, Omit<TMAClientProviderProps, 'children'>, Omit<TMAStoreProviderProps, 'children'>, Omit<TMAI18nProviderProps, 'children'> {
+interface TMAProviderProps extends React.PropsWithChildren, Omit<TMASDKProviderProps, 'children'>, Omit<TMAStoreProviderProps, 'children'>, Omit<TMAI18nProviderProps, 'children'> {
 }
-declare function TMAProvider({ env, background, url, locales, children, }: TMAProviderProps): react_jsx_runtime.JSX.Element;
+declare function TMAProvider({ env, background, locales, children, }: TMAProviderProps): react_jsx_runtime.JSX.Element;
 
 declare function useStoreState<T = unknown>(path: string | string[]): T | undefined;
 
@@ -306,6 +303,6 @@ declare function openWebLink(url: string | URL): void;
 interface TMAProps extends TMAProviderProps, TMALayoutProps, Omit<StackNavigatorProviderProps, 'layout' | 'drawer'> {
     launchScreen?: ReactElement;
 }
-declare function TMA({ env, url, locales, launchScreen, screens, headerHeight, tabBarHeight, ...layoutProps }: TMAProps): react_jsx_runtime.JSX.Element;
+declare function TMA({ env, locales, launchScreen, screens, headerHeight, tabBarHeight, ...layoutProps }: TMAProps): react_jsx_runtime.JSX.Element;
 
-export { Account, Avatar, type Command, type Locale, type Locales, type MutateOptions, type QueryParams, type ResponseData, type Store, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, type TMAClientProviderProps, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, type UseMutationOptions, type User, getQueryKey, openTelegramLink, openWebLink, useInfiniteQuery, useMutation, useQuery, useSetLocale, useShare, useStoreState, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTelegramSDK };
+export { Account, Avatar, type Command, type Locale, type Locales, type MutateOptions, type QueryParams, type ResponseData, type Store, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, type UseMutationOptions, type User, getQueryKey, openTelegramLink, openWebLink, useInfiniteQuery, useMutation, useQuery, useSetLocale, useShare, useStoreState, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTelegramSDK };

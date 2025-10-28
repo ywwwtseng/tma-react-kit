@@ -1,14 +1,13 @@
 import { useCallback } from 'react';
 import { useMutation } from './useMutation';
+import { useTMAI18n } from '../store/TMAI18nContext';
 
 export function useSetLocale() {
   const { mutate } = useMutation('me:update');
+  const { language_code } = useTMAI18n();
 
   const setLocale = useCallback(
     (locale: string) => {
-      const prev = localStorage.getItem('language_code') || 'en';
-      localStorage.setItem('language_code', locale);
-
       void mutate(
         {
           language_code: locale,
@@ -26,7 +25,7 @@ export function useSetLocale() {
               {
                 type: 'merge',
                 target: 'me',
-                payload: { language_code: prev },
+                payload: { language_code },
               },
             ],
           },

@@ -155,7 +155,8 @@ import {
 import { Request } from "@ywwwtseng/request";
 import { jsx as jsx2 } from "react/jsx-runtime";
 var TMAClientContext = createContext2(void 0);
-function TMAClientProvider({ url, children }) {
+function TMAClientProvider({ children }) {
+  const url = `${location.origin}/api`;
   const { initDataRaw } = useTMASDK();
   const request = useMemo3(
     () => new Request({
@@ -164,7 +165,7 @@ function TMAClientProvider({ url, children }) {
         return headers;
       }
     }),
-    [url, initDataRaw]
+    [initDataRaw]
   );
   const query = useCallback(
     (path, params) => {
@@ -435,7 +436,7 @@ function TMAI18nProvider({
 }) {
   const me = useStoreState("me");
   const language_code = useMemo5(() => {
-    return me?.language_code || localStorage.getItem("language_code") || callback;
+    return me?.language_code || callback;
   }, [me, callback]);
   const locale = useMemo5(() => {
     return getLocale(locales, language_code, locales[callback]);
@@ -469,11 +470,10 @@ import { jsx as jsx5 } from "react/jsx-runtime";
 function TMAProvider({
   env,
   background,
-  url,
   locales,
   children
 }) {
-  return /* @__PURE__ */ jsx5(TMASDKProvider, { env, background, children: /* @__PURE__ */ jsx5(TMAClientProvider, { url, children: /* @__PURE__ */ jsx5(TMAStoreProvider, { children: /* @__PURE__ */ jsx5(TMAI18nProvider, { locales, children }) }) }) });
+  return /* @__PURE__ */ jsx5(TMASDKProvider, { env, background, children: /* @__PURE__ */ jsx5(TMAClientProvider, { children: /* @__PURE__ */ jsx5(TMAStoreProvider, { children: /* @__PURE__ */ jsx5(TMAI18nProvider, { locales, children }) }) }) });
 }
 
 // src/hooks/useQuery.ts
@@ -692,10 +692,9 @@ ${text}` : text;
 import { useCallback as useCallback7 } from "react";
 function useSetLocale() {
   const { mutate } = useMutation("me:update");
+  const { language_code } = useTMAI18n();
   const setLocale = useCallback7(
     (locale) => {
-      const prev = localStorage.getItem("language_code") || "en";
-      localStorage.setItem("language_code", locale);
       void mutate(
         {
           language_code: locale
@@ -713,7 +712,7 @@ function useSetLocale() {
               {
                 type: "merge",
                 target: "me",
-                payload: { language_code: prev }
+                payload: { language_code }
               }
             ]
           }
@@ -1042,7 +1041,6 @@ function LaunchScreen({
 import { Fragment as Fragment2, jsx as jsx11, jsxs as jsxs4 } from "react/jsx-runtime";
 function TMA({
   env,
-  url,
   locales,
   launchScreen,
   screens,
@@ -1052,7 +1050,7 @@ function TMA({
 }) {
   const [loaded, setLoaded] = useState7(false);
   return /* @__PURE__ */ jsxs4(Fragment2, { children: [
-    /* @__PURE__ */ jsx11(StackNavigatorProvider, { screens, children: /* @__PURE__ */ jsx11(TMAProvider, { env, url, locales, children: /* @__PURE__ */ jsx11(
+    /* @__PURE__ */ jsx11(StackNavigatorProvider, { screens, children: /* @__PURE__ */ jsx11(TMAProvider, { env, locales, children: /* @__PURE__ */ jsx11(
       TMALayout,
       {
         ...layoutProps,

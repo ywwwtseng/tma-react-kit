@@ -22,7 +22,6 @@ export interface TMAProps
 
 export function TMA({
   env,
-  url,
   locales,
   launchScreen,
   screens,
@@ -35,7 +34,7 @@ export function TMA({
   return (
     <>
       <StackNavigatorProvider screens={screens}>
-        <TMAProvider env={env} url={url} locales={locales}>
+        <TMAProvider env={env} locales={locales}>
           <TMALayout
             {...layoutProps}
             styles={layoutProps.styles}
