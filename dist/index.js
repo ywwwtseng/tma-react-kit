@@ -244,9 +244,9 @@ var useTMAStore = create((set) => ({
               const target = command.target || "id";
               if (typeof payload === "object" && target in payload) {
                 for (const key of Object.keys(draft.state)) {
-                  const value = draft.state[key];
-                  if (!Array.isArray(value)) continue;
-                  const index = value.findIndex((item) => {
+                  const state = draft.state[key];
+                  if (!Array.isArray(state)) continue;
+                  const index = state.findIndex((item) => {
                     if (item[target] !== payload[target]) return false;
                     const itemKeys = Object.keys(item);
                     const payloadKeys = Object.keys(payload);
@@ -254,7 +254,7 @@ var useTMAStore = create((set) => ({
                     return itemKeys.every((key2) => payloadKeys.includes(key2));
                   });
                   if (index !== -1) {
-                    value[index] = payload;
+                    state[index] = payload;
                   }
                 }
               }
@@ -267,6 +267,19 @@ var useTMAStore = create((set) => ({
               const state = draft.state[command.target];
               if (Array.isArray(state)) {
                 state.push(command.payload);
+              }
+            } else if (command.type === "delete" && command.target) {
+              const payload = command.payload;
+              const target = command.target || "id";
+              for (const key of Object.keys(draft.state)) {
+                const state = draft.state[key];
+                if (!Array.isArray(state)) continue;
+                const index = state.findIndex(
+                  (item) => item[target] === payload
+                );
+                if (index !== -1) {
+                  state.splice(index, 1);
+                }
               }
             }
           }

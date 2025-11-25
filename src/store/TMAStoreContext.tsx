@@ -43,7 +43,7 @@ export const TMAStoreContext = createContext<TMAStoreContextState | undefined>(
 export interface TMAStoreProviderProps extends PropsWithChildren {}
 
 export interface Command {
-  type: 'update' | 'merge' | 'replace' | 'unshift' | 'push';
+  type: 'update' | 'merge' | 'replace' | 'unshift' | 'push' | 'delete';
   target?: string;
   payload: unknown;
 }
@@ -111,11 +111,11 @@ export const useTMAStore = create<Store>((set) => ({
 
               if (typeof payload === 'object' && target in payload) {
                 for (const key of Object.keys(draft.state)) {
-                  const value = draft.state[key];
+                  const state = draft.state[key];
 
-                  if (!Array.isArray(value)) continue;
+                  if (!Array.isArray(state)) continue;
 
-                  const index = value.findIndex((item) => {
+                  const index = state.findIndex((item) => {
                     // 先比對 target 鍵值是否相同
                     if (item[target] !== payload[target]) return false;
 
@@ -130,7 +130,7 @@ export const useTMAStore = create<Store>((set) => ({
                   });
 
                   if (index !== -1) {
-                    value[index] = payload;
+                    state[index] = payload;
                   }
                 }
               }
@@ -145,6 +145,23 @@ export const useTMAStore = create<Store>((set) => ({
 
               if (Array.isArray(state)) {
                 state.push(command.payload);
+              }
+            } else if (command.type === 'delete' && command.target) {
+              const payload = command.payload;
+              const target = command.target || 'id';
+
+              for (const key of Object.keys(draft.state)) {
+                const state = draft.state[key];
+
+                if (!Array.isArray(state)) continue;
+
+                const index = state.findIndex(
+                  (item) => item[target] === payload
+                );
+
+                if (index !== -1) {
+                  state.splice(index, 1);
+                }
               }
             }
           }

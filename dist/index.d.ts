@@ -169,7 +169,7 @@ declare const TMAStoreContext: react.Context<TMAStoreContextState>;
 interface TMAStoreProviderProps extends PropsWithChildren {
 }
 interface Command {
-    type: 'update' | 'merge' | 'replace' | 'unshift' | 'push';
+    type: 'update' | 'merge' | 'replace' | 'unshift' | 'push' | 'delete';
     target?: string;
     payload: unknown;
 }
