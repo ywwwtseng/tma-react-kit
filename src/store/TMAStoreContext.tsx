@@ -22,7 +22,11 @@ export type QueryParams = Record<
 >;
 
 export interface TMAStoreContextState {
-  query: (path: string, params: QueryParams) => Promise<unknown>;
+  query: (
+    path: string,
+    params: QueryParams,
+    options?: { onNotify?: (notify: Notify) => void }
+  ) => Promise<unknown>;
   mutate: (
     action: string,
     payload: unknown,
@@ -51,13 +55,15 @@ export interface MutateOptions {
   };
 }
 
+export interface Notify {
+  type?: 'info' | 'success' | 'warning' | 'error' | 'default';
+  message: string;
+}
+
 export interface ResponseData {
   commands?: Command[];
   data?: unknown;
-  notify?: {
-    type?: 'info' | 'success' | 'warning' | 'error' | 'default';
-    message: string;
-  };
+  notify?: Notify;
   navigate?: {
     screen: string;
     params: Record<string, string | number | boolean>;
@@ -155,7 +161,13 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
   const loadingRef = useRef([]);
 
   const query = useCallback(
-    (path: string, params: QueryParams = {}) => {
+    (
+      path: string,
+      params: QueryParams = {},
+      options?: {
+        onNotify?: (notify: Notify) => void;
+      }
+    ) => {
       const key = getQueryKey(path, params);
 
       loadingRef.current.push(key);
@@ -191,6 +203,10 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
               type: 'replace',
               params: res.navigate.params,
             });
+          }
+
+          if (res.notify) {
+            options?.onNotify?.(res.notify);
           }
 
           return res;

@@ -281,7 +281,7 @@ function TMAStoreProvider({ children }) {
   const { update } = useTMAStore();
   const loadingRef = useRef([]);
   const query = useCallback2(
-    (path, params = {}) => {
+    (path, params = {}, options) => {
       const key = getQueryKey(path, params);
       loadingRef.current.push(key);
       update([
@@ -310,6 +310,9 @@ function TMAStoreProvider({ children }) {
             type: "replace",
             params: res.navigate.params
           });
+        }
+        if (res.notify) {
+          options?.onNotify?.(res.notify);
         }
         return res;
       }).catch((error) => {
@@ -479,9 +482,11 @@ function TMAProvider({
 // src/hooks/useQuery.ts
 import { use as use4, useEffect as useEffect3 } from "react";
 import { useRoute } from "@ywwwtseng/react-kit";
+import { toast } from "react-toastify";
 function useQuery(path, options) {
   const route = useRoute();
   const context = use4(TMAStoreContext);
+  const { t } = useTMAI18n();
   if (!context) {
     throw new Error("useQuery must be used within a TMA");
   }
@@ -502,7 +507,11 @@ function useQuery(path, options) {
     if (data !== void 0 && refetchOnMount === false) {
       return;
     }
-    query(path, params);
+    query(path, params, {
+      onNotify: (notify) => {
+        toast[notify.type || "default"]?.(t(notify.message));
+      }
+    });
   }, [key, enabled, route.name]);
   return {
     isLoading,
@@ -611,7 +620,7 @@ function useInfiniteQuery(path, options) {
 // src/hooks/useMutation.ts
 import { use as use6, useState as useState3, useCallback as useCallback5 } from "react";
 import { useRefValue } from "@ywwwtseng/react-kit";
-import { toast } from "react-toastify";
+import { toast as toast2 } from "react-toastify";
 function useMutation(action, { onError } = {}) {
   const context = use6(TMAStoreContext);
   const { t } = useTMAI18n();
@@ -629,11 +638,11 @@ function useMutation(action, { onError } = {}) {
       setIsLoading(true);
       return context.mutate(action, payload, options).then((res) => {
         if (res.notify) {
-          toast[res.notify.type || "default"]?.(t(res.notify.message));
+          toast2[res.notify.type || "default"]?.(t(res.notify.message));
         }
         return res;
       }).catch((res) => {
-        toast.error(t(res?.data?.message));
+        toast2.error(t(res?.data?.message));
         onError?.(res);
         return {
           ok: false
@@ -965,7 +974,7 @@ var Account = {
 };
 
 // src/lib.ts
-import { toast as toast2 } from "react-toastify";
+import { toast as toast3 } from "react-toastify";
 
 // src/TMA.tsx
 import { useState as useState7 } from "react";
@@ -1102,7 +1111,7 @@ export {
   getQueryKey,
   openTelegramLink,
   openWebLink,
-  toast2 as toast,
+  toast3 as toast,
   useInfiniteQuery,
   useMutation,
   useNavigate3 as useNavigate,

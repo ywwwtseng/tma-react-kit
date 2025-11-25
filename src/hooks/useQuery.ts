@@ -1,5 +1,7 @@
 import { use, useEffect } from 'react';
 import { useRoute } from '@ywwwtseng/react-kit';
+import { toast } from 'react-toastify';
+import { useTMAI18n } from '../store/TMAI18nContext';
 import {
   useTMAStore,
   TMAStoreContext,
@@ -16,6 +18,7 @@ interface UseQueryOptions {
 export function useQuery<T = unknown>(path: string, options?: UseQueryOptions) {
   const route = useRoute();
   const context = use(TMAStoreContext);
+  const { t } = useTMAI18n();
 
   if (!context) {
     throw new Error('useQuery must be used within a TMA');
@@ -42,7 +45,11 @@ export function useQuery<T = unknown>(path: string, options?: UseQueryOptions) {
       return;
     }
 
-    query(path, params);
+    query(path, params, {
+      onNotify: (notify) => {
+        toast[notify.type || 'default']?.(t(notify.message));
+      },
+    });
   }, [key, enabled, route.name]);
 
   return {

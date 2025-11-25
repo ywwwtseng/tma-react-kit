@@ -158,7 +158,9 @@ declare enum Status {
 
 type QueryParams = Record<string, string | number | boolean | null | undefined>;
 interface TMAStoreContextState {
-    query: (path: string, params: QueryParams) => Promise<unknown>;
+    query: (path: string, params: QueryParams, options?: {
+        onNotify?: (notify: Notify) => void;
+    }) => Promise<unknown>;
     mutate: (action: string, payload: unknown, options?: MutateOptions) => Promise<unknown>;
     update: (commands: Command[]) => void;
     loadingRef: RefObject<string[]>;
@@ -177,13 +179,14 @@ interface MutateOptions {
         undo: Command[];
     };
 }
+interface Notify {
+    type?: 'info' | 'success' | 'warning' | 'error' | 'default';
+    message: string;
+}
 interface ResponseData {
     commands?: Command[];
     data?: unknown;
-    notify?: {
-        type?: 'info' | 'success' | 'warning' | 'error' | 'default';
-        message: string;
-    };
+    notify?: Notify;
     navigate?: {
         screen: string;
         params: Record<string, string | number | boolean>;
@@ -305,4 +308,4 @@ interface TMAProps extends TMAProviderProps, TMALayoutProps, Omit<StackNavigator
 }
 declare function TMA({ env, locales, launchScreen, screens, headerHeight, tabBarHeight, ...layoutProps }: TMAProps): react_jsx_runtime.JSX.Element;
 
-export { Account, Avatar, type Command, type Locale, type Locales, type MutateOptions, type QueryParams, type ResponseData, type Store, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, type UseMutationOptions, type User, getQueryKey, openTelegramLink, openWebLink, useInfiniteQuery, useMutation, useQuery, useSetLocale, useShare, useStoreState, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTelegramSDK };
+export { Account, Avatar, type Command, type Locale, type Locales, type MutateOptions, type Notify, type QueryParams, type ResponseData, type Store, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, type UseMutationOptions, type User, getQueryKey, openTelegramLink, openWebLink, useInfiniteQuery, useMutation, useQuery, useSetLocale, useShare, useStoreState, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTelegramSDK };
