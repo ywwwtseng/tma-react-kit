@@ -1068,28 +1068,32 @@ function TMA({
   screens,
   headerHeight = 56,
   tabBarHeight = 60,
+  children,
   ...layoutProps
 }) {
   const [loaded, setLoaded] = useState7(false);
   return /* @__PURE__ */ jsxs4(Fragment2, { children: [
-    /* @__PURE__ */ jsx11(StackNavigatorProvider, { screens, children: /* @__PURE__ */ jsx11(TMAProvider, { env, locales, children: /* @__PURE__ */ jsx11(
+    /* @__PURE__ */ jsx11(StackNavigatorProvider, { screens, children: /* @__PURE__ */ jsx11(TMAProvider, { env, locales, children: /* @__PURE__ */ jsxs4(
       TMALayout,
       {
         ...layoutProps,
         styles: layoutProps.styles,
         headerHeight,
         tabBarHeight,
-        children: /* @__PURE__ */ jsx11(
-          Navigator,
-          {
-            drawer: {
-              style: {
-                paddingTop: headerHeight,
-                paddingBottom: 20
+        children: [
+          /* @__PURE__ */ jsx11(
+            Navigator,
+            {
+              drawer: {
+                style: {
+                  paddingTop: headerHeight,
+                  paddingBottom: 20
+                }
               }
             }
-          }
-        )
+          ),
+          children
+        ]
       }
     ) }) }),
     launchScreen && !loaded && /* @__PURE__ */ jsx11(

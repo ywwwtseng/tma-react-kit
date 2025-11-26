@@ -305,7 +305,8 @@ declare function openWebLink(url: string | URL): void;
 
 interface TMAProps extends TMAProviderProps, TMALayoutProps, Omit<StackNavigatorProviderProps, 'layout' | 'drawer'> {
     launchScreen?: ReactElement;
+    children?: ReactElement;
 }
-declare function TMA({ env, locales, launchScreen, screens, headerHeight, tabBarHeight, ...layoutProps }: TMAProps): react_jsx_runtime.JSX.Element;
+declare function TMA({ env, locales, launchScreen, screens, headerHeight, tabBarHeight, children, ...layoutProps }: TMAProps): react_jsx_runtime.JSX.Element;
 
 export { Account, Avatar, type Command, type Locale, type Locales, type MutateOptions, type Notify, type QueryParams, type ResponseData, type Store, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, type UseMutationOptions, type User, getQueryKey, openTelegramLink, openWebLink, useInfiniteQuery, useMutation, useQuery, useSetLocale, useShare, useStoreState, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTelegramSDK };

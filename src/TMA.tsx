@@ -18,6 +18,7 @@ export interface TMAProps
     TMALayoutProps,
     Omit<StackNavigatorProviderProps, 'layout' | 'drawer'> {
   launchScreen?: ReactElement;
+  children?: ReactElement;
 }
 
 export function TMA({
@@ -27,6 +28,7 @@ export function TMA({
   screens,
   headerHeight = 56,
   tabBarHeight = 60,
+  children,
   ...layoutProps
 }: TMAProps) {
   const [loaded, setLoaded] = useState(false);
@@ -49,6 +51,7 @@ export function TMA({
                 },
               }}
             />
+            {children}
           </TMALayout>
         </TMAProvider>
       </StackNavigatorProvider>
