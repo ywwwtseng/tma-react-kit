@@ -174,10 +174,6 @@ interface Command {
     payload: unknown;
 }
 interface MutateOptions {
-    optimistic?: {
-        execute: Command[];
-        undo: Command[];
-    };
 }
 interface Notify {
     type?: 'info' | 'success' | 'warning' | 'error' | 'default';
@@ -199,7 +195,7 @@ type Store = {
     loading: string[];
     update: (commands: Command[]) => void;
 };
-declare const getQueryKey: (path: string, params: QueryParams) => string;
+declare const getQueryKey: (path: string, params?: QueryParams) => string;
 declare const useTMAStore: zustand.UseBoundStore<zustand.StoreApi<Store>>;
 declare function TMAStoreProvider({ children }: TMAStoreProviderProps): react_jsx_runtime.JSX.Element;
 
