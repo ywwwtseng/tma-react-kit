@@ -11,7 +11,7 @@ import { useTMASDK } from './TMASDKContext';
 export interface TMAClientContextState {
   query: (
     path: string,
-    params: Record<string, string | number | boolean>
+    params?: Record<string, string | number | boolean>
   ) => Promise<unknown>;
   mutate: <TPayload>(action: string, payload: TPayload) => Promise<unknown>;
 }
@@ -36,8 +36,8 @@ export function TMAClientProvider({ children }: PropsWithChildren) {
   );
 
   const query = useCallback(
-    (path: string, params: Record<string, string | number | boolean>) => {
-      return request.post(url, { type: 'query', path, params });
+    (path: string, params?: Record<string, string | number | boolean>) => {
+      return request.post(url, { type: 'query', path, params: params ?? {} });
     },
     [request]
   );

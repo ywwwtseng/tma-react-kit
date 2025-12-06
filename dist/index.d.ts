@@ -142,7 +142,7 @@ declare function TMASDKProvider({ env, background, children, }: TMASDKProviderPr
 declare function useTMASDK(): TMASDKContextState;
 
 interface TMAClientContextState {
-    query: (path: string, params: Record<string, string | number | boolean>) => Promise<unknown>;
+    query: (path: string, params?: Record<string, string | number | boolean>) => Promise<unknown>;
     mutate: <TPayload>(action: string, payload: TPayload) => Promise<unknown>;
 }
 declare const TMAClientContext: react.Context<TMAClientContextState>;
@@ -158,7 +158,7 @@ declare enum Status {
 
 type QueryParams = Record<string, string | number | boolean | null | undefined>;
 interface TMAStoreContextState {
-    query: (path: string, params: QueryParams, options?: {
+    query: (path: string, params?: QueryParams, options?: {
         onNotify?: (notify: Notify) => void;
     }) => Promise<unknown>;
     mutate: (action: string, payload: unknown, options?: MutateOptions) => Promise<unknown>;
@@ -174,10 +174,6 @@ interface Command {
     payload: unknown;
 }
 interface MutateOptions {
-    optimistic?: {
-        execute: Command[];
-        undo: Command[];
-    };
 }
 interface Notify {
     type?: 'info' | 'success' | 'warning' | 'error' | 'default';
@@ -199,7 +195,7 @@ type Store = {
     loading: string[];
     update: (commands: Command[]) => void;
 };
-declare const getQueryKey: (path: string, params: QueryParams) => string;
+declare const getQueryKey: (path: string, params?: QueryParams) => string;
 declare const useTMAStore: zustand.UseBoundStore<zustand.StoreApi<Store>>;
 declare function TMAStoreProvider({ children }: TMAStoreProviderProps): react_jsx_runtime.JSX.Element;
 

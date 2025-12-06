@@ -24,7 +24,7 @@ export type QueryParams = Record<
 export interface TMAStoreContextState {
   query: (
     path: string,
-    params: QueryParams,
+    params?: QueryParams,
     options?: { onNotify?: (notify: Notify) => void }
   ) => Promise<unknown>;
   mutate: (
@@ -48,12 +48,7 @@ export interface Command {
   payload: unknown;
 }
 
-export interface MutateOptions {
-  optimistic?: {
-    execute: Command[];
-    undo: Command[];
-  };
-}
+export interface MutateOptions {}
 
 export interface Notify {
   type?: 'info' | 'success' | 'warning' | 'error' | 'default';
@@ -78,8 +73,8 @@ export type Store = {
   update: (commands: Command[]) => void;
 };
 
-export const getQueryKey = (path: string, params: QueryParams) => {
-  return Object.keys(params).length > 0
+export const getQueryKey = (path: string, params?: QueryParams) => {
+  return params && Object.keys(params).length > 0
     ? JSON.stringify({ path, params })
     : path;
 };
@@ -180,7 +175,7 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
   const query = useCallback(
     (
       path: string,
-      params: QueryParams = {},
+      params?: QueryParams,
       options?: {
         onNotify?: (notify: Notify) => void;
       }
@@ -205,7 +200,7 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
           loadingRef.current = loadingRef.current.filter((k) => k !== key);
 
           update([
-            ...res.commands,
+            ...(res.commands ?? []),
             {
               type: 'update',
               target: 'loading',
@@ -249,38 +244,20 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
 
   const mutate = useCallback(
     (action: string, payload?: unknown, options?: MutateOptions) => {
-      const optimistic = options?.optimistic;
-      const execute = optimistic?.execute;
+      return client.mutate(action, payload).then((res: ResponseData) => {
+        if (res.commands) {
+          update(res.commands);
+        }
 
-      if (execute) {
-        update(execute);
-      }
+        if (res.navigate) {
+          navigate(res.navigate.screen, {
+            type: 'replace',
+            params: res.navigate.params,
+          });
+        }
 
-      return client
-        .mutate(action, payload)
-        .then((res: ResponseData) => {
-          if (res.commands) {
-            update(res.commands);
-          }
-
-          if (res.navigate) {
-            navigate(res.navigate.screen, {
-              type: 'replace',
-              params: res.navigate.params,
-            });
-          }
-
-          return res;
-        })
-        .catch((error) => {
-          const undo = optimistic?.undo;
-
-          if (undo) {
-            update(undo);
-          }
-
-          throw error;
-        });
+        return res;
+      });
     },
     [client.mutate]
   );

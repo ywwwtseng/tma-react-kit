@@ -169,7 +169,7 @@ function TMAClientProvider({ children }) {
   );
   const query = useCallback(
     (path, params) => {
-      return request.post(url, { type: "query", path, params });
+      return request.post(url, { type: "query", path, params: params ?? {} });
     },
     [request]
   );
@@ -219,7 +219,7 @@ var TMAStoreContext = createContext3(
   void 0
 );
 var getQueryKey = (path, params) => {
-  return Object.keys(params).length > 0 ? JSON.stringify({ path, params }) : path;
+  return params && Object.keys(params).length > 0 ? JSON.stringify({ path, params }) : path;
 };
 var useTMAStore = create((set) => ({
   status: 0 /* Loading */,
@@ -294,7 +294,7 @@ function TMAStoreProvider({ children }) {
   const { update } = useTMAStore();
   const loadingRef = useRef([]);
   const query = useCallback2(
-    (path, params = {}, options) => {
+    (path, params, options) => {
       const key = getQueryKey(path, params);
       loadingRef.current.push(key);
       update([
@@ -309,7 +309,7 @@ function TMAStoreProvider({ children }) {
       return client.query(path, params).then((res) => {
         loadingRef.current = loadingRef.current.filter((k) => k !== key);
         update([
-          ...res.commands,
+          ...res.commands ?? [],
           {
             type: "update",
             target: "loading",
@@ -346,11 +346,6 @@ function TMAStoreProvider({ children }) {
   );
   const mutate = useCallback2(
     (action, payload, options) => {
-      const optimistic = options?.optimistic;
-      const execute = optimistic?.execute;
-      if (execute) {
-        update(execute);
-      }
       return client.mutate(action, payload).then((res) => {
         if (res.commands) {
           update(res.commands);
@@ -362,12 +357,6 @@ function TMAStoreProvider({ children }) {
           });
         }
         return res;
-      }).catch((error) => {
-        const undo = optimistic?.undo;
-        if (undo) {
-          update(undo);
-        }
-        throw error;
       });
     },
     [client.mutate]
@@ -714,32 +703,11 @@ ${text}` : text;
 import { useCallback as useCallback7 } from "react";
 function useSetLocale() {
   const { mutate } = useMutation("me:update");
-  const { language_code } = useTMAI18n();
   const setLocale = useCallback7(
     (locale) => {
-      void mutate(
-        {
-          language_code: locale
-        },
-        {
-          optimistic: {
-            execute: [
-              {
-                type: "merge",
-                target: "me",
-                payload: { language_code: locale }
-              }
-            ],
-            undo: [
-              {
-                type: "merge",
-                target: "me",
-                payload: { language_code }
-              }
-            ]
-          }
-        }
-      );
+      void mutate({
+        language_code: locale
+      });
     },
     [mutate]
   );
