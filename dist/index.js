@@ -346,11 +346,6 @@ function TMAStoreProvider({ children }) {
   );
   const mutate = useCallback2(
     (action, payload, options) => {
-      const optimistic = options?.optimistic;
-      const execute = optimistic?.execute;
-      if (execute) {
-        update(execute);
-      }
       return client.mutate(action, payload).then((res) => {
         if (res.commands) {
           update(res.commands);
@@ -362,12 +357,6 @@ function TMAStoreProvider({ children }) {
           });
         }
         return res;
-      }).catch((error) => {
-        const undo = optimistic?.undo;
-        if (undo) {
-          update(undo);
-        }
-        throw error;
       });
     },
     [client.mutate]
@@ -714,32 +703,11 @@ ${text}` : text;
 import { useCallback as useCallback7 } from "react";
 function useSetLocale() {
   const { mutate } = useMutation("me:update");
-  const { language_code } = useTMAI18n();
   const setLocale = useCallback7(
     (locale) => {
-      void mutate(
-        {
-          language_code: locale
-        },
-        {
-          optimistic: {
-            execute: [
-              {
-                type: "merge",
-                target: "me",
-                payload: { language_code: locale }
-              }
-            ],
-            undo: [
-              {
-                type: "merge",
-                target: "me",
-                payload: { language_code }
-              }
-            ]
-          }
-        }
-      );
+      void mutate({
+        language_code: locale
+      });
     },
     [mutate]
   );

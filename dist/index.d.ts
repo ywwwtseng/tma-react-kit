@@ -174,10 +174,6 @@ interface Command {
     payload: unknown;
 }
 interface MutateOptions {
-    optimistic?: {
-        execute: Command[];
-        undo: Command[];
-    };
 }
 interface Notify {
     type?: 'info' | 'success' | 'warning' | 'error' | 'default';
