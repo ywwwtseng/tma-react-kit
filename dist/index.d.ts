@@ -6,7 +6,7 @@ import * as zustand from 'zustand';
 import { ErrorResponse } from '@ywwwtseng/ywjs';
 import { TypographyProps as TypographyProps$1, Route, Tab, StackNavigatorProviderProps } from '@ywwwtseng/react-kit';
 export { ScreenType, useNavigate, useRoute } from '@ywwwtseng/react-kit';
-export { toast } from 'react-toastify';
+export { default as toast } from 'react-hot-toast';
 
 declare const TELEGRAM_ENV: {
     MOCK: {
@@ -176,7 +176,7 @@ interface Command {
 interface MutateOptions {
 }
 interface Notify {
-    type?: 'info' | 'success' | 'warning' | 'error' | 'default';
+    type?: 'info' | 'success';
     message: string;
 }
 interface ResponseData {

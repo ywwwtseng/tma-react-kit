@@ -1,7 +1,7 @@
 import { use, useState, useCallback } from 'react';
 import type { ErrorResponse } from '@ywwwtseng/ywjs';
 import { useRefValue } from '@ywwwtseng/react-kit';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 import {
   type ResponseData,
   MutateOptions,
@@ -43,7 +43,7 @@ export function useMutation(
         .mutate(action, payload, options)
         .then((res: ResponseData) => {
           if (res.notify) {
-            toast[res.notify.type || 'default']?.(t(res.notify.message));
+            (toast[res.notify.type] || toast)?.(t(res.notify.message));
           }
 
           return res;

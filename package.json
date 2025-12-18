@@ -27,7 +27,7 @@
     "@ywwwtseng/ywjs": "^0.5.1",
     "fp-ts": "^2.16.11",
     "immer": "^10.1.3",
-    "react-toastify": "^11.0.5",
+    "react-hot-toast": "^2.6.0",
     "zustand": "^5.0.8"
   }
 }

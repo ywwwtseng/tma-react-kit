@@ -1,1 +1,4 @@
-export { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
+
+export {  toast };
+

@@ -11,7 +11,7 @@ import { useNavigate } from '@ywwwtseng/react-kit';
 import { create } from 'zustand';
 import { produce } from 'immer';
 import { merge } from '@ywwwtseng/ywjs';
-import { ToastContainer } from 'react-toastify';
+import { Toaster } from 'react-hot-toast';
 import { useTMAClient } from './TMAClientContext';
 
 import { Status } from '../constants';
@@ -51,7 +51,7 @@ export interface Command {
 export interface MutateOptions {}
 
 export interface Notify {
-  type?: 'info' | 'success' | 'warning' | 'error' | 'default';
+  type?: 'info' | 'success';
   message: string;
 }
 
@@ -309,13 +309,15 @@ export function TMAStoreProvider({ children }: TMAStoreProviderProps) {
       <TMAStoreContext.Provider value={value}>
         {children}
       </TMAStoreContext.Provider>
-      <ToastContainer
-        closeOnClick
-        theme="dark"
-        closeButton={false}
-        autoClose={2400}
-        hideProgressBar
+      <Toaster
         position="top-center"
+        toastOptions={{
+          style: {
+            borderRadius: '10px',
+            background: '#333',
+            color: '#fff',
+          },
+        }}
       />
     </>
   );

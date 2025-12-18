@@ -1,6 +1,6 @@
 import { use, useEffect } from 'react';
 import { useRoute } from '@ywwwtseng/react-kit';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 import { useTMAI18n } from '../store/TMAI18nContext';
 import {
   useTMAStore,
@@ -47,7 +47,7 @@ export function useQuery<T = unknown>(path: string, options?: UseQueryOptions) {
 
     query(path, params, {
       onNotify: (notify) => {
-        toast[notify.type || 'default']?.(t(notify.message));
+        (toast[notify.type] || toast)?.(t(notify.message));
       },
     });
   }, [key, enabled, route.name]);

@@ -213,7 +213,7 @@ import { useNavigate } from "@ywwwtseng/react-kit";
 import { create } from "zustand";
 import { produce } from "immer";
 import { merge } from "@ywwwtseng/ywjs";
-import { ToastContainer } from "react-toastify";
+import { Toaster } from "react-hot-toast";
 import { Fragment, jsx as jsx3, jsxs } from "react/jsx-runtime";
 var TMAStoreContext = createContext3(
   void 0
@@ -401,14 +401,16 @@ function TMAStoreProvider({ children }) {
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsx3(TMAStoreContext.Provider, { value, children }),
     /* @__PURE__ */ jsx3(
-      ToastContainer,
+      Toaster,
       {
-        closeOnClick: true,
-        theme: "dark",
-        closeButton: false,
-        autoClose: 2400,
-        hideProgressBar: true,
-        position: "top-center"
+        position: "top-center",
+        toastOptions: {
+          style: {
+            borderRadius: "10px",
+            background: "#333",
+            color: "#fff"
+          }
+        }
       }
     )
   ] });
@@ -484,7 +486,7 @@ function TMAProvider({
 // src/hooks/useQuery.ts
 import { use as use4, useEffect as useEffect3 } from "react";
 import { useRoute } from "@ywwwtseng/react-kit";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 function useQuery(path, options) {
   const route = useRoute();
   const context = use4(TMAStoreContext);
@@ -511,7 +513,7 @@ function useQuery(path, options) {
     }
     query(path, params, {
       onNotify: (notify) => {
-        toast[notify.type || "default"]?.(t(notify.message));
+        (toast[notify.type] || toast)?.(t(notify.message));
       }
     });
   }, [key, enabled, route.name]);
@@ -622,7 +624,7 @@ function useInfiniteQuery(path, options) {
 // src/hooks/useMutation.ts
 import { use as use6, useState as useState3, useCallback as useCallback5 } from "react";
 import { useRefValue } from "@ywwwtseng/react-kit";
-import { toast as toast2 } from "react-toastify";
+import toast2 from "react-hot-toast";
 function useMutation(action, { onError } = {}) {
   const context = use6(TMAStoreContext);
   const { t } = useTMAI18n();
@@ -640,7 +642,7 @@ function useMutation(action, { onError } = {}) {
       setIsLoading(true);
       return context.mutate(action, payload, options).then((res) => {
         if (res.notify) {
-          toast2[res.notify.type || "default"]?.(t(res.notify.message));
+          (toast2[res.notify.type] || toast2)?.(t(res.notify.message));
         }
         return res;
       }).catch((res) => {
@@ -955,7 +957,7 @@ var Account = {
 };
 
 // src/lib.ts
-import { toast as toast3 } from "react-toastify";
+import toast3 from "react-hot-toast";
 
 // src/TMA.tsx
 import { useState as useState7 } from "react";
