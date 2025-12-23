@@ -1,12 +1,8 @@
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import * as react from 'react';
-import { PropsWithChildren, RefObject, ReactNode, ElementType, CSSProperties, ReactElement } from 'react';
+import { PropsWithChildren, ReactNode, ElementType, CSSProperties, ReactElement } from 'react';
 import { LaunchParamsLike } from '@tma.js/transformers';
-import * as zustand from 'zustand';
-import { ErrorResponse } from '@ywwwtseng/ywjs';
-import { TypographyProps as TypographyProps$1, Route, Tab, StackNavigatorProviderProps } from '@ywwwtseng/react-kit';
-export { ScreenType, useNavigate, useRoute } from '@ywwwtseng/react-kit';
-export { default as toast } from 'react-hot-toast';
+import { AppProviderProps, TypographyProps as TypographyProps$1, Route, Tab, StackNavigatorProviderProps } from '@ywwwtseng/react-kit';
 
 declare const TELEGRAM_ENV: {
     MOCK: {
@@ -141,124 +137,14 @@ interface TMASDKProviderProps extends PropsWithChildren {
 declare function TMASDKProvider({ env, background, children, }: TMASDKProviderProps): react_jsx_runtime.JSX.Element;
 declare function useTMASDK(): TMASDKContextState;
 
-interface TMAClientContextState {
-    query: (path: string, params?: Record<string, string | number | boolean>) => Promise<unknown>;
-    mutate: <TPayload>(action: string, payload: TPayload) => Promise<unknown>;
+interface TMAProviderProps extends React.PropsWithChildren, Omit<AppProviderProps, 'children'> {
 }
-declare const TMAClientContext: react.Context<TMAClientContextState>;
-declare function TMAClientProvider({ children }: PropsWithChildren): react_jsx_runtime.JSX.Element;
-declare function useTMAClient(): TMAClientContextState;
-
-declare enum Status {
-    Loading = 0,
-    Authenticated = 1,
-    Unauthenticated = 2,
-    Forbidden = 3
-}
-
-type QueryParams = Record<string, string | number | boolean | null | undefined>;
-interface TMAStoreContextState {
-    query: (path: string, params?: QueryParams, options?: {
-        onNotify?: (notify: Notify) => void;
-    }) => Promise<unknown>;
-    mutate: (action: string, payload: unknown, options?: MutateOptions) => Promise<unknown>;
-    update: (commands: Command[]) => void;
-    loadingRef: RefObject<string[]>;
-}
-declare const TMAStoreContext: react.Context<TMAStoreContextState>;
-interface TMAStoreProviderProps extends PropsWithChildren {
-}
-interface Command {
-    type: 'update' | 'merge' | 'replace' | 'unshift' | 'push' | 'delete';
-    target?: string;
-    payload: unknown;
-}
-interface MutateOptions {
-}
-interface Notify {
-    type?: 'info' | 'success';
-    message: string;
-}
-interface ResponseData {
-    commands?: Command[];
-    data?: unknown;
-    notify?: Notify;
-    navigate?: {
-        screen: string;
-        params: Record<string, string | number | boolean>;
-    };
-    ok: boolean;
-}
-type Store = {
-    status: Status;
-    state: Record<string, unknown>;
-    loading: string[];
-    update: (commands: Command[]) => void;
-};
-declare const getQueryKey: (path: string, params?: QueryParams) => string;
-declare const useTMAStore: zustand.UseBoundStore<zustand.StoreApi<Store>>;
-declare function TMAStoreProvider({ children }: TMAStoreProviderProps): react_jsx_runtime.JSX.Element;
-
-interface TMAI18nContextState {
-    t: (key: string, params?: Record<string, string | number>) => string;
-    language_code: string;
-}
-declare const TMAI18nContext: react.Context<TMAI18nContextState>;
-type Locale = Record<string, Record<string, string>>;
-type Locales = Record<string, Locale>;
-interface TMAI18nProviderProps extends PropsWithChildren {
-    locales?: Locales;
-    callback?: string;
-}
-declare function TMAI18nProvider({ locales, callback, children, }: TMAI18nProviderProps): react_jsx_runtime.JSX.Element;
-declare function useTMAI18n(): TMAI18nContextState;
-
-interface TMAProviderProps extends React.PropsWithChildren, Omit<TMASDKProviderProps, 'children'>, Omit<TMAStoreProviderProps, 'children'>, Omit<TMAI18nProviderProps, 'children'> {
-}
-declare function TMAProvider({ env, background, locales, children, }: TMAProviderProps): react_jsx_runtime.JSX.Element;
-
-declare function useStoreState<T = unknown>(path: string | string[]): T | undefined;
-
-interface UseQueryOptions$1 {
-    params?: QueryParams;
-    refetchOnMount?: boolean;
-    enabled?: boolean;
-}
-declare function useQuery<T = unknown>(path: string, options?: UseQueryOptions$1): {
-    isLoading: boolean;
-    data: T | undefined;
-};
-
-interface UseQueryOptions {
-    params: QueryParams & {
-        limit: number;
-    };
-    refetchOnMount?: boolean;
-    enabled?: boolean;
-}
-declare function useInfiniteQuery<T = unknown>(path: string, options: UseQueryOptions): {
-    data: T | undefined;
-    isLoading: boolean;
-    hasNextPage: boolean;
-    fetchNextPage: () => void;
-};
-
-interface UseMutationOptions {
-    onError?: (error: {
-        data: ErrorResponse;
-    }) => void;
-}
-declare function useMutation(action: string, { onError }?: UseMutationOptions): {
-    mutate: <T = unknown>(payload?: T, options?: MutateOptions) => Promise<ResponseData>;
-    isLoading: boolean;
-};
+declare function TMAProvider({ children, ...appProviderProps }: TMAProviderProps): react_jsx_runtime.JSX.Element;
 
 declare function useShare(): ({ url, text }: {
     url: string;
     text: string;
 }) => void;
-
-declare function useSetLocale(): (locale: string) => void;
 
 interface TypographyProps extends TypographyProps$1 {
     i18n?: string;
@@ -299,10 +185,11 @@ declare const Account: {
 declare function openTelegramLink(url: string | URL): void;
 declare function openWebLink(url: string | URL): void;
 
-interface TMAProps extends TMAProviderProps, TMALayoutProps, Omit<StackNavigatorProviderProps, 'layout' | 'drawer'> {
+interface TMAProps extends Omit<TMASDKProviderProps, 'children'>, Omit<TMAProviderProps, 'children'>, Omit<StackNavigatorProviderProps, 'layout' | 'drawer'> {
     launchScreen?: ReactElement;
     children?: ReactElement;
+    layoutProps?: TMALayoutProps;
 }
-declare function TMA({ env, locales, launchScreen, screens, headerHeight, tabBarHeight, children, ...layoutProps }: TMAProps): react_jsx_runtime.JSX.Element;
+declare function TMA({ env, background, launchScreen, screens, children, layoutProps, ...appProviderProps }: TMAProps): react_jsx_runtime.JSX.Element;
 
-export { Account, Avatar, type Command, type Locale, type Locales, type MutateOptions, type Notify, type QueryParams, type ResponseData, type Store, TELEGRAM_ENV, TMA, TMAClientContext, type TMAClientContextState, TMAClientProvider, TMAI18nContext, type TMAI18nContextState, TMAI18nProvider, type TMAI18nProviderProps, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, TMAStoreContext, type TMAStoreContextState, TMAStoreProvider, type TMAStoreProviderProps, Typography, type UseMutationOptions, type User, getQueryKey, openTelegramLink, openWebLink, useInfiniteQuery, useMutation, useQuery, useSetLocale, useShare, useStoreState, useTMAClient, useTMAI18n, useTMASDK, useTMAStore, useTelegramSDK };
+export { Account, Avatar, TELEGRAM_ENV, TMA, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, Typography, type User, openTelegramLink, openWebLink, useShare, useTMASDK, useTelegramSDK };

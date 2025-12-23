@@ -3,68 +3,65 @@ import {
   StackNavigatorProvider,
   StackNavigatorProviderProps,
   Navigator,
-  useNavigate,
-  useRoute,
-  ScreenType,
 } from '@ywwwtseng/react-kit';
+import { TMASDKProvider, TMASDKProviderProps } from './store/TMASDKContext';
 import { TMAProvider, TMAProviderProps } from './store/TMAContext';
 import { TMALayout, TMALayoutProps } from './components/TMALayout';
 import { LaunchScreen } from './components/LaunchScreen';
 
-export { useNavigate, useRoute, ScreenType };
-
 export interface TMAProps
-  extends TMAProviderProps,
-    TMALayoutProps,
+  extends 
+    Omit<TMASDKProviderProps, 'children'>,
+    Omit<TMAProviderProps, 'children'>,
     Omit<StackNavigatorProviderProps, 'layout' | 'drawer'> {
   launchScreen?: ReactElement;
   children?: ReactElement;
+  layoutProps?: TMALayoutProps;
 }
 
 export function TMA({
   env,
-  locales,
+  background,
   launchScreen,
   screens,
-  headerHeight = 56,
-  tabBarHeight = 60,
   children,
-  ...layoutProps
+  layoutProps = {},
+  ...appProviderProps
 }: TMAProps) {
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <>
-      <StackNavigatorProvider screens={screens}>
-        <TMAProvider env={env} locales={locales}>
+    <StackNavigatorProvider screens={screens}>
+      <TMASDKProvider env={env} background={background}>
+        <TMAProvider {...appProviderProps}>
           <TMALayout
-            {...layoutProps}
             styles={layoutProps.styles}
-            headerHeight={headerHeight}
-            tabBarHeight={tabBarHeight}
+            headerHeight={layoutProps.headerHeight ?? 56}
+            tabBarHeight={layoutProps.tabBarHeight ?? 60}
+            {...layoutProps}
           >
             <Navigator
               drawer={{
                 style: {
-                  paddingTop: headerHeight,
+                  paddingTop: layoutProps.headerHeight ?? 56,
                   paddingBottom: 20,
                 },
               }}
             />
             {children}
+            {launchScreen && !loaded && (
+              <LaunchScreen
+                onHide={() => {
+                  document.body.classList.add('loaded');
+                  setLoaded(true);
+                }}
+              >
+                {launchScreen}
+              </LaunchScreen>
+            )}
           </TMALayout>
         </TMAProvider>
-      </StackNavigatorProvider>
-      {launchScreen && !loaded && (
-        <LaunchScreen
-          onHide={() => {
-            document.body.classList.add('loaded');
-            setLoaded(true);
-          }}
-        >
-          {launchScreen}
-        </LaunchScreen>
-      )}
-    </>
+      </TMASDKProvider>
+    </StackNavigatorProvider>
   );
 }

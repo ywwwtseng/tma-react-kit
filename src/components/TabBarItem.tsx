@@ -1,6 +1,6 @@
 import { useState, type ReactNode, CSSProperties } from 'react';
 import { isTMA, postEvent } from '@tma.js/bridge';
-import { useTMAI18n } from '../store/TMAI18nContext';
+import { useI18n } from '@ywwwtseng/react-kit';
 
 export function TabBarItem({
   icon,
@@ -15,7 +15,7 @@ export function TabBarItem({
   style?: CSSProperties;
   onClick?: () => void;
 }) {
-  const { t } = useTMAI18n();
+  const { t } = useI18n();
   const [isActivating, setIsActivating] = useState(false);
 
   return (

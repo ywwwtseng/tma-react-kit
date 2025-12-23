@@ -1,5 +1,5 @@
-import { type PropsWithChildren, useEffect, useState, useRef } from 'react';
-import { useTMAStore } from '../store/TMAStoreContext';
+import { type PropsWithChildren, useEffect, useRef, use } from 'react';
+import { TMAInitContext } from '../store/TMAInitContext';
 import { Status } from '../constants';
 
 export interface LaunchScreenProps extends PropsWithChildren {
@@ -13,7 +13,7 @@ export function LaunchScreen({
   onHide,
 }: LaunchScreenProps) {
   const startTime = useRef(Date.now());
-  const { status } = useTMAStore();
+  const { status } = use(TMAInitContext);
 
   useEffect(() => {
     if (status === Status.Loading) {

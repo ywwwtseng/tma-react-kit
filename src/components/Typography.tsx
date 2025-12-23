@@ -1,5 +1,8 @@
-import { Typography as ReactKitTypography, type TypographyProps as ReactKitTypographyProps } from '@ywwwtseng/react-kit';
-import { useTMAI18n } from '../store/TMAI18nContext';
+import {
+  Typography as ReactKitTypography,
+  type TypographyProps as ReactKitTypographyProps,
+  useI18n,
+} from '@ywwwtseng/react-kit';
 
 interface TypographyProps extends ReactKitTypographyProps {
   i18n?: string;
@@ -7,7 +10,7 @@ interface TypographyProps extends ReactKitTypographyProps {
 }
 
 export function Typography({ i18n, params, children, ...props }: TypographyProps) {
-  const { t } = useTMAI18n();
+  const { t } = useI18n();
 
   return (
     <ReactKitTypography {...props}>{i18n ? t(i18n, params) : children}</ReactKitTypography>

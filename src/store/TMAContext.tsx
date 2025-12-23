@@ -1,27 +1,46 @@
-import { TMASDKProvider, TMASDKProviderProps } from './TMASDKContext';
-import { TMAClientProvider } from './TMAClientContext';
-import { TMAStoreProvider, TMAStoreProviderProps } from './TMAStoreContext';
-import { TMAI18nProvider, TMAI18nProviderProps } from './TMAI18nContext';
+import { useCallback } from 'react';
+import { AppProvider, AppProviderProps } from '@ywwwtseng/react-kit';
+import { TMAInitProvider } from './TMAInitContext';
+import { useTMASDK } from './TMASDKContext';
 
 export interface TMAProviderProps
   extends React.PropsWithChildren,
-    Omit<TMASDKProviderProps, 'children'>,
-    Omit<TMAStoreProviderProps, 'children'>,
-    Omit<TMAI18nProviderProps, 'children'> {}
+    Omit<AppProviderProps, 'children'> {}
+
+const toasterProps = {
+  position: 'top-center',
+  toastOptions: {
+    style: {
+      borderRadius: '10px',
+      background: '#333',
+      color: '#fff',
+    },
+  },
+} as const;
 
 export function TMAProvider({
-  env,
-  background,
-  locales,
   children,
+  ...appProviderProps
 }: TMAProviderProps) {
+  const { initDataRaw } = useTMASDK();
+
+  const transformRequest = useCallback(
+    (headers: Headers) => {
+      headers.set('Authorization', `tma ${initDataRaw}`);
+      return headers;
+    },
+    [initDataRaw]
+  );
+
   return (
-    <TMASDKProvider env={env} background={background}>
-      <TMAClientProvider>
-        <TMAStoreProvider>
-          <TMAI18nProvider locales={locales}>{children}</TMAI18nProvider>
-        </TMAStoreProvider>
-      </TMAClientProvider>
-    </TMASDKProvider>
+      <AppProvider
+        transformRequest={transformRequest}
+        toasterProps={toasterProps}
+        {...appProviderProps}
+      >
+        <TMAInitProvider>
+          {children}
+        </TMAInitProvider>
+      </AppProvider>
   );
 }
