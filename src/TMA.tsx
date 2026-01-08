@@ -13,7 +13,7 @@ export interface TMAProps
   extends 
     Omit<TMASDKProviderProps, 'children'>,
     Omit<TMAProviderProps, 'children'>,
-    Omit<StackNavigatorProviderProps, 'layout' | 'drawer'> {
+    Omit<StackNavigatorProviderProps, 'layout' | 'drawer' | 'children'> {
   launchScreen?: ReactElement;
   children?: ReactElement;
   layoutProps?: TMALayoutProps;

@@ -185,7 +185,7 @@ declare const Account: {
 declare function openTelegramLink(url: string | URL): void;
 declare function openWebLink(url: string | URL): void;
 
-interface TMAProps extends Omit<TMASDKProviderProps, 'children'>, Omit<TMAProviderProps, 'children'>, Omit<StackNavigatorProviderProps, 'layout' | 'drawer'> {
+interface TMAProps extends Omit<TMASDKProviderProps, 'children'>, Omit<TMAProviderProps, 'children'>, Omit<StackNavigatorProviderProps, 'layout' | 'drawer' | 'children'> {
     launchScreen?: ReactElement;
     children?: ReactElement;
     layoutProps?: TMALayoutProps;
