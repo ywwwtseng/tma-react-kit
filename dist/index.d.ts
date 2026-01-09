@@ -156,6 +156,7 @@ interface TypographyProps extends TypographyProps$1 {
 declare function Typography({ i18n, params, children, ...props }: TypographyProps): react_jsx_runtime.JSX.Element;
 
 interface TMALayoutProps extends PropsWithChildren {
+    hideHeader?: boolean;
     headerLeft?: ReactNode | ((route: Route) => ReactNode);
     headerRight?: ReactNode | ((route: Route) => ReactNode);
     backIcon?: ReactNode;
@@ -163,8 +164,6 @@ interface TMALayoutProps extends PropsWithChildren {
     tabs?: (Tab & {
         modal?: ElementType;
     })[];
-    headerHeight?: number;
-    tabBarHeight?: number;
     styles?: {
         root?: CSSProperties;
         header?: CSSProperties;
@@ -175,7 +174,7 @@ interface TMALayoutProps extends PropsWithChildren {
         tabBarItem?: CSSProperties;
     };
 }
-declare function TMALayout({ headerLeft, headerRight, backIcon, backText, tabs, headerHeight, tabBarHeight, styles, children, }: TMALayoutProps): react_jsx_runtime.JSX.Element;
+declare function TMALayout({ hideHeader, headerLeft, headerRight, backIcon, backText, tabs, styles, children, }: TMALayoutProps): react_jsx_runtime.JSX.Element;
 
 declare function Avatar({ style, size, }: {
     style?: React.CSSProperties;
@@ -190,9 +189,10 @@ declare function openWebLink(url: string | URL): void;
 
 interface TMAProps extends Omit<TMASDKProviderProps, 'children'>, Omit<TMAProviderProps, 'children'>, Omit<StackNavigatorProviderProps, 'layout' | 'drawer' | 'children'> {
     launchScreen?: ReactElement;
-    children?: ReactElement;
     layoutProps?: TMALayoutProps;
+    onLoaded?: () => void;
+    children?: ReactElement;
 }
-declare function TMA({ env, background, launchScreen, screens, children, layoutProps, ...appProviderProps }: TMAProps): react_jsx_runtime.JSX.Element;
+declare function TMA({ env, background, launchScreen, screens, children, layoutProps, onLoaded, ...appProviderProps }: TMAProps): react_jsx_runtime.JSX.Element;
 
 export { Account, Avatar, TELEGRAM_ENV, TMA, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, Typography, type User, openTelegramLink, openWebLink, useBackButton, useShare, useTMASDK, useTelegramSDK };

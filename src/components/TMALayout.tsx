@@ -20,13 +20,12 @@ import { TabBarItem } from './TabBarItem';
 import { Typography } from './Typography';
 
 export interface TMALayoutProps extends PropsWithChildren {
+  hideHeader?: boolean;
   headerLeft?: ReactNode | ((route: Route) => ReactNode);
   headerRight?: ReactNode | ((route: Route) => ReactNode);
   backIcon?: ReactNode;
   backText?: string;
   tabs?: (Tab & { modal?: ElementType })[];
-  headerHeight?: number;
-  tabBarHeight?: number;
   styles?: {
     root?: CSSProperties;
     header?: CSSProperties;
@@ -39,6 +38,7 @@ export interface TMALayoutProps extends PropsWithChildren {
 }
 
 export function TMALayout({
+  hideHeader = false,
   headerLeft = (route: Route) =>
     route.type === ScreenType.PAGE ? (
       <Typography size="6" weight={500} i18n={route.title} />
@@ -46,9 +46,7 @@ export function TMALayout({
   headerRight,
   backIcon,
   backText = 'Back',
-  tabs = [],
-  headerHeight = 56,
-  tabBarHeight = 60,
+  tabs,
   styles = {},
   children,
 }: TMALayoutProps) {
@@ -57,10 +55,13 @@ export function TMALayout({
   const { platform } = useTMASDK();
   const [modal, setModal] = useState<ReactNode | null>(null);
   const safeAreaBottom = platform === 'ios' ? 20 : 12;
+  const hasTabs = !!tabs;
+  const tabBarHeight = hasTabs ? 60 : 0;
+  const headerHeight = hideHeader ? 0 : 56;
 
   return (
     <Layout.Root style={styles?.root}>
-      {createPortal(
+      {!hideHeader && createPortal(
         <Layout.Header
           style={{
             ...styles?.header,
@@ -136,31 +137,33 @@ export function TMALayout({
       >
         {children}
       </Layout.Main>
-      <TabBar
-        style={{
-          ...styles?.tabBar,
-          height: tabBarHeight + safeAreaBottom,
-          display: route.type === ScreenType.PAGE ? 'flex' : 'none',
-        }}
-        items={tabs}
-        renderItem={(tab: Tab & { modal?: ElementType }) => (
-          <TabBarItem
-            key={tab.name}
-            style={styles?.tabBarItem}
-            icon={tab.icon}
-            text={tab.title}
-            isActive={tab.name === route.name}
-            onClick={() => {
-              if (tab.modal) {
-                const Modal = tab.modal;
-                setModal(<Modal open onClose={() => setModal(null)} />);
-              } else {
-                navigate(tab.name);
-              }
-            }}
-          />
-        )}
-      />
+      {hasTabs && (
+        <TabBar
+          style={{
+            ...styles?.tabBar,
+            height: tabBarHeight + safeAreaBottom,
+            display: route.type === ScreenType.PAGE ? 'flex' : 'none',
+          }}
+          items={tabs}
+          renderItem={(tab: Tab & { modal?: ElementType }) => (
+            <TabBarItem
+              key={tab.name}
+              style={styles?.tabBarItem}
+              icon={tab.icon}
+              text={tab.title}
+              isActive={tab.name === route.name}
+              onClick={() => {
+                if (tab.modal) {
+                  const Modal = tab.modal;
+                  setModal(<Modal open onClose={() => setModal(null)} />);
+                } else {
+                  navigate(tab.name);
+                }
+              }}
+            />
+          )}
+        />
+      )}
       {modal}
     </Layout.Root>
   );

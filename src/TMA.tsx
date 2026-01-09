@@ -3,6 +3,7 @@ import {
   StackNavigatorProvider,
   StackNavigatorProviderProps,
   StackView,
+  useIsMounted
 } from '@ywwwtseng/react-kit';
 import { TMASDKProvider, TMASDKProviderProps } from './store/TMASDKContext';
 import { TMAProvider, TMAProviderProps } from './store/TMAContext';
@@ -15,8 +16,9 @@ export interface TMAProps
     Omit<TMAProviderProps, 'children'>,
     Omit<StackNavigatorProviderProps, 'layout' | 'drawer' | 'children'> {
   launchScreen?: ReactElement;
-  children?: ReactElement;
   layoutProps?: TMALayoutProps;
+  onLoaded?: () => void;
+  children?: ReactElement;
 }
 
 export function TMA({
@@ -26,34 +28,37 @@ export function TMA({
   screens,
   children,
   layoutProps = {},
+  onLoaded,
   ...appProviderProps
 }: TMAProps) {
+  const isMounted = useIsMounted();
   const [loaded, setLoaded] = useState(false);
+  const hasTabs = !!layoutProps.tabs;
+
+  if (!isMounted) {
+    return null;
+  }
+  
 
   return (
     <StackNavigatorProvider screens={screens}>
       <TMASDKProvider env={env} background={background}>
         <TMAProvider {...appProviderProps}>
-          <TMALayout
-            styles={layoutProps.styles}
-            headerHeight={layoutProps.headerHeight ?? 56}
-            tabBarHeight={layoutProps.tabBarHeight ?? 60}
-            {...layoutProps}
-          >
+          <TMALayout {...layoutProps}>
             <StackView
               drawer={{
-                style: {
-                  paddingTop: layoutProps.headerHeight ?? 56,
-                  paddingBottom: 20,
-                },
+                style: hasTabs ? {
+                    paddingTop: layoutProps.hideHeader ? 0 : 56,
+                    paddingBottom: 20,
+                  } : {},
               }}
             />
             {children}
             {launchScreen && !loaded && (
               <LaunchScreen
                 onHide={() => {
-                  document.body.classList.add('loaded');
                   setLoaded(true);
+                  onLoaded?.();
                 }}
               >
                 {launchScreen}

@@ -369,13 +369,12 @@ function TabBarItem({
 // src/components/TMALayout.tsx
 import { jsx as jsx6, jsxs as jsxs2 } from "react/jsx-runtime";
 function TMALayout({
+  hideHeader = false,
   headerLeft = (route) => route.type === ScreenType.PAGE ? /* @__PURE__ */ jsx6(Typography, { size: "6", weight: 500, i18n: route.title }) : void 0,
   headerRight,
   backIcon,
   backText = "Back",
-  tabs = [],
-  headerHeight = 56,
-  tabBarHeight = 60,
+  tabs,
   styles = {},
   children
 }) {
@@ -384,8 +383,11 @@ function TMALayout({
   const { platform } = useTMASDK();
   const [modal, setModal] = useState4(null);
   const safeAreaBottom = platform === "ios" ? 20 : 12;
+  const hasTabs = !!tabs;
+  const tabBarHeight = hasTabs ? 60 : 0;
+  const headerHeight = hideHeader ? 0 : 56;
   return /* @__PURE__ */ jsxs2(Layout.Root, { style: styles?.root, children: [
-    createPortal(
+    !hideHeader && createPortal(
       /* @__PURE__ */ jsxs2(
         Layout.Header,
         {
@@ -455,7 +457,7 @@ function TMALayout({
         children
       }
     ),
-    /* @__PURE__ */ jsx6(
+    hasTabs && /* @__PURE__ */ jsx6(
       TabBar,
       {
         style: {
@@ -528,7 +530,8 @@ var Account = {
 import { useState as useState5 } from "react";
 import {
   StackNavigatorProvider,
-  StackView
+  StackView,
+  useIsMounted
 } from "@ywwwtseng/react-kit";
 
 // src/components/LaunchScreen.tsx
@@ -600,42 +603,39 @@ function TMA({
   screens,
   children,
   layoutProps = {},
+  onLoaded,
   ...appProviderProps
 }) {
+  const isMounted = useIsMounted();
   const [loaded, setLoaded] = useState5(false);
-  return /* @__PURE__ */ jsx9(StackNavigatorProvider, { screens, children: /* @__PURE__ */ jsx9(TMASDKProvider, { env, background, children: /* @__PURE__ */ jsx9(TMAProvider, { ...appProviderProps, children: /* @__PURE__ */ jsxs3(
-    TMALayout,
-    {
-      styles: layoutProps.styles,
-      headerHeight: layoutProps.headerHeight ?? 56,
-      tabBarHeight: layoutProps.tabBarHeight ?? 60,
-      ...layoutProps,
-      children: [
-        /* @__PURE__ */ jsx9(
-          StackView,
-          {
-            drawer: {
-              style: {
-                paddingTop: layoutProps.headerHeight ?? 56,
-                paddingBottom: 20
-              }
-            }
-          }
-        ),
-        children,
-        launchScreen && !loaded && /* @__PURE__ */ jsx9(
-          LaunchScreen,
-          {
-            onHide: () => {
-              document.body.classList.add("loaded");
-              setLoaded(true);
-            },
-            children: launchScreen
-          }
-        )
-      ]
-    }
-  ) }) }) });
+  const hasTabs = !!layoutProps.tabs;
+  if (!isMounted) {
+    return null;
+  }
+  return /* @__PURE__ */ jsx9(StackNavigatorProvider, { screens, children: /* @__PURE__ */ jsx9(TMASDKProvider, { env, background, children: /* @__PURE__ */ jsx9(TMAProvider, { ...appProviderProps, children: /* @__PURE__ */ jsxs3(TMALayout, { ...layoutProps, children: [
+    /* @__PURE__ */ jsx9(
+      StackView,
+      {
+        drawer: {
+          style: hasTabs ? {
+            paddingTop: layoutProps.hideHeader ? 0 : 56,
+            paddingBottom: 20
+          } : {}
+        }
+      }
+    ),
+    children,
+    launchScreen && !loaded && /* @__PURE__ */ jsx9(
+      LaunchScreen,
+      {
+        onHide: () => {
+          setLoaded(true);
+          onLoaded?.();
+        },
+        children: launchScreen
+      }
+    )
+  ] }) }) }) });
 }
 export {
   Account,
