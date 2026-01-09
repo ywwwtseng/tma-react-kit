@@ -1,9 +1,10 @@
 // src/store/TMASDKContext.tsx
 import {
   useMemo as useMemo2,
+  useState,
+  useCallback,
   useEffect,
   createContext,
-  useState,
   use
 } from "react";
 import { postEvent, isTMA as isTMA2 } from "@tma.js/bridge";
@@ -97,9 +98,7 @@ function useTelegramSDK(env) {
 
 // src/store/TMASDKContext.tsx
 import { jsx } from "react/jsx-runtime";
-var TMASDKContext = createContext(
-  void 0
-);
+var TMASDKContext = createContext(void 0);
 function TMASDKProvider({
   env,
   background = "#000000",
@@ -109,17 +108,21 @@ function TMASDKProvider({
   const user = launchParams?.tgWebAppData?.user;
   const platform = launchParams?.tgWebAppPlatform;
   const [avatar, setAvatar] = useState(null);
+  const setupBackButton = useCallback((is_visible) => {
+    postEvent("web_app_setup_back_button", { is_visible });
+  }, []);
   const value = useMemo2(
     () => ({
       initDataRaw,
       user,
       platform,
-      avatar
+      avatar,
+      setupBackButton
     }),
-    [initDataRaw, user, platform, avatar]
+    [initDataRaw, user, platform, avatar, setupBackButton]
   );
   useClientOnce(() => {
-    if (env === TELEGRAM_ENV.DEFAULT && isTMA2()) {
+    if (isTMA2()) {
       postEvent("web_app_set_header_color", { color: background });
       postEvent("web_app_set_bottom_bar_color", { color: background });
       postEvent("web_app_set_background_color", { color: background });
@@ -146,7 +149,7 @@ function useTMASDK() {
 }
 
 // src/store/TMAContext.tsx
-import { useCallback } from "react";
+import { useCallback as useCallback2 } from "react";
 import { AppProvider } from "@ywwwtseng/react-kit";
 
 // src/store/TMAInitContext.tsx
@@ -202,7 +205,7 @@ function TMAProvider({
   ...appProviderProps
 }) {
   const { initDataRaw } = useTMASDK();
-  const transformRequest = useCallback(
+  const transformRequest = useCallback2(
     (headers) => {
       headers.set("Authorization", `tma ${initDataRaw}`);
       return headers;
@@ -221,7 +224,7 @@ function TMAProvider({
 }
 
 // src/hooks/useShare.ts
-import { useCallback as useCallback2 } from "react";
+import { useCallback as useCallback3 } from "react";
 
 // src/utils.ts
 import { postEvent as postEvent2 } from "@tma.js/bridge";
@@ -247,7 +250,7 @@ function openWebLink(url) {
 // src/hooks/useShare.ts
 function useShare() {
   const { platform } = useTMASDK();
-  return useCallback2(({ url, text }) => {
+  return useCallback3(({ url, text }) => {
     const isWebOrDesktop = platform?.includes("web") || platform === "macos" || platform === "tdesktop";
     text = isWebOrDesktop ? `
 ${text}` : text;
@@ -255,6 +258,26 @@ ${text}` : text;
       `https://t.me/share/url?` + new URLSearchParams({ url, text: text || "" }).toString().replace(/\+/g, "%20")
     );
   }, []);
+}
+
+// src/hooks/useBackButton.ts
+import { useEffect as useEffect3 } from "react";
+import { useNavigate } from "@ywwwtseng/react-kit";
+import { isTMA as isTMA3, on } from "@tma.js/bridge";
+function useBackButton(is_visible) {
+  const navigate = useNavigate();
+  const { setupBackButton } = useTMASDK();
+  useEffect3(() => {
+    if (isTMA3()) {
+      setupBackButton(is_visible);
+      const off = on("back_button_pressed", () => {
+        navigate(-1);
+      });
+      return () => {
+        off();
+      };
+    }
+  }, [is_visible]);
 }
 
 // src/components/Typography.tsx
@@ -276,14 +299,14 @@ import { createPortal } from "react-dom";
 import {
   Layout,
   TabBar,
-  useNavigate,
+  useNavigate as useNavigate2,
   useRoute,
   ScreenType
 } from "@ywwwtseng/react-kit";
 
 // src/components/TabBarItem.tsx
 import { useState as useState3 } from "react";
-import { isTMA as isTMA3, postEvent as postEvent3 } from "@tma.js/bridge";
+import { isTMA as isTMA4, postEvent as postEvent3 } from "@tma.js/bridge";
 import { useI18n as useI18n2 } from "@ywwwtseng/react-kit";
 import { jsx as jsx5, jsxs } from "react/jsx-runtime";
 function TabBarItem({
@@ -314,7 +337,7 @@ function TabBarItem({
       },
       onClick: () => {
         if (isActive || isActivating) return;
-        if (isTMA3()) {
+        if (isTMA4()) {
           postEvent3("web_app_trigger_haptic_feedback", {
             type: "impact",
             impact_style: "light"
@@ -357,7 +380,7 @@ function TMALayout({
   children
 }) {
   const route = useRoute();
-  const navigate = useNavigate();
+  const navigate = useNavigate2();
   const { platform } = useTMASDK();
   const [modal, setModal] = useState4(null);
   const safeAreaBottom = platform === "ios" ? 20 : 12;
@@ -509,7 +532,7 @@ import {
 } from "@ywwwtseng/react-kit";
 
 // src/components/LaunchScreen.tsx
-import { useEffect as useEffect3, useRef, use as use2 } from "react";
+import { useEffect as useEffect4, useRef, use as use2 } from "react";
 import { jsx as jsx8 } from "react/jsx-runtime";
 function LaunchScreen({
   children,
@@ -518,7 +541,7 @@ function LaunchScreen({
 }) {
   const startTime = useRef(Date.now());
   const { status } = use2(TMAInitContext);
-  useEffect3(() => {
+  useEffect4(() => {
     if (status === 0 /* Loading */) {
       return;
     }
@@ -626,6 +649,7 @@ export {
   Typography,
   openTelegramLink,
   openWebLink,
+  useBackButton,
   useShare,
   useTMASDK,
   useTelegramSDK

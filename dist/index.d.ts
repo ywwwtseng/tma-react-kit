@@ -128,6 +128,7 @@ interface TMASDKContextState {
     user: User | undefined;
     platform: string | undefined;
     avatar: HTMLImageElement | null;
+    setupBackButton: (is_visible: boolean) => void;
 }
 declare const TMASDKContext: react.Context<TMASDKContextState>;
 interface TMASDKProviderProps extends PropsWithChildren {
@@ -145,6 +146,8 @@ declare function useShare(): ({ url, text }: {
     url: string;
     text: string;
 }) => void;
+
+declare function useBackButton(is_visible: boolean): void;
 
 interface TypographyProps extends TypographyProps$1 {
     i18n?: string;
@@ -192,4 +195,4 @@ interface TMAProps extends Omit<TMASDKProviderProps, 'children'>, Omit<TMAProvid
 }
 declare function TMA({ env, background, launchScreen, screens, children, layoutProps, ...appProviderProps }: TMAProps): react_jsx_runtime.JSX.Element;
 
-export { Account, Avatar, TELEGRAM_ENV, TMA, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, Typography, type User, openTelegramLink, openWebLink, useShare, useTMASDK, useTelegramSDK };
+export { Account, Avatar, TELEGRAM_ENV, TMA, TMALayout, type TMALayoutProps, type TMAProps, TMAProvider, type TMAProviderProps, TMASDKContext, type TMASDKContextState, TMASDKProvider, type TMASDKProviderProps, Typography, type User, openTelegramLink, openWebLink, useBackButton, useShare, useTMASDK, useTelegramSDK };

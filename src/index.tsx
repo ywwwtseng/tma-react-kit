@@ -3,6 +3,7 @@ export * from './store/TMAContext';
 
 export * from './hooks/useTelegramSDK';
 export * from './hooks/useShare';
+export * from './hooks/useBackButton';
 
 export * from './components/Typography';
 export * from './components/TMALayout';
