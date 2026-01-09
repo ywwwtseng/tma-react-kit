@@ -505,7 +505,7 @@ var Account = {
 import { useState as useState5 } from "react";
 import {
   StackNavigatorProvider,
-  Navigator
+  StackView
 } from "@ywwwtseng/react-kit";
 
 // src/components/LaunchScreen.tsx
@@ -589,7 +589,7 @@ function TMA({
       ...layoutProps,
       children: [
         /* @__PURE__ */ jsx9(
-          Navigator,
+          StackView,
           {
             drawer: {
               style: {

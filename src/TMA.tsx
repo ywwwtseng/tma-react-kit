@@ -2,7 +2,7 @@ import { type ReactElement, useState } from 'react';
 import {
   StackNavigatorProvider,
   StackNavigatorProviderProps,
-  Navigator,
+  StackView,
 } from '@ywwwtseng/react-kit';
 import { TMASDKProvider, TMASDKProviderProps } from './store/TMASDKContext';
 import { TMAProvider, TMAProviderProps } from './store/TMAContext';
@@ -40,7 +40,7 @@ export function TMA({
             tabBarHeight={layoutProps.tabBarHeight ?? 60}
             {...layoutProps}
           >
-            <Navigator
+            <StackView
               drawer={{
                 style: {
                   paddingTop: layoutProps.headerHeight ?? 56,
