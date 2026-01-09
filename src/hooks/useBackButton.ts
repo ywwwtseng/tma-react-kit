@@ -18,6 +18,10 @@ export function useBackButton(is_visible: boolean) {
       return () => {
         off();
       };
+    } else {
+      if (typeof window !== 'undefined') {
+        (window as any).navigate = navigate;
+      }
     }
   }, [is_visible]);
 }

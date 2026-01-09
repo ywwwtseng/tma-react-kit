@@ -276,6 +276,10 @@ function useBackButton(is_visible) {
       return () => {
         off();
       };
+    } else {
+      if (typeof window !== "undefined") {
+        window.navigate = navigate;
+      }
     }
   }, [is_visible]);
 }
