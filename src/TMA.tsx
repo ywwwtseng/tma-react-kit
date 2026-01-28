@@ -5,8 +5,8 @@ import {
   StackView,
   useIsMounted
 } from '@ywwwtseng/react-kit';
-import { TMASDKProvider, TMASDKProviderProps } from './store/TMASDKContext';
-import { TMAProvider, TMAProviderProps } from './store/TMAContext';
+import { TMASDKProvider, TMASDKProviderProps } from './providers/TMASDKProvider';
+import { TMAProvider, TMAProviderProps } from './providers/TMAProvider';
 import { TMALayout, TMALayoutProps } from './components/TMALayout';
 import { LaunchScreen } from './components/LaunchScreen';
 

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from '@ywwwtseng/react-kit';
 import { isTMA, on } from '@tma.js/bridge';
-import { useTMASDK } from '../store/TMASDKContext';
+import { useTMASDK } from '../providers/TMASDKProvider';
 
 export function useBackButton(is_visible: boolean) {
   const navigate = useNavigate();

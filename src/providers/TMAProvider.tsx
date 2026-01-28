@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { AppProvider, AppProviderProps } from '@ywwwtseng/react-kit';
-import { TMAInitProvider } from './TMAInitContext';
-import { useTMASDK } from './TMASDKContext';
+import { TMAInitProvider } from './TMAInitProvider';
+import { useTMASDK } from './TMASDKProvider';
 
 export interface TMAProviderProps
   extends React.PropsWithChildren,

@@ -1,5 +1,5 @@
-export * from './store/TMASDKContext';
-export * from './store/TMAContext';
+export * from './providers/TMASDKProvider';
+export * from './providers/TMAProvider';
 
 export * from './hooks/useTelegramSDK';
 export * from './hooks/useShare';

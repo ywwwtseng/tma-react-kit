@@ -1,4 +1,4 @@
-// src/store/TMASDKContext.tsx
+// src/providers/TMASDKProvider.tsx
 import {
   useMemo as useMemo2,
   useState,
@@ -71,6 +71,11 @@ var TELEGRAM_ENV = {
 function useTelegramSDK(env) {
   return useMemo(() => {
     if (env) {
+      if (typeof window !== "undefined") {
+        Object.assign(env.launchParams, {
+          tgWebAppStartParam: new URLSearchParams(location.search).get("startapp")
+        });
+      }
       mockTelegramEnv(env);
     }
     if (isTMA()) {
@@ -96,7 +101,7 @@ function useTelegramSDK(env) {
   }, []);
 }
 
-// src/store/TMASDKContext.tsx
+// src/providers/TMASDKProvider.tsx
 import { jsx } from "react/jsx-runtime";
 var TMASDKContext = createContext(void 0);
 function TMASDKProvider({
@@ -148,11 +153,11 @@ function useTMASDK() {
   return context;
 }
 
-// src/store/TMAContext.tsx
+// src/providers/TMAProvider.tsx
 import { useCallback as useCallback2 } from "react";
 import { AppProvider } from "@ywwwtseng/react-kit";
 
-// src/store/TMAInitContext.tsx
+// src/providers/TMAInitProvider.tsx
 import {
   useState as useState2,
   createContext as createContext2,
@@ -188,7 +193,7 @@ function TMAInitProvider({ children }) {
   return /* @__PURE__ */ jsx2(TMAInitContext.Provider, { value, children });
 }
 
-// src/store/TMAContext.tsx
+// src/providers/TMAProvider.tsx
 import { jsx as jsx3 } from "react/jsx-runtime";
 var toasterProps = {
   position: "top-center",

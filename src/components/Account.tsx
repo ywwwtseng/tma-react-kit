@@ -1,5 +1,5 @@
 import { Canvas } from '@ywwwtseng/react-kit';
-import { useTMASDK } from '../store/TMASDKContext';
+import { useTMASDK } from '../providers/TMASDKProvider';
 
 export function Avatar({
   style,

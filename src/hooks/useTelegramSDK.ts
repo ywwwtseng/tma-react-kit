@@ -77,6 +77,12 @@ export function useTelegramSDK(
 ) {
   return useMemo(() => {
     if (env) {
+      if (typeof window !== 'undefined') {
+        Object.assign(env.launchParams as LaunchParamsLike, {
+          tgWebAppStartParam: new URLSearchParams(location.search).get('startapp'),
+        });
+      }
+
       mockTelegramEnv(env);
     }
 

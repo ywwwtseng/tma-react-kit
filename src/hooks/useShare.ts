@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useTMASDK } from '../store/TMASDKContext';
+import { useTMASDK } from '../providers/TMASDKProvider';
 import { openTelegramLink } from '../utils';
 
 export function useShare() {

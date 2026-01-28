@@ -15,7 +15,7 @@ import {
   ScreenType,
   type Tab,
 } from '@ywwwtseng/react-kit';
-import { useTMASDK } from '../store/TMASDKContext';
+import { useTMASDK } from '../providers/TMASDKProvider';
 import { TabBarItem } from './TabBarItem';
 import { Typography } from './Typography';
 

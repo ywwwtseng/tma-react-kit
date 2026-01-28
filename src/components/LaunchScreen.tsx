@@ -1,5 +1,5 @@
 import { type PropsWithChildren, useEffect, useRef, use } from 'react';
-import { TMAInitContext } from '../store/TMAInitContext';
+import { TMAInitContext } from '../providers/TMAInitProvider';
 import { Status } from '../constants';
 
 export interface LaunchScreenProps extends PropsWithChildren {
