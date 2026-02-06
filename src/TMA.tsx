@@ -18,7 +18,6 @@ export interface TMAProps
   launchScreen?: ReactElement;
   layoutProps?: TMALayoutProps;
   onLoaded?: () => void;
-  children?: ReactElement;
 }
 
 export function TMA({
@@ -26,7 +25,6 @@ export function TMA({
   background,
   launchScreen,
   screens,
-  children,
   layoutProps = {},
   onLoaded,
   ...appProviderProps
@@ -53,7 +51,6 @@ export function TMA({
                   } : {},
               }}
             />
-            {children}
             {launchScreen && !loaded && (
               <LaunchScreen
                 onHide={() => {
